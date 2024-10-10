@@ -1,2 +1,2 @@
 # MoonLight-public
-Release soon omg(full skidded client omg)
+Release on November omg(full skidded client omg)
