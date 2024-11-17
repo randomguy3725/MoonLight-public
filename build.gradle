@@ -49,8 +49,21 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal::$lwjglNatives"
     implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives"
 
-    implementation 'org.projectlombok:lombok:1.18.34'
-    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    compileOnly "org.lwjgl:lwjgl"
+    compileOnly "org.lwjgl:lwjgl-glfw"
+    compileOnly "org.lwjgl:lwjgl-nanovg"
+    compileOnly "org.lwjgl:lwjgl-openal"
+    compileOnly "org.lwjgl:lwjgl-opengl"
+    compileOnly "org.lwjgl:lwjgl::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-nanovg::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
+    compileOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+
+    implementation 'org.projectlombok:lombok:1.18.28'
+    annotationProcessor 'org.projectlombok:lombok:1.18.28'
+    compileOnly 'org.projectlombok:lombok:1.18.28'
 
     implementation "net.java.jinput:jinput:2.0.5"
     implementation "com.mojang:icu4j-core-mojang:51.2"
