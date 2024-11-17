@@ -1,0 +1,17 @@
+***************
+*** 108,114 ****
+     }
+  
+     public Iterator<T> iterator() {
+-       return this.field_181745_e.isEmpty()?Iterators.emptyIterator():Iterators.unmodifiableIterator(this.field_181745_e.iterator());
+     }
+  
+     public int size() {
+--- 108,114 ----
+     }
+  
+     public Iterator<T> iterator() {
++       return this.field_181745_e.isEmpty()?Iterators.<T>emptyIterator():Iterators.unmodifiableIterator(this.field_181745_e.iterator());
+     }
+  
+     public int size() {

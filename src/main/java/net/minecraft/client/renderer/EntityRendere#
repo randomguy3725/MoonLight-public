@@ -1,0 +1,17 @@
+***************
+*** 326,332 ****
+                    flag = true;
+                 }
+  
+-                d0 = d0;
+              }
+  
+              if(this.field_78531_r.field_71476_x != null) {
+--- 326,332 ----
+                    flag = true;
+                 }
+  
++ //               d0 = d0;
+              }
+  
+              if(this.field_78531_r.field_71476_x != null) {

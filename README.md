@@ -1,2 +1,4 @@
 # MoonLight-public
-Release on November omg(full skidded client omg)
+(full skidded client omg)
+
+Thanks for the structure(https://github.com/AbyssClient/GradleMCPBase)

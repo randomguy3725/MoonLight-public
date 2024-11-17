@@ -1,0 +1,17 @@
+***************
+*** 43,49 ****
+     }
+  
+     protected <V extends EntityLivingBase, U extends LayerRenderer<V>> boolean func_177094_a(U p_177094_1_) {
+-       return this.field_177097_h.add(p_177094_1_);
+     }
+  
+     protected <V extends EntityLivingBase, U extends LayerRenderer<V>> boolean func_177089_b(U p_177089_1_) {
+--- 43,49 ----
+     }
+  
+     protected <V extends EntityLivingBase, U extends LayerRenderer<V>> boolean func_177094_a(U p_177094_1_) {
++       return this.field_177097_h.add((LayerRenderer<T>)p_177094_1_);
+     }
+  
+     protected <V extends EntityLivingBase, U extends LayerRenderer<V>> boolean func_177089_b(U p_177089_1_) {
