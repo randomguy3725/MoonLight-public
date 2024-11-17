@@ -133,7 +133,6 @@ public class KillAura extends Module {
     public boolean renderBlocking;
     public boolean blinked;
     public boolean lag;
-    public Vec3 prevAimVec;
     public Vec3 aimVec;
     public float yaw;
     public float pitch;
@@ -583,16 +582,6 @@ public class KillAura extends Module {
         AxisAlignedBB boundingBox = entity.getEntityBoundingBox();
         Vec3 preAimVec = entityPos;
 
-        /*double targetMotionX = (entity.posX - entity.lastTickPosX) * 1;
-        double targetMotionY = (entity.posY - entity.lastTickPosY) * 1;
-        double targetMotionZ = (entity.posZ - entity.lastTickPosZ) * 1;
-
-        AxisAlignedBB prevBoundingBox = adjustEntityBoundingBox(entity, targetMotionX, targetMotionY, targetMotionZ);
-        AxisAlignedBB prevBBPlayer = adjustEntityBoundingBox(entity, mc.thePlayer.motionX, mc.thePlayer.motionY, mc.thePlayer.motionZ);
-        var minBB = createTargetEntityAxisAlignedBB(new Vec3(entity.posX, entity.posY, entity.posZ), entity, -0.1);
-        var closestPoint = getPointToCenter(minBB, prevBoundingBox, true);
-        var farthestPoint = getPointToCenter(minBB, prevBBPlayer, false);*/
-
         switch (aimMode.get()) {
             case "Head":
                 preAimVec = entityPos.add(0.0, entity.getEyeHeight(), 0.0);
@@ -657,23 +646,18 @@ public class KillAura extends Module {
 
         if (shake.get() && (MovementUtils.isMoving() || MovementUtils.isMoving(entity))) {
             if (intaveShake.get()) {
-                prevAimVec = aimVec = aimVec.addVector(
+                aimVec = aimVec.addVector(
                         MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.xCoord * 3.141592653589793) * yawShakeRange.get(),
                         MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.yCoord * 3.141592653589793) * pitchShakeRange.get(),
                         MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.zCoord * 3.141592653589793) * yawShakeRange.get()
                 );
             } else {
-                prevAimVec = aimVec = aimVec.addVector(
+                aimVec = aimVec.addVector(
                         MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get()),
                         MathUtils.randomizeDouble(-pitchShakeRange.get(), pitchShakeRange.get()),
                         MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get())
                 );
             }
-        }
-
-        if(smart.get() && stillAiming(new float[]{prevYaw,prevPitch})){
-            aimVec = prevAimVec;
-            return new float[]{prevYaw,prevPitch};
         }
 
         double deltaX = aimVec.xCoord - playerPos.xCoord;
@@ -690,71 +674,6 @@ public class KillAura extends Module {
         }
         return new float[]{prevYaw = yaw, prevPitch = pitch};
     }
-
-    public boolean stillAiming(float[] rotation) {
-        return RotationUtils.rayCast(rotation,rotationRange.get()).typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY;
-    }
-
-    public static Vec3 getPointToCenter(AxisAlignedBB targetBoundingBox, AxisAlignedBB prevBoundingBox, boolean closet) {
-        double prevCenterX = (prevBoundingBox.minX + prevBoundingBox.maxX) / 2;
-        double prevCenterY = (prevBoundingBox.minY + prevBoundingBox.maxY) / 2;
-        double prevCenterZ = (prevBoundingBox.minZ + prevBoundingBox.maxZ) / 2;
-
-        List<Vec3> vertices = new ArrayList<>();
-        vertices.add(new Vec3(targetBoundingBox.minX, targetBoundingBox.minY, targetBoundingBox.minZ));
-        vertices.add(new Vec3(targetBoundingBox.maxX, targetBoundingBox.minY, targetBoundingBox.minZ));
-        vertices.add(new Vec3(targetBoundingBox.minX, targetBoundingBox.maxY, targetBoundingBox.minZ));
-        vertices.add(new Vec3(targetBoundingBox.maxX, targetBoundingBox.maxY, targetBoundingBox.minZ));
-        vertices.add(new Vec3(targetBoundingBox.minX, targetBoundingBox.minY, targetBoundingBox.maxZ));
-        vertices.add(new Vec3(targetBoundingBox.maxX, targetBoundingBox.minY, targetBoundingBox.maxZ));
-        vertices.add(new Vec3(targetBoundingBox.minX, targetBoundingBox.maxY, targetBoundingBox.maxZ));
-        vertices.add(new Vec3(targetBoundingBox.maxX, targetBoundingBox.maxY, targetBoundingBox.maxZ));
-
-        Vec3 closestVertex = vertices.get(0);
-        double distance = closestVertex.distanceTo(new Vec3(prevCenterX, prevCenterY, prevCenterZ));
-
-        for (int i = 1; i < vertices.size(); i++) {
-            Vec3 vertex = vertices.get(i);
-            double newDistance = vertex.distanceTo(new Vec3(prevCenterX, prevCenterY, prevCenterZ));
-            if (closet) {
-                if (newDistance < distance) {
-                    distance = newDistance;
-                    closestVertex = vertex;
-                }
-            } else {
-                if (newDistance > distance) {
-                    distance = newDistance;
-                    closestVertex = vertex;
-                }
-            }
-        }
-        return closestVertex;
-    }
-
-    public AxisAlignedBB adjustEntityBoundingBox(EntityLivingBase entity, double offsetX, double offsetY, double offsetZ) {
-        AxisAlignedBB originalBoundingBox = entity.getEntityBoundingBox();
-        double newMinX = originalBoundingBox.minX + offsetX;
-        double newMinY = originalBoundingBox.minY + offsetY;
-        double newMinZ = originalBoundingBox.minZ + offsetZ;
-        double newMaxX = originalBoundingBox.maxX + offsetX;
-        double newMaxY = originalBoundingBox.maxY + offsetY;
-        double newMaxZ = originalBoundingBox.maxZ + offsetZ;
-        return new AxisAlignedBB(newMinX, newMinY, newMinZ, newMaxX, newMaxY, newMaxZ);
-    }
-
-    public static AxisAlignedBB createTargetEntityAxisAlignedBB(Vec3 vec3, Entity entity, double size) {
-        double width = entity.width;
-        double height = entity.height;
-        double halfWidth = width / 2;
-        double minX = vec3.xCoord - halfWidth - size;
-        double minY = vec3.yCoord;
-        double minZ = vec3.zCoord - halfWidth - size;
-        double maxX = vec3.xCoord + halfWidth + size;
-        double maxY = vec3.yCoord + height;
-        double maxZ = vec3.zCoord + halfWidth + size;
-        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-    }
-
     public static void drawDot(@NotNull Vec3 pos, double size, int color) {
         double d = size / 2;
         AxisAlignedBB bbox = new AxisAlignedBB(pos.xCoord - d, pos.yCoord - d, pos.zCoord - d, pos.xCoord + d, pos.yCoord + d, pos.zCoord + d);
@@ -767,7 +686,7 @@ public class KillAura extends Module {
         alphaAnim.setDirection(Direction.BACKWARDS);
         prevYaw = yaw = -1;
         prevPitch = pitch = -1;
-        prevAimVec = aimVec = null;
+        aimVec = null;
         if (!autoBlock.is("Watchdog"))
             unblock();
     }

@@ -662,11 +662,25 @@ public class Scaffold extends Module {
                     break;
 
                 case "Custom":
-                    rotation = new float[]{mc.thePlayer.rotationYaw + customYaw.get(),getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw + customYaw.get(),previousRotation[1],90)};
+                    raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw + customYaw.get(), getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw + 180,previousRotation[1],90)}, mc.playerController.getBlockReachDistance(), 1);
+                    if (raycast[0] != null) {
+                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                            rayCasted[0] = raycast[0];
+                            rotation = new float[]{mc.thePlayer.rotationYaw + customYaw.get(), getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw + 180,previousRotation[1],90)};
+                        }
+                    }
+
                     break;
 
                 case "Sex":
-                    rotation = new float[]{mc.thePlayer.rotationYaw,getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw,previousRotation[1],100)};
+
+                    raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw,previousRotation[1],100)}, mc.playerController.getBlockReachDistance(), 1);
+                    if (raycast[0] != null) {
+                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                            rayCasted[0] = raycast[0];
+                            rotation = new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(),mc.thePlayer.rotationYaw,previousRotation[1],100)};
+                        }
+                    }
                     break;
             }
 
