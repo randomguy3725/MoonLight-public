@@ -24,7 +24,7 @@ jobs:
         name: Build
         with:
           job-id: jdk17
-          arguments: build --no-build-cache
+          arguments: shadowJar
           gradle-version: wrapper
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
