@@ -1,0 +1,33 @@
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  
+    
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Java setup
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          check-latest: true
+      - uses: burrunan/gradle-cache-action@v1
+        name: Build
+        with:
+          job-id: jdk17
+          arguments: build --no-build-cache
+          gradle-version: wrapper
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: moonlight
+          path: build/libs/MoonLight-1.8.9.jar
