@@ -30,4 +30,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: moonlight
-          path: build/libs/MoonLight-1.8.9.jar
+          path: build/libs/MoonLight-1.8.9-all.jar
