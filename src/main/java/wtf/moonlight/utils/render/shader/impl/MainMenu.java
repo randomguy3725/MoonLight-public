@@ -10,8 +10,8 @@ public class MainMenu implements InstanceAccess {
     public static void draw(long initTime) {
         ScaledResolution sr = new ScaledResolution(mc);
         mainmenu.init();
-        mainmenu.setUniformf("time", (float) (System.currentTimeMillis() - initTime) / 1000);
-        mainmenu.setUniformf("resolution", (float) ((double) sr.getScaledWidth() * sr.getScaleFactor()), (float) ((double) sr.getScaledHeight() * sr.getScaleFactor()));
+        mainmenu.setUniformf("TIME", (float) (System.currentTimeMillis() - initTime) / 1000);
+        mainmenu.setUniformf("RESOLUTION", (float) ((double) sr.getScaledWidth() * sr.getScaleFactor()), (float) ((double) sr.getScaledHeight() * sr.getScaleFactor()));
         ShaderUtils.drawFixedQuads();
         mainmenu.unload();
     }

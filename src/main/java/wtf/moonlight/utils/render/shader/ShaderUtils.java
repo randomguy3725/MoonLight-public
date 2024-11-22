@@ -445,311 +445,194 @@ public class ShaderUtils implements InstanceAccess {
             }""";
 
     private final String mainmenu = """
-            #ifdef GL_ES
-            precision mediump float;
-            #endif
+            uniform float TIME;
+            uniform vec2 RESOLUTION;
+            const float PI = 3.141592654;
+            const float TAU = 3.141592654 * 2;
 
-            // glslsandbox uniforms
-            uniform float time;
-            uniform vec2 resolution;
+            const float gravity = 1.0;
+            const float waterTension = 0.01;
 
-            // shadertoy emulation
-            #define iTime time
-            #define iResolution resolution
+            const vec3 skyCol1 = vec3(0.6, 0.35, 0.3).zyx*0.5;
+            const vec3 skyCol2 = vec3(1.0, 0.3, 0.3).zyx*0.5 ;
+            const vec3 sunCol1 = vec3(1.0,0.5,0.4).zyx;
+            const vec3 sunCol2 = vec3(1.0,0.8,0.8).zyx;
+            const vec3 seaCol1 = vec3(0.1,0.2,0.2)*0.2;
+            const vec3 seaCol2 = vec3(0.2,0.9,0.6)*0.5;
 
-            #define CLOUDS_ON
-
-
-            const float STEPS = 120.0;
-            const float STEPSIZE = 0.05;
-            const float DRAWDIST = STEPS * STEPSIZE;
-
-            const float PI = 3.1415926535897932384626433832795;
-            const float TWOPI = 2.0 * PI;
-
-            const int OCTAVES = 3;
-
-            struct ray
-            {
-            	vec3 o; //origin
-            	vec3 d;	//direction
-            };
-
-            vec3 calcCameraRayDir(float fov, vec2 fragCoord, vec2 resolution)\s
-            {
-            	float fx = tan(radians(fov) / 2.0) / resolution.x;
-            	vec2 d = fx * (fragCoord * 2.0 - resolution);
-            	vec3 rayDir = normalize(vec3(d, 1.0));
-            	return rayDir;
+            // License: Unknown, author: Unknown, found: don't remember
+            float tanh_approx(float x) {
+              //  Found this somewhere on the interwebs
+              //  return tanh(x);
+              float x2 = x*x;
+              return clamp(x*(27.0 + x2)/(27.0+9.0*x2), -1.0, 1.0);
             }
 
-            float hash(vec3 p)
-            {
-                p  = fract( p*0.3183099 + .1 );
-            	p *= 17.0;
-                return fract( p.x*p.y*p.z*(p.x+p.y+p.z) );
+            vec2 wave(in float t, in float a, in float w, in float p) {
+              float x = t;
+              float y = a*sin(t*w + p);
+              return vec2(x, y);
             }
 
-            float rand(float seed)
-            {
-            	return fract(sin(seed) * 1231534.9);
+            vec2 dwave(in float t, in float a, in float w, in float p) {
+              float dx = 1.0;
+              float dy = a*w*cos(t*w + p);
+              return vec2(dx, dy);
             }
 
-            float rand(vec2 seed)\s
-            {\s
-                return rand(dot(seed, vec2(12.9898, 783.233)));
+            vec2 gravityWave(in float t, in float a, in float k, in float h) {
+              float w = sqrt(gravity*k*tanh_approx(k*h));
+              return wave(t, a ,k, w*TIME);
             }
 
-            float noise( in vec3 x )
-            {
-            	x *= 2.0;
-                vec3 p = floor(x);
-                vec3 f = fract(x);
-                f = f*f*(3.0-2.0*f);
-            	
-                return mix(mix(mix( hash(p+vec3(0,0,0)),\s
-                                    hash(p+vec3(1,0,0)),f.x),
-                               mix( hash(p+vec3(0,1,0)),\s
-                                    hash(p+vec3(1,1,0)),f.x),f.y),
-                           mix(mix( hash(p+vec3(0,0,1)),\s
-                                    hash(p+vec3(1,0,1)),f.x),
-                               mix( hash(p+vec3(0,1,1)),\s
-                                    hash(p+vec3(1,1,1)),f.x),f.y),f.z);
+            vec2 capillaryWave(in float t, in float a, in float k, in float h) {
+              float w = sqrt((gravity*k + waterTension*k*k*k)*tanh_approx(k*h));
+              return wave(t, a, k, w*TIME);
             }
 
-            float fbm(vec3 p)
-            {
-            	p *= 1.4;
-            	float f = 0.0;
-            	float weight = 0.5;
-            	for(int i = 0; i < OCTAVES; ++i)
-            	{
-            		f += weight * noise( p );
-            		p.z -= iTime * float(i) * 0.5;
-            		weight *= 0.5;
-            		p *= 2.0;
-            	}
-            	return f;
+            vec2 gravityWaveD(in float t, in float a, in float k, in float h) {
+              float w = sqrt(gravity*k*tanh_approx(k*h));
+              return dwave(t, a, k, w*TIME);
             }
 
-            float density(vec3 p)
-            {
-                p.y += 1.2;
-            	p.y += cos(p.x*1.4) * 0.2;
-            	p.y += cos(p.z)*0.1;
-                p *= 1.2;
-            	p.z += iTime * 0.4;
-            	float noise = fbm(p);
-            	float clouds = noise*1.5 - p.y - 1.3;
-            	return clamp(clouds, 0.0, 1.0);
+            vec2 capillaryWaveD(in float t, in float a, in float k, in float h) {
+              float w = sqrt((gravity*k + waterTension*k*k*k)*tanh_approx(k*h));
+              return dwave(t, a, k, w*TIME);
             }
 
-            vec3 clouds(vec3 p, float d, float l, vec3 bg)
-            {
-            	vec3 lPos = vec3(0,0, DRAWDIST*1.75);
-            	vec3 lDir = lPos - p;
-
-            	float dL = density(p + normalize(lDir) * 0.2);
-            	float dG = clamp(d - dL, 0.0, 1.0);
-            	dG *= 1.0 - smoothstep(2.0,8.0, length(lDir));
-            	dG *= 70.0;
-            	vec3 cL = vec3(0, 0.1, 0.1) + vec3(1.0) * dG;
-            	vec3 cA = mix( vec3(1.0, 1.0, 1.0), vec3(1.0)*0.01, d);
-            	
-            	float a = 0.2;
-            	float t = exp(-a * l);	
-            	return mix(bg, cL * cA, t);
+            void mrot(inout vec2 p, in float a) {
+              float c = cos(a);
+              float s = sin(a);
+              p = vec2(c*p.x + s*p.y, -s*p.x + c*p.y);
             }
 
-            float stars(vec2 uv, float amount, float radius)
-            {
-            	uv = uv * amount;
-            	vec2 gridID = floor(uv);
-            	vec2 starPos = vec2(rand(gridID),rand(gridID+1.0));
-            	starPos = (starPos - 0.5) * 2.0;
-            	starPos = vec2(0.5) + starPos * (0.5 - radius * 2.0);
-            	float stars = distance(fract(uv), starPos);
-            	float size = rand(gridID)*radius;
-            	stars = 1.0 - smoothstep(size, size + radius, stars);
-            	return stars;
+            vec4 sea(in vec2 p, in float ia) {
+              float y = 0.0;
+              vec3 d = vec3(0.0);
+
+              const int maxIter = 8;
+              const int midIter = 4;
+
+              float kk = 1.0/1.3;
+              float aa = 1.0/(kk*kk);
+              float k = 1.0*pow(kk, -float(maxIter) + 1.0);
+              float a = ia*0.25*pow(aa, -float(maxIter) + 1.0);
+
+              float h = 25.0;
+              p *= 0.5;
+             
+              vec2 waveDir = vec2(0.0, 1.0);
+
+              for (int i = midIter; i < maxIter; ++i) {
+                float t = dot(-waveDir, p) + float(i);
+                y += capillaryWave(t, a, k, h).y;
+                vec2 dw = capillaryWaveD(-t, a, k, h);
+               
+                d += vec3(waveDir.x, dw.y, waveDir.y);
+
+                mrot(waveDir, PI/3.0);
+
+                k *= kk;
+                a *= aa;
+              }
+             
+              waveDir = vec2(0.0, 1.0);
+
+              for (int i = 0; i < midIter; ++i) {
+                float t = dot(waveDir, p) + float(i);
+                y += gravityWave(t, a, k, h).y;
+                vec2 dw = gravityWaveD(t, a, k, h);
+               
+                vec2 d2 = vec2(0.0, dw.x);
+               
+                d += vec3(waveDir.x, dw.y, waveDir.y);
+
+                mrot(waveDir, -step(2.0, float(i)));
+
+                k *= kk;
+                a *= aa;
+              }
+
+              vec3 t = normalize(d);
+              vec3 nxz = normalize(vec3(t.z, 0.0, -t.x));
+              vec3 nor = cross(t, nxz);
+
+              return vec4(y, nor);
             }
 
-            float gradient(vec2 uv)
-            {
-            	uv.x *= 0.8;
-            	uv *= 1.0 + sin(iTime*10.0) * 0.01;
-            	float g = clamp(1.0 - length(uv), 0.0, 1.0);
-            	return clamp(g, 0.0, 1.0);
+            vec3 sunDirection() {
+              vec3 dir = normalize(vec3(0, 0.06, 1));
+              return dir;
             }
 
-            float circle(vec2 uv, float r)
-            {
-            	return length(uv)-r;
+            vec3 skyColor(in vec3 rd) {
+              vec3 sunDir = sunDirection();
+              float sunDot = max(dot(rd, sunDir), 0.0);
+              vec3 final = vec3(0.0);
+              final += mix(skyCol1, skyCol2, rd.y);
+              final += 0.5*sunCol1*pow(sunDot, 90.0);
+              final += 4.0*sunCol2*pow(sunDot, 900.0);
+              return final;
             }
 
-            float smin(float a, float b, float k)
-            {
-            	float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
-                return mix( b, a, h ) - k*h*(1.0-h);
+            vec3 render(in vec3 ro, in vec3 rd) {
+              vec3 col = vec3(0.0);
+
+              float dsea = (0.0 - ro.y)/rd.y;
+             
+              vec3 sunDir = sunDirection();
+             
+              vec3 sky = skyColor(rd);
+             
+              if (dsea > 0.0) {
+                vec3 p = ro + dsea*rd;
+                vec4 s = sea(p.xz, 1.0);
+                float h = s.x;   
+                vec3 nor = s.yzw;
+                nor = mix(nor, vec3(0.0, 1.0, 0.0), smoothstep(0.0, 200.0, dsea));
+
+                float fre = clamp(1.0 - dot(-nor,rd), 0.0, 1.0);
+                fre = fre*fre*fre;
+                float dif = mix(0.25, 1.0, max(dot(nor,sunDir), 0.0));
+               
+                vec3 refl = skyColor(reflect(rd, nor));
+                vec3 refr = seaCol1 + dif*sunCol1*seaCol2*0.1;
+               
+                col = mix(refr, 0.9*refl, fre);
+               
+                float atten = max(1.0 - dot(dsea,dsea) * 0.001, 0.0);
+                col += seaCol2*(p.y - h) * 2.0 * atten;
+               
+                col = mix(col, sky, 1.0 - exp(-0.01*dsea));
+               
+              } else {
+                col = sky;
+              }
+             
+              return col;
             }
 
-            vec2 rotate(vec2 p, float angle)
-            {
-            	mat2 mat = mat2(cos(angle),-sin(angle),
-            					sin(angle),cos(angle));
-            	return p * mat;
+            void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+              vec2 q = fragCoord/RESOLUTION.xy;
+              vec2 p = -1.0 + 2.0*q;
+              p.x *= RESOLUTION.x/RESOLUTION.y;
+
+              vec3 ro = vec3(0.0, 10.0, 0.0);
+              vec3 ww = normalize(vec3(0.0, -0.1, 1.0));
+              vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww));
+              vec3 vv = normalize(cross(ww,uu));
+              vec3 rd = normalize(p.x*uu + p.y*vv + 2.5*ww);
+
+              vec3 col = render(ro, rd);
+
+              fragColor = vec4(col,1.0);
             }
-
-            float t(float scale, float k)
-            {
-            	float t = sin(iTime * scale);
-            	t = (t + 1.0)/2.0;
-            	t = mix(t,smoothstep(0.0, 1.0, t),k);
-            	t = (t - 0.5)*2.0;
-            	return t;
-            }
-
-            float ghost1(vec2 uv)
-            {
-            	float time = iTime * 6.0;
-            	float t = t(6.0, 0.5);
-
-            	uv.x += 0.5;
-            	uv = rotate(uv, t*max(0.0, uv.y)*0.2);
-            	uv.y -= 0.4 + sin(time * 2.0) * 0.1 * smoothstep(-0.5, 1.5, uv.y);
-            	vec2 originalUV = uv;
-            		
-            	uv.x *= 1.0 + uv.y;
-            	uv.y += max(0.0, -uv.y*0.8); 	
-            	float body = circle(uv, 0.2);\s
-            	
-            	uv = originalUV;
-            	uv += vec2(-0.2, 0.2);
-            	uv = rotate(uv, -PI/4.0 + t*0.8*uv.x);
-            	uv *= vec2(0.4, 2.0);
-            	float arms = circle(uv, 0.1);
-            	
-            	uv = originalUV;
-            	uv += vec2(0.2, 0.2);
-            	uv = rotate(uv, PI/4.0 + t*0.8*(-uv.x));
-            	uv *= vec2(0.4, 2.0);
-            	arms = min(arms, circle(uv, 0.1));
-            	
-            	uv = originalUV;
-            	uv.x -= 0.01;
-            	uv.y += 0.05;
-            	uv.y *= 1.0 + cos(time*2.0)*0.4;
-            	float mouth = circle(uv, 0.02);
-            	
-            	uv = originalUV;
-            	uv.x -= 0.11;
-            	float eyeR = circle(uv, 0.02);
-            	uv.x += 0.2;
-            	float eyeL = circle(uv, 0.04);
-            	
-            	float d = body;
-            	d = smin(arms,body, 0.1);
-            	d = max(d, -eyeR);
-            	d = max(d, -eyeL);
-            	d = max(d, -mouth);
-            	float threshold = mix(0.04, 0.06, (0.5 +sin(iTime)*0.5));
-            	d = 1.0 - smoothstep(-threshold, threshold, d);	
-            	return d;
-            }
-
-            float ghost2(vec2 uv)
-            {
-            	uv.x -= 0.4;	
-            	uv.y += t(6.0, 0.5)*0.2* smoothstep(-1.0, 0.0, uv.y);
-            	vec2 originalUV = uv;\s
-            	
-            	uv.x *= 1.0 + uv.y*0.4;
-            	uv.y *= mix(0.0, 1.0, smoothstep(-0.1, 0.0, uv.y));
-            	float body = circle(uv, 0.15);
-            	
-            	uv = originalUV;
-            	uv.x -= 0.06;
-            	float eyeR = circle(uv, 0.03);
-            	uv.x += 0.14;
-            	float eyeL = circle(uv, 0.025);
-            	
-            	float d = max(body,-eyeR);
-            	d = max(d, -eyeL);
-            	
-            	float threshold = mix(0.04, 0.06, (0.5 +sin(iTime)*0.5));
-            	d = 1.0 - smoothstep(-threshold, threshold, d);
-            	d *= 0.6;
-            	return d;
-            }
-
-            float ghosts(vec2 uv)
-            {	
-            	float d = ghost1(uv) + ghost2(uv);
-            	return clamp(d, 0.0, 1.0);
-            }
-
-            vec3 tonemapping(vec3 color, float exposure, float gamma)
-            {
-            	color *= exposure/(1. + color / exposure);
-            	color = pow(color, vec3(1. / gamma));
-            	float lum = 0.3*color.r + 0.6*color.g + 0.1*color.b;
-            	color = mix(color, color*color, 1.0 - smoothstep(0.0,0.4,lum));
-            	return color;
-            }
-
-
-            void mainImage( out vec4 fragColor, in vec2 fragCoord )
-            {
-              	vec2 res = vec2(max(iResolution.x, iResolution.y));
-            	vec2 uv = fragCoord.xy / res;
-                uv = (uv-vec2(0.5))*2.0;
-                uv.y += 0.5;
-                uv *= 1.3;
-
-            			
-            	ray r;
-            	r.o = vec3(0.0);
-            	r.d = calcCameraRayDir(60.0,  gl_FragCoord.xy, res);
-            		
-            	float gradient = gradient(uv);
-            	float moon = distance(uv, vec2(0.0,0.1));
-            	moon = 1.0 - smoothstep(0.05, 0.08, moon);
-            	
-            	vec3 bg = mix(vec3(0.0, 0.1, 0.1),vec3(0.1, 0.3, 0.5), min(1.0, gradient*2.0));
-            	bg = mix(bg, vec3(0.6, 0.9, 1.0), (max(0.0, gradient - 0.5)) * 2.0);
-            	bg += vec3(0.8) * moon;
-            	bg += vec3(0.4) * stars(uv,5.0,0.01);
-            	bg += vec3(0.4) * stars(uv, 100.0, 0.04);
-            	bg += vec3(0.4) * ghosts(uv) * (uv.y+1.0)*0.5;
-            	
-            	vec4 sum = vec4(0);	
-            	float t = 0.0;
-            	#ifdef CLOUDS_ON
-            	for(int i = 0; i < int(STEPS); i++)
-            	{
-            		vec3 p = r.o + r.d * t;
-            		float d = density(p);
-            		if(d > 0.01)
-            		{
-            			float a = d * (1.0 - smoothstep(DRAWDIST / 2.0, DRAWDIST, t))*0.4;
-            			vec3 c = clouds(p, d, t, bg);
-            			sum += vec4(c * a, a) * ( 1.0 - sum.a );		
-            			if(sum.a > 0.99) break;
-            		}
-            		t += STEPSIZE;
-            	}	
-            	#endif
-            	vec4 c;
-            	c = vec4(bg, 1.0) * (1.0 - sum.a) + sum;
-            	c.rgb = tonemapping(c.rgb, 1.5,1.2);
-            	fragColor = c;
-            }
-
+            
             void main(void)
             {
-                mainImage(gl_FragColor, gl_FragCoord.xy);
+             mainImage(gl_FragColor, gl_FragCoord.xy);
             }
-                        """;
+            """;
 
     private final String gaussianBlur = """
                     #version 120

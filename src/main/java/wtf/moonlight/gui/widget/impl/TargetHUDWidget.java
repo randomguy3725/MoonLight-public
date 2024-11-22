@@ -20,6 +20,7 @@ import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +71,7 @@ public class TargetHUDWidget extends Widget {
             case "Astolfo" -> Math.max(130, mc.fontRendererObj.getStringWidth(entity.getName()) + 60);
             case "Type 2" -> Math.max(100, mc.fontRendererObj.getStringWidth(entity.getDisplayName().getFormattedText())) + 11;
             case "Exhi" -> Math.max(124.0f, Fonts.interBold.get(17).getStringWidth(entity.getName()) + 54.0f);
+            case "Adjust" -> 130;
             default -> 0;
         };
         return width;
@@ -81,6 +83,7 @@ public class TargetHUDWidget extends Widget {
             case "Astolfo" -> 56;
             case "Type 2" -> 38.0F;
             case "Exhi" -> 38;
+            case "Adjust" -> 35;
             default -> 0;
         };
         return height;
@@ -101,6 +104,7 @@ class TargetHUD implements InstanceAccess {
     private boolean shader;
     private ModeValue style;
     private Interface setting = INSTANCE.getModuleManager().getModule(Interface.class);
+    private final DecimalFormat decimalFormat = new DecimalFormat("0.0");
 
     public TargetHUD(float x, float y, EntityPlayer target, Animation animation, boolean shader, ModeValue style) {
         this.x = x;
@@ -115,7 +119,7 @@ class TargetHUD implements InstanceAccess {
         setWidth(INSTANCE.getWidgetManager().get(TargetHUDWidget.class).getTHUDWidth(target));
         setHeight(INSTANCE.getWidgetManager().get(TargetHUDWidget.class).getTHUDHeight());
         GlStateManager.pushMatrix();
-        if(!style.is("Exhi")) {
+        if (!style.is("Exhi")) {
             GlStateManager.translate(x + width / 2F, y + height / 2F, 0);
             GlStateManager.scale(animation.getOutput(), animation.getOutput(), animation.getOutput());
             GlStateManager.translate(-(x + width / 2F), -(y + height / 2F), 0);
@@ -196,7 +200,7 @@ class TargetHUD implements InstanceAccess {
             }
             break;
 
-            case "Exhi":
+            case "Exhi": {
                 float health = target.getHealth();
                 float totalHealth = health + target.getAbsorptionAmount();
                 float progress = health / target.getMaxHealth();
@@ -213,19 +217,13 @@ class TargetHUD implements InstanceAccess {
                 RenderUtils.drawRect(42.5f, 9.5f, 61.5f, 3.5f, ColorUtils.darker(color.getRGB(), 0.2f));
                 RenderUtils.drawRect(42.5f, 9.5f, 11 + healthLocation, 3.5f, color.getRGB());
 
-                if (target.getAbsorptionAmount() > 0.0f && target.getHealth() > 19.5f) {
-                    RenderUtils.drawRect(97.5f - target.getAbsorptionAmount(), 9.5f, 6.5f, 3.5f, new Color(137, 112, 9).getRGB());
-                } else if (target.getAbsorptionAmount() > 0.0f) {
-                    RenderUtils.drawRect(42.5f + healthLocation + 11, 9.5f, target.getAbsorptionAmount() + 59.5f, 6, new Color(137, 112, 9).getRGB());
-                }
-
-                RenderUtils.drawBorderedRect(42.0f, 9.0f, 61.5f, 4.5f, 0.5f, new Color(0,0,0,0).getRGB(), new Color(0,0,0).getRGB());
+                RenderUtils.drawBorderedRect(42.0f, 9.0f, 61.5f, 4.5f, 0.5f, new Color(0, 0, 0, 0).getRGB(), new Color(0, 0, 0).getRGB());
                 for (int i = 1; i < 10; ++i) {
                     float separator = 5.882353f * i;
-                    RenderUtils.drawRect(43.5f + separator, 9.0f, 0.5f, 4.5f, new Color(0,0,0).getRGB());
+                    RenderUtils.drawRect(43.5f + separator, 9.0f, 0.5f, 4.5f, new Color(0, 0, 0).getRGB());
                 }
                 Fonts.interBold.get(17).drawString(target.getName(), 42.0f, 1f, -1);
-                Fonts.interRegular.get(10,false).drawString("HP: " + (int) totalHealth + " | Dist: " + (int) mc.thePlayer.getDistanceToEntity(target), 42.5f, 15.5f, -1);
+                Fonts.interRegular.get(10, false).drawString("HP: " + (int) totalHealth + " | Dist: " + (int) mc.thePlayer.getDistanceToEntity(target), 42.5f, 15.5f, -1);
                 List<ItemStack> items = new ArrayList<>();
                 if (target.getHeldItem() != null) {
                     items.add(target.getHeldItem());
@@ -239,7 +237,7 @@ class TargetHUD implements InstanceAccess {
                 float i = 0;
 
                 for (ItemStack stack : items) {
-                    RenderUtils.renderItemStack(stack, i + 28 + 16, 19, 1,true,0.5f);
+                    RenderUtils.renderItemStack(stack, i + 28 + 16, 19, 1, true, 0.5f);
                     i += 16;
                 }
 
@@ -247,7 +245,45 @@ class TargetHUD implements InstanceAccess {
                 GlStateManager.translate(73.0f, 102.0f, 40.0f);
                 RenderUtils.drawEntityOnScreen(target.rotationYaw, target.rotationPitch, target);
                 GlStateManager.popMatrix();
-                break;
+            }
+            break;
+
+            case "Adjust": {
+                RenderUtils.drawRect(x, y, width, height, new Color(0, 0, 0, 100).getRGB());
+
+                float padding = 2;
+                float healthX = x + padding;
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float healthWidth = (width - padding * 2) * healthPercentage;
+                target.healthAnimation.animate(healthWidth,25);
+                RenderUtils.drawRect(healthX,y + height - 5,width - padding * 2 ,4,ColorUtils.darker(setting.color(0),0.3f));
+                RenderUtils.drawRect(healthX,y + height - 5,target.healthAnimation.getOutput(),4,setting.color(0));
+                RenderUtils.renderPlayer2D(target,x + padding,y + padding,28 - padding,0,-1);
+
+                String sheesh = decimalFormat.format(Math.abs(mc.thePlayer.getHealth() - target.getHealth()));
+                String healthDiff = mc.thePlayer.getHealth() < target.getHealth() ? "-" + sheesh : "+" + sheesh;
+
+                Fonts.interRegular.get(15).drawString(target.getName(),x + padding + 30,y + 3 + padding,-1);
+                Fonts.interRegular.get(15).drawString(healthDiff,x + width - padding - Fonts.interRegular.get(15).getStringWidth(healthDiff),y + height - 5 * 2 - padding,-1);
+
+                List<ItemStack> items = new ArrayList<>();
+                if (target.getHeldItem() != null) {
+                    items.add(target.getHeldItem());
+                }
+                for (int index = 3; index >= 0; index--) {
+                    ItemStack stack = target.inventory.armorInventory[index];
+                    if (stack != null) {
+                        items.add(stack);
+                    }
+                }
+                float i = x + 30 + padding;
+
+                for (ItemStack stack : items) {
+                    RenderUtils.renderItemStack(stack, i, y + 10 + padding, 1, true, 0.5f);
+                    i += 16;
+                }
+            }
+            break;
         }
         GlStateManager.popMatrix();
     }

@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class ServerUtils {
-    // TODO Auto-generated method stubs
     @Getter
     public static Server server = Server.Unknown;
     private static final Map<String, Long> serverIpPingCache = new HashMap<>();

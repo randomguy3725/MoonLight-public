@@ -32,7 +32,7 @@ public class MenuButton implements Button {
         boolean hovered = MouseUtils.isHovered2(x, y, width, height, mouseX, mouseY);
         hoverAnimation.setDirection(hovered ? Direction.FORWARDS : Direction.BACKWARDS);
         Color rectColor = new Color(0, 0, 0, 128);
-        RoundedUtils.drawRound(x, y, width, height,6, rectColor);
+        RoundedUtils.drawRound(x, y, width, height,8, rectColor);
 
         Fonts.interRegular.get(15).drawCenteredString(text, x + width / 2f, y + Fonts.interRegular.get(15).getMiddleOfBox(height) + 2, -1);
     }

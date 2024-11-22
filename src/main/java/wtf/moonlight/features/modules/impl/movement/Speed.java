@@ -297,8 +297,7 @@ public class Speed extends Module {
                             if (down) event.y -= 1E-5;
 
                             if(strafe8Tick.get() && (mc.thePlayer.offGroundTicks == 1 ||// mc.thePlayer.offGroundTicks >= 3 && mc.thePlayer.offGroundTicks <= 4 ||
-
-                                    mc.thePlayer.offGroundTicks == 3|| mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)){
+                                    mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)){
                                 MovementUtils.strafe();
                                 couldStrafe = true;
                             }

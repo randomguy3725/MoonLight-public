@@ -13,8 +13,8 @@ public class Sky implements InstanceAccess {
     public static void draw(long initTime) {
         ScaledResolution sr = new ScaledResolution(mc);
         sky.init();
-        sky.setUniformf("time", (float) (System.currentTimeMillis() - initTime) / 2000);
-        sky.setUniformf("resolution", (float) ((double) sr.getScaledWidth() * sr.getScaleFactor()), (float) ((double) sr.getScaledHeight() * sr.getScaleFactor()));
+        sky.setUniformf("TIME", (float) (System.currentTimeMillis() - initTime) / 1000);
+        sky.setUniformf("RESOLUTION", (float) ((double) sr.getScaledWidth() * sr.getScaleFactor()), (float) ((double) sr.getScaledHeight() * sr.getScaleFactor()));
         drawHorizon();
         sky.unload();
     }

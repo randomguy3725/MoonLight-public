@@ -119,6 +119,7 @@ public class MoonLight {
                     "Sexy"
                     , TrayIcon.MessageType.WARNING);
         }
+
         loaded = true;
 
     }

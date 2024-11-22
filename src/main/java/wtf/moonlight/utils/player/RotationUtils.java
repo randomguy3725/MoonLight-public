@@ -31,7 +31,7 @@ public class RotationUtils implements InstanceAccess {
     public static float[] currentRotation = null, serverRotation = new float[]{}, previousRotation = null;
     public static MovementCorrection currentCorrection = MovementCorrection.OFF;
     public static RotationSmoother rotationSmoother = RotationSmoother.OFF;
-    private static float maxAcceleration, accelerationError, constantError;
+    private static float maxHAcceleration,maxVAcceleration, accelerationError, constantError;
     private static float hSpeed, vSpeed;
     private static boolean enabled;
     private static boolean smoothlyReset;
@@ -65,9 +65,10 @@ public class RotationUtils implements InstanceAccess {
         fixSprint = true;
     }
 
-    public static void setRotation(float[] rotation, final MovementCorrection correction, float maxAcceleration, float accelerationError, float constantError, boolean smoothlyReset) {
+    public static void setRotation(float[] rotation, final MovementCorrection correction, float maxHAcceleration, float maxVAcceleration, float accelerationError, float constantError, boolean smoothlyReset) {
         rotationSmoother = RotationSmoother.ACCELERATION;
-        RotationUtils.maxAcceleration = maxAcceleration;
+        RotationUtils.maxHAcceleration = maxHAcceleration;
+        RotationUtils.maxVAcceleration = maxVAcceleration;
         RotationUtils.accelerationError = accelerationError;
         RotationUtils.constantError = constantError;
         setCurrentRotation(smooth(serverRotation, rotation));
@@ -283,16 +284,16 @@ public class RotationUtils implements InstanceAccess {
         final float yaw = prevRotation[0] + (float) (Math.round((currentRotation[0] - prevRotation[0]) / gcd) * gcd);
         final float pitch = prevRotation[1] + (float) (Math.round((currentRotation[1] - prevRotation[1]) / gcd) * gcd);
 
-        return new float[]{yaw, MathHelper.clamp_float(pitch, -90, 90)};
+        return new float[]{yaw, pitch};
     }
 
     private static float[] computeTurnSpeed(float prevYawDiff, float prevPitchDiff, float yawDiff, float pitchDiff) {
 
         float yawAccel = getAngleDifference(yawDiff, prevYawDiff);
-        yawAccel = Math.max(-maxAcceleration, Math.min(yawAccel, maxAcceleration));
+        yawAccel = Math.max(-maxHAcceleration, Math.min(yawAccel, maxHAcceleration));
 
         float pitchAccel = getAngleDifference(pitchDiff, prevPitchDiff);
-        pitchAccel = Math.max(-maxAcceleration, Math.min(pitchAccel, maxAcceleration));
+        pitchAccel = Math.max(-maxVAcceleration, Math.min(pitchAccel, maxVAcceleration));
 
         float yawError = yawAccel * errorMult() + constantError();
         float pitchError = pitchAccel * errorMult() + constantError();

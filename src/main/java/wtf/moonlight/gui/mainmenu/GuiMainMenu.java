@@ -11,6 +11,8 @@ import wtf.moonlight.gui.altmanager.GuiAltManager;
 import wtf.moonlight.gui.button.MenuButton;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.render.ColorUtils;
+import wtf.moonlight.utils.render.RoundedUtils;
+import wtf.moonlight.utils.render.shader.impl.Blur;
 import wtf.moonlight.utils.render.shader.impl.MainMenu;
 
 import java.awt.*;
@@ -21,8 +23,8 @@ import java.util.List;
 public class GuiMainMenu extends GuiScreen {
 
     private final List<MenuButton> buttons = List.of(
-            new MenuButton("singleplayer"),
-            new MenuButton("multiplayer"),
+            new MenuButton("single player"),
+            new MenuButton("multi player"),
             new MenuButton("alts manager"),
             new MenuButton("settings"),
             new MenuButton("shutdown"));
@@ -30,11 +32,7 @@ public class GuiMainMenu extends GuiScreen {
     private final List<ChangeLog> logs = new ArrayList<>();
 
     public GuiMainMenu() {
-        logs.add(new ChangeLog("sdgvasdfgbased", ChangeLogType.ADDITION));
-        logs.add(new ChangeLog("xvxdvscdfe", ChangeLogType.IMPROVEMENT));
-        logs.add(new ChangeLog("sdvsadsdvsd", ChangeLogType.REMOVAL));
-        logs.add(new ChangeLog("xvxdvscdfe", ChangeLogType.FIX));
-        logs.add(new ChangeLog("xvxdvscdfe", ChangeLogType.OTHER));
+        logs.add(new ChangeLog("Released", ChangeLogType.ADDITION));
     }
 
     @Override
@@ -46,12 +44,18 @@ public class GuiMainMenu extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         MainMenu.draw(MoonLight.INSTANCE.getStartTimeLong());
 
-        float buttonWidth = 160;
-        float buttonHeight = 20;
+        float buttonWidth = 140;
+        float buttonHeight = 25;
 
         int count = 20;
 
-        Fonts.interBold.get(35).drawCenteredString(MoonLight.INSTANCE.getClientName(), (width / 2f - buttonWidth / 2f) + buttonWidth / 2, (height / 2f) + count - (buttons.size() * buttonHeight) / 2f, ColorUtils.colorSwitch(Color.WHITE, Color.WHITE.darker().darker(), 2000.0F, 0, 75L, 1).getRGB());
+        RoundedUtils.drawRound(width / 2f - buttonWidth / 2f - 20,(height / 2f) - 60,buttonWidth + 20 * 2,200,10,new Color(0,0,0,64));
+
+        Blur.startBlur();
+        RoundedUtils.drawRound(width / 2f - buttonWidth / 2f - 20,(height / 2f) - 60,buttonWidth + 20 * 2,200,10,new Color(0,0,0,64));
+        Blur.endBlur(10,3);
+
+        Fonts.interBold.get(35).drawCenteredString(MoonLight.INSTANCE.getClientName(), (width / 2f - buttonWidth / 2f) + buttonWidth / 2, (height / 2f) + count - (buttons.size() * buttonHeight) / 2f, -1);
         Fonts.interMedium.get(14).drawStringWithShadow("Welcome back," + EnumChatFormatting.AQUA + MoonLight.INSTANCE.getDiscordRP().getName(), width - (2 + Fonts.interMedium.get(14).getStringWidth("Welcome back," + MoonLight.INSTANCE.getDiscordRP().getName())), height - (2 + Fonts.interMedium.get(14).getHeight()), -1);
 
         for (MenuButton button : buttons) {
@@ -61,8 +65,8 @@ public class GuiMainMenu extends GuiScreen {
             button.height = buttonHeight;
             button.clickAction = () -> {
                 switch (button.text) {
-                    case "singleplayer" -> mc.displayGuiScreen(new GuiSelectWorld(this));
-                    case "multiplayer" -> mc.displayGuiScreen(new GuiMultiplayer(this));
+                    case "single player" -> mc.displayGuiScreen(new GuiSelectWorld(this));
+                    case "multi player" -> mc.displayGuiScreen(new GuiMultiplayer(this));
                     case "alts manager" -> mc.displayGuiScreen(new GuiAltManager(this));
                     case "settings" -> mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings));
                     case "shutdown" -> mc.shutdown();
@@ -72,16 +76,15 @@ public class GuiMainMenu extends GuiScreen {
             count += (int) (buttonHeight + 3);
         }
 
-        int var = 0;
+        int i = 0;
 
         for (ChangeLog changeLog : logs) {
-
             if (changeLog != null) {
                 if (changeLog.getLog() != null) {
-                    Fonts.interBold.get(16).drawStringWithShadow("ChangeLog:", 1.5f, 1.5f, -1);
-                    Fonts.interBold.get(14).drawStringWithShadow(changeLog.type.character + changeLog.getLog(), 1.5, var * (Fonts.interBold.get(16).getHeight()) + Fonts.interBold.get(16).getHeight() + 2, changeLog.type.stringColor);
+                    Fonts.interBold.get(20).drawStringWithShadow("ChangeLog:", 5, 5, -1);
+                    Fonts.interBold.get(15).drawStringWithShadow(changeLog.type.character + changeLog.getLog(), 5, i * (Fonts.interBold.get(20).getHeight()) + Fonts.interBold.get(20).getHeight() + 2, changeLog.type.stringColor);
                 }
-                var++;
+                i++;
             }
         }
 

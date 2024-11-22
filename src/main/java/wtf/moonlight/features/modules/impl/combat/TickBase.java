@@ -15,7 +15,7 @@ import wtf.moonlight.utils.player.PlayerUtils;
 
 @ModuleInfo(name = "TickBase", category = ModuleCategory.Combat)
 public class TickBase extends Module {
-    public final SliderValue maxBalance = new SliderValue("Max Balance", 100L, 0L, 5000L, this);
+    public final SliderValue maxBalance = new SliderValue("Max Balance", 200, 0L, 5000,50, this);
     public final SliderValue delay = new SliderValue("Delay", 300L, 0L, 1000L, this);
     public final SliderValue range = new SliderValue("Range", 3f, 0.1f, 7f, 0.1f, this);
     private long shifted, previousTime;

@@ -19,6 +19,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 public class PotionHUDWidget extends Widget {
@@ -37,7 +38,6 @@ public class PotionHUDWidget extends Widget {
 
     private final ContinualAnimation widthAnimation = new ContinualAnimation();
     private final ContinualAnimation heightAnimation = new ContinualAnimation();
-    private float animation;
 
     @Override
     public void render() {
@@ -72,54 +72,109 @@ public class PotionHUDWidget extends Widget {
         }
 
         if(setting.potionHudMode.is("Nursultan")){
+
+            int maxWidth = calculateMaxPotionWidth();
+            int offset = calculatePotionOffset();
+
+            heightAnimation.animate(offset,200);
+            widthAnimation.animate(maxWidth,200);
+
+            width = (maxWidth);
+            height = (8 + offset);
+
             float posX = renderX;
             float posY = renderY;
-            float textPosX = posX + 7.5F;
-            float textPosY = posY + 11.5F;
-            String name = "Active potions";
-            RoundedUtils.drawRound(posX, posY + 1.0F, this.animation, 15.5F, 3.0F, new Color(setting.bgColor(),true));
-            Fonts.interRegular.get(14).drawString("Active potions", posX + 19.0F, posY + 7.0F + 0.5F, -1);
-            Fonts.nursultan.get(16).drawString("E", textPosX - 2.8F, textPosY - 3.8F, setting.color());
-            posY += 18.5F;
-            float maxWidth = Fonts.interRegular.get(13).getStringWidth(name) + 10.0F;
-            float localHeight = 16.5F;
-            posY += 0.4F;
 
-            for(Iterator<PotionEffect> var14 = mc.thePlayer.getActivePotionEffects().iterator(); var14.hasNext(); localHeight += 13.5F) {
+            RoundedUtils.drawRound(posX + 1.3F, posY + 4.5F, widthAnimation.getOutput(), 13F, 2.5F,new Color(setting.bgColor(0)));
+            RenderUtils.drawRect(posX + 16F, 5.5F + 1f, 0.7F, 9.0F, new Color(75, 75, 75).getRGB());
 
-                PotionEffect ef = var14.next();
-                int amp = ef.getAmplifier();
-                String ampStr = "";
-                String var24;
-                if (amp >= 1 && amp <= 9) {
-                    var24 = "enchantment.level." + (amp + 1);
-                    ampStr = " " + I18n.format(var24);
+            Fonts.nursultan.get(16).drawString("E", posX + 5F, posY + 10F, Color.WHITE.getRGB());
+
+            Fonts.interRegular.get(15).drawString("Active Potions", posX + 19F, posY + 8F + 1f, Color.WHITE.getRGB());
+
+            List<PotionEffect> activeEffects = new ArrayList<>(mc.thePlayer.getActivePotionEffects());
+
+            int itemOffset = 0;
+            for (PotionEffect effect : activeEffects) {
+                Potion potion = Potion.potionTypes[effect.getPotionID()];
+                String potionName = I18n.format(Potion.potionTypes[potion.getId()].getName());
+                String durationText = Potion.getDurationString(effect);
+                int amplifier = effect.getAmplifier();
+                String potionNameWithLevel = amplifier > 0 ? potionName + " " + (amplifier + 1) : potionName;
+
+                float xPos = posX + 1.3F;
+                float yPos = posY + 20 + itemOffset;
+                float width = widthAnimation.getOutput() - 5f;
+                float height = 9F;
+                float radius = 2.5F;
+
+                RoundedUtils.drawRound(xPos, yPos, width + 5, height, radius,new Color(setting.bgColor(0)));
+
+                float nameX = posX + 5.5f;
+                float nameY = posY + 23.5f + itemOffset;
+                Fonts.interSemiBold.get(13).drawString(potionNameWithLevel, nameX - 2, nameY, Color.WHITE.getRGB());
+
+                float durationX = posX + maxWidth - 35;
+                Fonts.interSemiBold.get(13).drawString(durationText, durationX + 6, nameY, Color.WHITE.getRGB());
+
+                RenderUtils.drawRect(durationX + 24f, posY + 22f + itemOffset, 0.7F, 5F, new Color(75, 75, 75).getRGB());
+
+                if (potion.hasStatusIcon()) {
+                    int iconIndex = potion.getStatusIconIndex();
+                    float u = iconIndex % 8 * 18;
+                    float v = 198 + (float) iconIndex / 8 * 18;
+
+                    GL11.glEnable(GL11.GL_BLEND);
+                    GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+                    GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
+                    mc.getTextureManager().bindTexture(GuiContainer.inventoryBackground);
+
+                    Gui.drawScaledCustomSizeModalRect(
+                            (int) (durationX + 27),
+                            (int) (posY + 21 + itemOffset),
+                            u, v,
+                            18, 18,
+                            8, 8,
+                            256, 256);
+
+                    GL11.glDisable(GL11.GL_BLEND);
                 }
 
-                var24 = I18n.format(ef.getEffectName());
-                String nameText = var24 + ampStr;
-                float nameWidth = Fonts.interRegular.get(13).getStringWidth(nameText);
-                String bindText = Potion.getDurationString(ef);
-                float bindWidth = Fonts.interRegular.get(13).getStringWidth(bindText);
-                float localWidth = nameWidth + bindWidth + 15.0F;
-                RoundedUtils.drawRound(posX, posY, this.animation, 11.0F, 2.5F, new Color(setting.bgColor(),true));
-                Fonts.interRegular.get(13).drawString(nameText, posX + 3.4F, posY + 4.5F, -1);
-                Fonts.interRegular.get(13).drawString(bindText, posX + this.animation - 4.0F - bindWidth, posY + 4.5F, -1);
-                if (localWidth > maxWidth) {
-                    maxWidth = localWidth;
-                }
-
-                posY += 13.3F;
+                itemOffset += 12;
             }
-
-            this.animation = Math.max(maxWidth, 80.0F);
-            height = localHeight + 2.5F;
-            width = (this.animation);
         }
     }
 
     @Override
     public boolean shouldRender() {
         return setting.isEnabled() && setting.elements.isEnabled("Potion HUD") && !setting.potionHudMode.is("Exhi");
+    }
+
+    private int calculateMaxPotionWidth() {
+        List<PotionEffect> activeEffects = new ArrayList<>(mc.thePlayer.getActivePotionEffects());
+        int maxWidth = 80;
+
+        for (PotionEffect effect : activeEffects) {
+            Potion potion = Potion.potionTypes[effect.getPotionID()];
+            String potionName = I18n.format(Potion.potionTypes[potion.getId()].getName());
+            int amplifier = effect.getAmplifier();
+            String potionNameWithLevel = amplifier > 0 ? potionName + " " + (amplifier + 1) : potionName;
+
+            float nameWidth = Fonts.interSemiBold.get(13).getStringWidth(potionNameWithLevel);
+            float iconWidth = 16;
+            float totalWidth = nameWidth + iconWidth + 30;
+
+            if (totalWidth > maxWidth) {
+                maxWidth = (int) totalWidth;
+            }
+        }
+
+        return maxWidth;
+    }
+
+    private int calculatePotionOffset() {
+        List<PotionEffect> activeEffects = new ArrayList<>(mc.thePlayer.getActivePotionEffects());
+        return activeEffects.isEmpty() ? -1 : activeEffects.size() * 12;
     }
 }

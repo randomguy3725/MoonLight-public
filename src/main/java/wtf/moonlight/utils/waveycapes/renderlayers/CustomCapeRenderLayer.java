@@ -62,15 +62,7 @@ public class CustomCapeRenderLayer implements LayerRenderer<AbstractClientPlayer
             if (Config.capeStyle == CapeStyle.SMOOTH) {
                 if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
                     if (MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get()) {
-                        if (MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).waveyTest.get()) {
-                            cape.init();
-                            cape.setUniformf("time", (float) (System.currentTimeMillis() - MoonLight.INSTANCE.getStartTimeLong()) / 2000);
-                            cape.setUniformf("resolution", (float) Display.getWidth(), (float) Display.getHeight());
-
                             smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
-
-                            cape.unload();
-                        }
                     } else {
                         smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
                     }

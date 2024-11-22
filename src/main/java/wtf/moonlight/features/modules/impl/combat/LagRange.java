@@ -43,7 +43,7 @@ public class LagRange extends Module {
 
         target = PlayerUtils.getTarget(maxRange.get() + 1);
 
-        if(target != null && MathUtils.inBetween(minRange.get(),maxRange.get(),PlayerUtils.getDistanceToEntityBox(target))) {
+        if(target != null && MathUtils.inBetween(minRange.get(),maxRange.get(),PlayerUtils.getDistanceToEntityBox(target)) && mc.thePlayer.canEntityBeSeen(target)) {
             if (ever.hasTimeElapsed(everyMS.get())) {
                 blinking = true;
             }

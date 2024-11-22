@@ -347,7 +347,7 @@ public class ItemRenderer
                     this.renderItemMap(abstractclientplayer, f2, f, f1);
                 }
 
-                else if (abstractclientplayer.getItemInUseCount() > 0 || (aura.isHoldingSword() &&(aura.forceDisplayBlocking.get() && aura.renderBlocking || !aura.forceDisplayBlocking.get() && aura.isBlocking)))
+                else if (abstractclientplayer.getItemInUseCount() > 0 || (aura.isHoldingSword() &&(aura.forceDisplayBlocking.get() && aura.renderBlocking || !aura.forceDisplayBlocking.get() && aura.isBlocking || animations.getBlockWhenSwing().get() && mc.thePlayer.isSwingInProgress)))
                 {
                     EnumAction enumaction = this.itemToRender.getItemUseAction();
 

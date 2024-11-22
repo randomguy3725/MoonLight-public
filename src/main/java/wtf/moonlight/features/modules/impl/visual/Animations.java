@@ -14,6 +14,7 @@ public class Animations extends Module {
 
     private final BoolValue old = new BoolValue("Old", false, this);
     private final ModeValue type = new ModeValue("Block Anim", new String[]{"Swank", "Swing", "Swang", "Swong", "Swaing", "Punch", "Push", "Stella", "Styles", "Slide", "Interia", "Ethereal", "1.7", "Sigma", "Exhibition", "Old Exhibition", "Smooth"}, "1.7", this, () -> !old.get());
+    private final BoolValue blockWhenSwing = new BoolValue("Block When Swing", false, this);
     private final ModeValue hit = new ModeValue("Hit", new String[]{"Vanilla", "Smooth"}, "Vanilla", this, () -> !old.get());
     private final SliderValue slowdown = new SliderValue("Slow Down", 0, -5, 15, 1, this);
     private final SliderValue downscaleFactor = new SliderValue("Scale", 0f, 0.0f, 0.5f, .1f, this);
