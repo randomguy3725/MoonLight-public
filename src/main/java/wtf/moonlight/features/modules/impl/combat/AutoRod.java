@@ -34,6 +34,7 @@ public class AutoRod extends Module {
     private final SliderValue range = new SliderValue("Range", 8F, 1F, 20F, 1, this);
     private final SliderValue delay = new SliderValue("Delay", 100, 0, 2000, 25, this);
     private final SliderValue switchBackDelay = new SliderValue("Switch Back Delay", 500, 50, 2000, 25, this);
+    private final SliderValue predictSize = new SliderValue("Predict Size", 2, 0.1f, 5, 0.1f, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final ModeValue calcRotSpeedMode = new ModeValue("Calculate Rotate Speed Mode", new String[]{"Linear", "Acceleration"}, "Linear", this, customRotationSetting::get);
     private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, () -> calcRotSpeedMode.is("Linear") && customRotationSetting.get());
@@ -147,15 +148,7 @@ public class AutoRod extends Module {
 
     private void rotate(){
 
-        double multiplier = (double)this.mc.thePlayer.getDistanceToEntity(this.target) / 1.25;
-        double deltaX = (this.target.posX - this.target.lastTickPosX) * multiplier;
-        double deltaZ = (this.target.posZ - this.target.lastTickPosZ) * multiplier;
-        double targetPosX = this.target.posX + deltaX;
-        double targetPosZ = this.target.posZ + deltaZ;
-        double targetPosY = this.target.posY + (double)this.target.getEyeHeight() - 0.4;
-        final float[] finalRotation = RotationUtils.getRotations(targetPosX,targetPosY,targetPosZ);
-
-        //float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get());
+        float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get());
 
         if (customRotationSetting.get()) {
             switch (calcRotSpeedMode.get()) {

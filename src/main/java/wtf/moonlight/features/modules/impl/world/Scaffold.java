@@ -560,12 +560,12 @@ public class Scaffold extends Module {
                     break;
 
                 case "Normal 2":
-                    raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotationToBlock(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
+                    raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
                     if (raycast[0] != null) {
                         if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                             if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
                                 rayCasted[0] = raycast[0];
-                                rotation = RotationUtils.getRotationToBlock(getVec3(data));
+                                rotation = RotationUtils.getRotations(getVec3(data));
                             }
                         }
                     }
@@ -622,7 +622,7 @@ public class Scaffold extends Module {
                         if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                             if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) {
                                 rayCasted[0] = raycast[0];
-                                this.rotation = RotationUtils.getRotationToBlock(getVec3(data));
+                                this.rotation = RotationUtils.getRotations(getVec3(data));
                             }
                         }
                     }
@@ -631,12 +631,12 @@ public class Scaffold extends Module {
                 case "Normal 4":
                     Vec3 hitVec = new Vec3(data.position.offset(data.facing)).addVector(0.5, 0.5, 0.5).add(data.facing.getOpposite().getDirectionVec().multiply(0.5));
 
-                    raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotationToBlock(hitVec), mc.playerController.getBlockReachDistance(), 1);
+                    raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(hitVec), mc.playerController.getBlockReachDistance(), 1);
                     if (raycast[0] != null) {
                         if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                             if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
                                 rayCasted[0] = raycast[0];
-                                rotation = RotationUtils.getRotationToBlock(hitVec);
+                                rotation = RotationUtils.getRotations(hitVec);
                             }
                         }
                     }
@@ -706,12 +706,12 @@ public class Scaffold extends Module {
             }
 
             if (clutching) {
-                raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotationToBlock(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
+                raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
                 if (raycast[0] != null) {
                     if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                         if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) {
                             rayCasted[0] = raycast[0];
-                            rotation = RotationUtils.getRotationToBlock(getVec3(data));
+                            rotation = RotationUtils.getRotations(getVec3(data));
                         }
                     }
                 }
@@ -724,12 +724,12 @@ public class Scaffold extends Module {
             }
 
         } else {
-            raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotationToBlock(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
+            raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
             if (raycast[0] != null) {
                 if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) {
                         rayCasted[0] = raycast[0];
-                        rotation = RotationUtils.getRotationToBlock(getVec3(data));
+                        rotation = RotationUtils.getRotations(getVec3(data));
                     }
                 }
             }

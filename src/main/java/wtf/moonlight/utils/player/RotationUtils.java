@@ -377,25 +377,6 @@ public class RotationUtils implements InstanceAccess {
         return mc.theWorld.rayTraceBlocks(vec3, vec32, false, false, true);
     }
 
-    public static float[] getRotations(Vec3 vec) {
-        return getRotations(vec.xCoord, vec.yCoord, vec.zCoord);
-    }
-    public static float[] getRotations(double x, double y, double z) {
-        final Vec3 lookVec = mc.thePlayer.getPositionEyes(1.0f);
-        final double dx = lookVec.xCoord - x;
-        final double dy = lookVec.yCoord - y;
-        final double dz = lookVec.zCoord - z;
-
-        final double dist = hypot(dx, dz);
-        final double yaw = Math.toDegrees(Math.atan2(dz, dx)) - 90;
-        final double pitch = Math.toDegrees(Math.atan2(dy, dist));
-
-        return new float[]{
-                (float) yaw,
-                (float) pitch
-        };
-    }
-
     public static float[] getRotations(BlockPos blockPos, EnumFacing enumFacing) {
         return getRotations(blockPos, enumFacing, 0.25, 0.25);
     }
@@ -410,10 +391,14 @@ public class RotationUtils implements InstanceAccess {
         return new float[]{MathHelper.wrapAngleTo180_float(f), f2};
     }
 
-    public static float[] getRotationToBlock(Vec3 pos) {
-        double d0 = pos.xCoord - mc.thePlayer.getPositionEyes(1).xCoord;
-        double d1 = pos.yCoord - mc.thePlayer.getPositionEyes(1).yCoord;
-        double d2 = pos.zCoord - mc.thePlayer.getPositionEyes(1).zCoord;
+    public static float[] getRotations(Vec3 pos) {
+        return getRotations(pos.xCoord,pos.yCoord, pos.zCoord);
+    }
+
+    public static float[] getRotations(double x,double y,double z) {
+        double d0 = x - mc.thePlayer.getPositionEyes(1).xCoord;
+        double d1 = y - mc.thePlayer.getPositionEyes(1).yCoord;
+        double d2 = z - mc.thePlayer.getPositionEyes(1).zCoord;
         double d3 = MathHelper.sqrt_double((float) (d0 * d0 + d2 * d2));
         float yaw = (float) (MathHelper.atan2(d2, d0) * 180.0D / Math.PI) - 90.0F;
         float pitch = (float) (-(MathHelper.atan2(d1, d3) * 180.0D / Math.PI));
@@ -527,7 +512,7 @@ public class RotationUtils implements InstanceAccess {
                 d1 = objectMouseOver.hitVec.distanceTo(vec3);
             }
 
-            final Vec3 vec31 = mc.thePlayer.getVectorForRotation(rotation[1], rotation[0]);
+            final Vec3 vec31 = mc.thePlayer.getLookCustom(rotation[0], rotation[1]);
             final Vec3 vec32 = vec3.addVector(vec31.xCoord * range, vec31.yCoord * range, vec31.zCoord * range);
             Entity pointedEntity = null;
             Vec3 vec33 = null;
