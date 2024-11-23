@@ -103,6 +103,7 @@ public class ModuleManager {
                 FireFlies.class,
                 FreeLook.class,
                 FullBright.class,
+                GlowESP.class,
                 Hat.class,
                 HitBubbles.class,
                 Indicators.class,

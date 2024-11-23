@@ -56,6 +56,9 @@ public class ShaderUtils implements InstanceAccess {
                 case "cape":
                     fragmentShaderID = createShader(new ByteArrayInputStream(cape.getBytes()), GL_FRAGMENT_SHADER);
                     break;
+                case "esp":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(esp.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
                 default:
                     fragmentShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream(), GL_FRAGMENT_SHADER);
                     break;
@@ -324,69 +327,69 @@ public class ShaderUtils implements InstanceAccess {
             }
             """;
     private final String kawaseUpBloom = """
-                    #version 120
+            #version 120
 
-                    uniform sampler2D inTexture, textureToCheck;
-                    uniform vec2 halfpixel, offset, iResolution;
-                    uniform int check;
+            uniform sampler2D inTexture, textureToCheck;
+            uniform vec2 halfpixel, offset, iResolution;
+            uniform int check;
 
-                    void main() {
-                      //  if(check && texture2D(textureToCheck, gl_TexCoord[0].st).a > 0.0) discard;
-                        vec2 uv = vec2(gl_FragCoord.xy / iResolution);
+            void main() {
+              //  if(check && texture2D(textureToCheck, gl_TexCoord[0].st).a > 0.0) discard;
+                vec2 uv = vec2(gl_FragCoord.xy / iResolution);
 
-                        vec4 sum = texture2D(inTexture, uv + vec2(-halfpixel.x * 2.0, 0.0) * offset);
-                        sum.rgb *= sum.a;
-                        vec4 smpl1 =  texture2D(inTexture, uv + vec2(-halfpixel.x, halfpixel.y) * offset);
-                        smpl1.rgb *= smpl1.a;
-                        sum += smpl1 * 2.0;
-                        vec4 smp2 = texture2D(inTexture, uv + vec2(0.0, halfpixel.y * 2.0) * offset);
-                        smp2.rgb *= smp2.a;
-                        sum += smp2;
-                        vec4 smp3 = texture2D(inTexture, uv + vec2(halfpixel.x, halfpixel.y) * offset);
-                        smp3.rgb *= smp3.a;
-                        sum += smp3 * 2.0;
-                        vec4 smp4 = texture2D(inTexture, uv + vec2(halfpixel.x * 2.0, 0.0) * offset);
-                        smp4.rgb *= smp4.a;
-                        sum += smp4;
-                        vec4 smp5 = texture2D(inTexture, uv + vec2(halfpixel.x, -halfpixel.y) * offset);
-                        smp5.rgb *= smp5.a;
-                        sum += smp5 * 2.0;
-                        vec4 smp6 = texture2D(inTexture, uv + vec2(0.0, -halfpixel.y * 2.0) * offset);
-                        smp6.rgb *= smp6.a;
-                        sum += smp6;
-                        vec4 smp7 = texture2D(inTexture, uv + vec2(-halfpixel.x, -halfpixel.y) * offset);
-                        smp7.rgb *= smp7.a;
-                        sum += smp7 * 2.0;
-                        vec4 result = sum / 12.0;
-                        gl_FragColor = vec4(result.rgb / result.a, mix(result.a, result.a * (1.0 - texture2D(textureToCheck, gl_TexCoord[0].st).a),check));
-                    }""";
+                vec4 sum = texture2D(inTexture, uv + vec2(-halfpixel.x * 2.0, 0.0) * offset);
+                sum.rgb *= sum.a;
+                vec4 smpl1 =  texture2D(inTexture, uv + vec2(-halfpixel.x, halfpixel.y) * offset);
+                smpl1.rgb *= smpl1.a;
+                sum += smpl1 * 2.0;
+                vec4 smp2 = texture2D(inTexture, uv + vec2(0.0, halfpixel.y * 2.0) * offset);
+                smp2.rgb *= smp2.a;
+                sum += smp2;
+                vec4 smp3 = texture2D(inTexture, uv + vec2(halfpixel.x, halfpixel.y) * offset);
+                smp3.rgb *= smp3.a;
+                sum += smp3 * 2.0;
+                vec4 smp4 = texture2D(inTexture, uv + vec2(halfpixel.x * 2.0, 0.0) * offset);
+                smp4.rgb *= smp4.a;
+                sum += smp4;
+                vec4 smp5 = texture2D(inTexture, uv + vec2(halfpixel.x, -halfpixel.y) * offset);
+                smp5.rgb *= smp5.a;
+                sum += smp5 * 2.0;
+                vec4 smp6 = texture2D(inTexture, uv + vec2(0.0, -halfpixel.y * 2.0) * offset);
+                smp6.rgb *= smp6.a;
+                sum += smp6;
+                vec4 smp7 = texture2D(inTexture, uv + vec2(-halfpixel.x, -halfpixel.y) * offset);
+                smp7.rgb *= smp7.a;
+                sum += smp7 * 2.0;
+                vec4 result = sum / 12.0;
+                gl_FragColor = vec4(result.rgb / result.a, mix(result.a, result.a * (1.0 - texture2D(textureToCheck, gl_TexCoord[0].st).a),check));
+            }""";
 
     private final String kawaseDownBloom = """
-                    #version 120
+            #version 120
 
-                    uniform sampler2D inTexture;
-                    uniform vec2 offset, halfpixel, iResolution;
+            uniform sampler2D inTexture;
+            uniform vec2 offset, halfpixel, iResolution;
 
-                    void main() {
-                        vec2 uv = vec2(gl_FragCoord.xy / iResolution);
-                        vec4 sum = texture2D(inTexture, gl_TexCoord[0].st);
-                        sum.rgb *= sum.a;
-                        sum *= 4.0;
-                        vec4 smp1 = texture2D(inTexture, uv - halfpixel.xy * offset);
-                        smp1.rgb *= smp1.a;
-                        sum += smp1;
-                        vec4 smp2 = texture2D(inTexture, uv + halfpixel.xy * offset);
-                        smp2.rgb *= smp2.a;
-                        sum += smp2;
-                        vec4 smp3 = texture2D(inTexture, uv + vec2(halfpixel.x, -halfpixel.y) * offset);
-                        smp3.rgb *= smp3.a;
-                        sum += smp3;
-                        vec4 smp4 = texture2D(inTexture, uv - vec2(halfpixel.x, -halfpixel.y) * offset);
-                        smp4.rgb *= smp4.a;
-                        sum += smp4;
-                        vec4 result = sum / 8.0;
-                        gl_FragColor = vec4(result.rgb / result.a, result.a);
-                    }""";
+            void main() {
+                vec2 uv = vec2(gl_FragCoord.xy / iResolution);
+                vec4 sum = texture2D(inTexture, gl_TexCoord[0].st);
+                sum.rgb *= sum.a;
+                sum *= 4.0;
+                vec4 smp1 = texture2D(inTexture, uv - halfpixel.xy * offset);
+                smp1.rgb *= smp1.a;
+                sum += smp1;
+                vec4 smp2 = texture2D(inTexture, uv + halfpixel.xy * offset);
+                smp2.rgb *= smp2.a;
+                sum += smp2;
+                vec4 smp3 = texture2D(inTexture, uv + vec2(halfpixel.x, -halfpixel.y) * offset);
+                smp3.rgb *= smp3.a;
+                sum += smp3;
+                vec4 smp4 = texture2D(inTexture, uv - vec2(halfpixel.x, -halfpixel.y) * offset);
+                smp4.rgb *= smp4.a;
+                sum += smp4;
+                vec4 result = sum / 8.0;
+                gl_FragColor = vec4(result.rgb / result.a, result.a);
+            }""";
 
     private final String kawaseUp = "#version 120\n" +
             "\n" +
@@ -627,7 +630,7 @@ public class ShaderUtils implements InstanceAccess {
 
               fragColor = vec4(col,1.0);
             }
-            
+                        
             void main(void)
             {
              mainImage(gl_FragColor, gl_FragCoord.xy);
@@ -635,55 +638,90 @@ public class ShaderUtils implements InstanceAccess {
             """;
 
     private final String gaussianBlur = """
-                    #version 120
+            #version 120
 
-                    uniform sampler2D textureIn;
-                    uniform vec2 texelSize, direction;
-                    uniform float radius, weights[256];
+            uniform sampler2D textureIn;
+            uniform vec2 texelSize, direction;
+            uniform float radius, weights[256];
 
-                    #define offset texelSize * direction
+            #define offset texelSize * direction
 
-                    void main() {
-                        vec3 color = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];
-                        float totalWeight = weights[0];
+            void main() {
+                vec3 color = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];
+                float totalWeight = weights[0];
 
-                        for (float f = 1.0; f <= radius; f++) {
-                            color += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);
-                            color += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);
+                for (float f = 1.0; f <= radius; f++) {
+                    color += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);
+                    color += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);
 
-                            totalWeight += (weights[int(abs(f))]) * 2.0;
-                        }
+                    totalWeight += (weights[int(abs(f))]) * 2.0;
+                }
 
-                        gl_FragColor = vec4(color / totalWeight, 1.0);
-                    }""";
+                gl_FragColor = vec4(color / totalWeight, 1.0);
+            }""";
 
     private final String cape = """
-                    #extension GL_OES_standard_derivatives : enable
-                               
-                    #ifdef GL_ES
-                    precision highp float;
-                    #endif
-                               
-                    uniform float time;
-                    uniform vec2  resolution;
-                    uniform float zoom;
-                               
-                    #define PI 3.1415926535
-                               
-                    mat2 rotate3d(float angle)
-                    {
-                        return mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
-                    }
-                               
-                    void main()
-                    {
-                        vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
-                        p = rotate3d((time * 2.0) * PI) * p;
-                        float t;
-                        if (sin(time) == 10.0)
-                            t = 0.075 / abs(1.0 - length(p));
-                        else
-                            t = 0.075 / abs(0.4/*sin(time)*/ - length(p));
-                        gl_FragColor = vec4(     ( 1. -exp( -vec3(t)  * vec3(0.13*(sin(time)+12.0), p.y*0.7, 3.0) )) , 1.0);
-                    }""";
+            #extension GL_OES_standard_derivatives : enable
+                       
+            #ifdef GL_ES
+            precision highp float;
+            #endif
+                       
+            uniform float time;
+            uniform vec2  resolution;
+            uniform float zoom;
+                       
+            #define PI 3.1415926535
+                       
+            mat2 rotate3d(float angle)
+            {
+                return mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+            }
+                       
+            void main()
+            {
+                vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);
+                p = rotate3d((time * 2.0) * PI) * p;
+                float t;
+                if (sin(time) == 10.0)
+                    t = 0.075 / abs(1.0 - length(p));
+                else
+                    t = 0.075 / abs(0.4/*sin(time)*/ - length(p));
+                gl_FragColor = vec4(     ( 1. -exp( -vec3(t)  * vec3(0.13*(sin(time)+12.0), p.y*0.7, 3.0) )) , 1.0);
+            }""";
+
+    private final String esp = "#version 120\n" +
+            "uniform sampler2D texture;\n" +
+            "uniform sampler2D texture2;\n" +
+            "uniform vec2 texelSize;\n" +
+            "uniform vec2 direction;\n" +
+            "uniform float alpha;\n" +
+            "uniform vec3 color;\n" +
+            "uniform int radius;\n" +
+            "\n" +
+            "float gaussian(float x, float sigma) {\n" +
+            "    float power_2 = x / sigma;\n" +
+            "    return (1.0 / (sigma * 2.50662827463)) * exp(-0.5 * (power_2 * power_2));\n" +
+            "}\n" +
+            "\n" +
+            "void main() {\n" +
+            "    vec2 texCoord = gl_TexCoord[0].st;\n" +
+            "\n" +
+            "    if (direction.y == 1)\n" +
+            "        if (texture2D(texture2, texCoord).a != 0.0) return;\n" +
+            "\n" +
+            "    vec4 blurred_color = vec4(0.0);\n" +
+            "\n" +
+            "    for (float r = -radius; r <= radius; r++) {\n" +
+            "        blurred_color += texture2D(texture, texCoord + r * texelSize * direction) * gaussian(r, radius / 2);\n" +
+            "    }\n" +
+            "\n" +
+            "    if (blurred_color.a > 0) {\n" +
+            "        if (direction.x == 0) {\n" +
+            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a * alpha);\n" +
+            "        } else {\n" +
+            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a);\n" +
+            "        }\n" +
+            "    }\n" +
+            "}";
 }
