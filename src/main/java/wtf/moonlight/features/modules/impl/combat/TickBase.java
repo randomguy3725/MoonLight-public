@@ -29,7 +29,8 @@ public class TickBase extends Module {
     public final SliderValue delay = new SliderValue("Delay", 50, 0, 1000,50, this);
     public final SliderValue minActiveRange = new SliderValue("Min Active Range", 3f, 0.1f, 7f, 0.1f, this);
     public final SliderValue maxActiveRange = new SliderValue("Max Active Range", 7f, 0.1f, 7f, 0.1f, this);
-    public final SliderValue predictTicks = new SliderValue("Predict Ticks", 4, 1, 20, this);
+    public final BoolValue autoSettings = new BoolValue("Auto",true,this);
+    public final SliderValue predictTicks = new SliderValue("Predict Ticks", 4, 1, 20, this,() -> !autoSettings.get());
     public final BoolValue displayPredictPos = new BoolValue("Dislay Predict Pos",false,this);
     private long shifted, previousTime;
     private final TimerUtils timeHelper = new TimerUtils();
@@ -70,7 +71,7 @@ public class TickBase extends Module {
 
         SimulatedPlayer simulatedPlayer = SimulatedPlayer.fromClientPlayer(mc.thePlayer.movementInput);
         
-        for (int i = 0; i < predictTicks.get(); i++) {
+        for (int i = 0; i < (autoSettings.get() ? maxBalance.get() / 20 : predictTicks.get()); i++) {
             simulatedPlayer.tick();
             predictProcesses.add(new PredictProcess(
                     simulatedPlayer.getPos(),
@@ -87,9 +88,9 @@ public class TickBase extends Module {
     @EventTarget
     public void onRender3D(Render3DEvent event) {
         if(displayPredictPos.get()) {
-            double x = predictProcesses.get((int) (predictTicks.get() - 1)).position.xCoord - mc.getRenderManager().viewerPosX;
-            double y = predictProcesses.get((int) (predictTicks.get() - 1)).position.yCoord - mc.getRenderManager().viewerPosY;
-            double z = predictProcesses.get((int) (predictTicks.get() - 1)).position.zCoord - mc.getRenderManager().viewerPosZ;
+            double x = predictProcesses.get((int) ((autoSettings.get() ? maxBalance.get() / 20 : predictTicks.get())) - 1).position.xCoord - mc.getRenderManager().viewerPosX;
+            double y = predictProcesses.get((int) ((autoSettings.get() ? maxBalance.get() / 20 : predictTicks.get())) - 1).position.yCoord - mc.getRenderManager().viewerPosY;
+            double z = predictProcesses.get((int) ((autoSettings.get() ? maxBalance.get() / 20 : predictTicks.get())) - 1).position.zCoord - mc.getRenderManager().viewerPosZ;
             AxisAlignedBB box = mc.thePlayer.getEntityBoundingBox().expand(0.1D, 0.1, 0.1);
             AxisAlignedBB axis = new AxisAlignedBB(box.minX - mc.thePlayer.posX + x, box.minY - mc.thePlayer.posY + y, box.minZ - mc.thePlayer.posZ + z, box.maxX - mc.thePlayer.posX + x, box.maxY - mc.thePlayer.posY + y, box.maxZ - mc.thePlayer.posZ + z);
             RenderUtils.drawAxisAlignedBB(axis,false, true, new Color(50, 255, 255, 150).getRGB());
