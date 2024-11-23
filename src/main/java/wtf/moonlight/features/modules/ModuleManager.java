@@ -7,6 +7,7 @@ import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.features.modules.impl.combat.*;
 import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.exploit.Timer;
+import wtf.moonlight.features.modules.impl.misc.AutoAuthenticate;
 import wtf.moonlight.features.modules.impl.misc.HackerDetector;
 import wtf.moonlight.features.modules.impl.misc.KillSults;
 import wtf.moonlight.features.modules.impl.movement.*;
@@ -61,6 +62,7 @@ public class ModuleManager {
                 Timer.class,
 
                 //misc
+                AutoAuthenticate.class,
                 HackerDetector.class,
                 KillSults.class,
 

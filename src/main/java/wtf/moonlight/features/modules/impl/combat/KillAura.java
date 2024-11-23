@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.monster.EntityGhast;
@@ -105,6 +106,7 @@ public class KillAura extends Module {
     public final SliderValue rotationRange = new SliderValue("Rotation Range", 3.0F, 2.0F, 16F, .1f, this);
     public final BoolValue preSwingWithRotationRange = new BoolValue("Pre Swing With Rotation Range", true, this);
     public final MultiBoolValue addons = new MultiBoolValue("Addons", Arrays.asList(new BoolValue("Movement Fix", false), new BoolValue("Perfect Hit", true), new BoolValue("Ray Cast", true), new BoolValue("Hit Select", true)), this);
+    public final BoolValue gommeFix = new BoolValue("Gomme Fix", false, this, () -> addons.isEnabled("Perfect Hit"));
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
@@ -128,6 +130,7 @@ public class KillAura extends Module {
     public EntityLivingBase target;
     private final TimerUtils attackTimer = new TimerUtils();
     private final TimerUtils switchTimer = new TimerUtils();
+    private final TimerUtils perfectHitTimer = new TimerUtils();
     private int index;
     private int clicks;
     private int maxClicks;
@@ -508,12 +511,19 @@ public class KillAura extends Module {
             unblock();
         MovingObjectPosition rayCast = RotationUtils.rayCast(RotationUtils.currentRotation, attackRange.get());
         if (addons.isEnabled("Ray Cast") && rayCast.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && rayCast.entityHit instanceof EntityLivingBase) {
-            if ((((EntityLivingBase) rayCast.entityHit).hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
-                AttackOrder.sendFixedAttack(mc.thePlayer, target);
+            //if ((((EntityLivingBase) rayCast.entityHit).hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
+            if(canAttack((EntityLivingBase) rayCast.entityHit))
+                AttackOrder.sendFixedAttack(mc.thePlayer, rayCast.entityHit);
         } else {
-            if ((target.hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
+            //if ((target.hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
+            if(canAttack(target))
                 AttackOrder.sendFixedAttack(mc.thePlayer, target);
         }
+        perfectHitTimer.reset();
+    }
+
+    public boolean canAttack(EntityLivingBase entity){
+        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime == 0 || entity.hurtTime == 1 || perfectHitTimer.hasTimeElapsed(1000L) && (gommeFix.get() && entity.hurtTime != 4 || !gommeFix.get()));
     }
 
     public boolean isHoldingSword() {

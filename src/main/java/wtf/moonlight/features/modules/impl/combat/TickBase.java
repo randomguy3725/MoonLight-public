@@ -32,6 +32,7 @@ public class TickBase extends Module {
     public final BoolValue autoSettings = new BoolValue("Auto",true,this);
     public final SliderValue predictTicks = new SliderValue("Predict Ticks", 4, 1, 20, this,() -> !autoSettings.get());
     public final BoolValue displayPredictPos = new BoolValue("Dislay Predict Pos",false,this);
+    public final BoolValue check = new BoolValue("Check",false,this);
     private long shifted, previousTime;
     private final TimerUtils timeHelper = new TimerUtils();
     public final List<PredictProcess> predictProcesses = new ArrayList<>();
@@ -47,7 +48,7 @@ public class TickBase extends Module {
 
         if (target != null && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) &&
                 mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) &&
-                RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90) {
+                (RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90 && check.get() || !check.get())) {
             shouldCharge = shifted < maxBalance.get();
         }
 
@@ -108,7 +109,7 @@ public class TickBase extends Module {
         previousTime = (System.nanoTime() / 1000000L) / 1000L;
     }
 
-    public class PredictProcess {
+    public static class PredictProcess {
         private final Vec3 position;
         private final float fallDistance;
         private final double motionX;
