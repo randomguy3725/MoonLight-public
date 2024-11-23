@@ -20,6 +20,7 @@ import java.util.Objects;
 @ModuleInfo(name = "BowAimBot", category = ModuleCategory.Combat)
 public class BowAimBot extends Module {
 
+    private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
     private final SliderValue range = new SliderValue("Range", 30, 3, 200, 1, this);
     private final SliderValue predictSize = new SliderValue("Predict Size", 2, 0.1f, 5, 0.1f, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
@@ -44,7 +45,7 @@ public class BowAimBot extends Module {
 
         if(target == null)
             return;
-        if(mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow && mc.thePlayer.isUsingItem()){
+        if((RotationUtils.getRotationDifference(target) >= fov.get() || fov.get() == 180) && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow && mc.thePlayer.isUsingItem()){
             float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get());
 
             if (customRotationSetting.get()) {

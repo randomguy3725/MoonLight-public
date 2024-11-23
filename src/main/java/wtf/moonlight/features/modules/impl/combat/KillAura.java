@@ -7,6 +7,7 @@ import com.viaversion.viaversion.api.type.Type;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import de.florianmichael.viamcp.fixes.AttackOrder;
 import net.minecraft.block.BlockAir;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.EntityRenderer;
@@ -72,16 +73,15 @@ import java.util.*;
 
 @ModuleInfo(name = "KillAura", category = ModuleCategory.Combat, key = Keyboard.KEY_R)
 public class KillAura extends Module {
+    private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Switch", "Single"}, "Switch", this);
     public final SliderValue switchDelayValue = new SliderValue("SwitchDelay", 15, 0, 20, this, () -> mode.is("Switch"));
     private final ModeValue priority = new ModeValue("Priority", new String[]{"Range", "Armor", "Health", "HurtTime", "FOV"}, "Health", this);
     private final ModeValue aimMode = new ModeValue("Aim Position", new String[]{"Head", "Torso", "Legs", "Nearest", "Test"}, "Head", this);
-    private final BoolValue smart = new BoolValue("Smart", false, this);
     private final BoolValue inRange = new BoolValue("Rotation In Range", false, this);
     private final SliderValue minAimRange = new SliderValue("Lowest Aim Range", 1, 0, 1, 0.05f, this, inRange::get);
     private final SliderValue maxAimRange = new SliderValue("Highest Aim Range", 1, 0, 1, 0.05f, this, inRange::get);
     private final BoolValue heuristics = new BoolValue("Heuristics", false, this);
-    private final BoolValue bruteforce = new BoolValue("Bruteforce", false, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final ModeValue calcRotSpeedMode = new ModeValue("Calculate Rotate Speed Mode", new String[]{"Linear", "Acceleration"}, "Linear", this, customRotationSetting::get);
     private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, () -> calcRotSpeedMode.is("Linear") && customRotationSetting.get());
@@ -135,10 +135,6 @@ public class KillAura extends Module {
     public boolean blinked;
     public boolean lag;
     public Vec3 aimVec;
-    public float yaw;
-    public float pitch;
-    public float prevYaw;
-    public float prevPitch;
     public boolean damaged = false;
     private final long startTime = System.currentTimeMillis();
     private final Animation alphaAnim = new DecelerateAnimation(400, 1);
@@ -527,8 +523,7 @@ public class KillAura extends Module {
         final List<EntityLivingBase> entities = new ArrayList<>();
         for (final Entity entity : mc.theWorld.loadedEntityList) {
             if (entity instanceof EntityLivingBase e) {
-                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) < searchRange.get())
-                        entities.add(e);
+                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) < searchRange.get() && (RotationUtils.getRotationDifference(e) >= fov.get() || fov.get() == 180)) entities.add(e);
                 else entities.remove(e);
 
             }
@@ -578,23 +573,25 @@ public class KillAura extends Module {
 
     public float[] calcToEntity(EntityLivingBase entity) {
 
+        float yaw;
+        float pitch;
+
         Vec3 playerPos = mc.thePlayer.getPositionEyes(1);
         Vec3 entityPos = entity.getPositionVector();
         AxisAlignedBB boundingBox = entity.getEntityBoundingBox();
-        Vec3 preAimVec = entityPos;
 
         switch (aimMode.get()) {
             case "Head":
-                preAimVec = entityPos.add(0.0, entity.getEyeHeight(), 0.0);
+                aimVec = entityPos.add(0.0, entity.getEyeHeight(), 0.0);
                 break;
             case "Torso":
-                preAimVec = entityPos.add(0.0, entity.height * 0.75, 0.0);
+                aimVec = entityPos.add(0.0, entity.height * 0.75, 0.0);
                 break;
             case "Legs":
-                preAimVec = entityPos.add(0.0, entity.height * 0.45, 0.0);
+                aimVec = entityPos.add(0.0, entity.height * 0.45, 0.0);
                 break;
             case "Nearest":
-                preAimVec = RotationUtils.getBestHitVec(entity);
+                aimVec = RotationUtils.getBestHitVec(entity);
                 break;
             case "Test":
 
@@ -606,30 +603,14 @@ public class KillAura extends Module {
                         test = new Vec3(entity.posX, diffY, entity.posZ);
                     }
                 }
-                preAimVec = test;
+                aimVec = test;
                 break;
+            default:
+                aimVec = entityPos;
         }
-
-        aimVec = preAimVec;
 
         if(heuristics.get()){
-            aimVec = RotationUtils.heuristics(entity,preAimVec);
-        }
-
-        if (bruteforce.get() && RotationUtils.rayCast(RotationUtils.getRotations(aimVec), rotationRange.get()).typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {
-            final double xWidth = boundingBox.maxX - boundingBox.minX;
-            final double zWidth = boundingBox.maxZ - boundingBox.minZ;
-            final double height = boundingBox.maxY - boundingBox.minY;
-            for (double x = 0.0; x < 1.0; x += 0.2) {
-                for (double y = 0.0; y < 1.0; y += 0.2) {
-                    for (double z = 0.0; z < 1.0; z += 0.2) {
-                        final Vec3 hitVec = new Vec3(boundingBox.minX + xWidth * x, boundingBox.minY + height * y, boundingBox.minZ + zWidth * z);
-                        if (RotationUtils.rayCast(RotationUtils.getRotations(hitVec), rotationRange.get()).typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-                            aimVec = hitVec;
-                        }
-                    }
-                }
-            }
+            aimVec = RotationUtils.heuristics(entity,aimVec);
         }
 
         if (inRange.get()) {
@@ -673,7 +654,7 @@ public class KillAura extends Module {
         } else if (pitch < -90.0f) {
             pitch = -90.0f;
         }
-        return new float[]{prevYaw = yaw, prevPitch = pitch};
+        return new float[]{yaw, pitch};
     }
     public static void drawDot(@NotNull Vec3 pos, double size, int color) {
         double d = size / 2;
@@ -685,8 +666,6 @@ public class KillAura extends Module {
 
     private void resetVariables() {
         alphaAnim.setDirection(Direction.BACKWARDS);
-        prevYaw = yaw = -1;
-        prevPitch = pitch = -1;
         aimVec = null;
         if (!autoBlock.is("Watchdog"))
             unblock();

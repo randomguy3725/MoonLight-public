@@ -30,6 +30,7 @@ import java.util.Objects;
 @ModuleInfo(name = "AutoRod", category = ModuleCategory.Combat)
 public class AutoRod extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Silent", "Always"}, "Silent", this);
+    private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
     private final SliderValue range = new SliderValue("Range", 8F, 1F, 20F, 1, this);
     private final SliderValue delay = new SliderValue("Delay", 100, 0, 2000, 25, this);
     private final SliderValue switchBackDelay = new SliderValue("Switch Back Delay", 500, 50, 2000, 25, this);
@@ -63,7 +64,7 @@ public class AutoRod extends Module {
             return;
         }
 
-        if (target != null) {
+        if (target != null && (RotationUtils.getRotationDifference(target) >= fov.get() || fov.get() == 180)) {
             if (mode.is("Always") && findRod() != -1) {
                 rotate();
             }

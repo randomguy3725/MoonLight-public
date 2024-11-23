@@ -349,6 +349,16 @@ public class RotationUtils implements InstanceAccess {
         return Math.abs(MathHelper.wrapAngleTo180_double(i(entity.posX, entity.posZ) - mc.thePlayer.rotationYaw));
     }
 
+    public static float getRotationDifference(final Entity entity) {
+        float[] target = RotationUtils.getRotations(entity.posX,entity.posY + entity.getEyeHeight(),entity.posZ);
+        return (float) hypot(Math.abs(getAngleDifference(target[0], mc.thePlayer.rotationYaw)), Math.abs(target[1] - mc.thePlayer.rotationPitch));
+    }
+    public static float getRotationDifference(final Entity entity,final Entity entity2) {
+        float[] target = RotationUtils.getRotations(entity.posX,entity.posY + entity.getEyeHeight(),entity.posZ);
+        float[] target2 = RotationUtils.getRotations(entity2.posX,entity2.posY + entity2.getEyeHeight(),entity2.posZ);
+        return (float) hypot(Math.abs(getAngleDifference(target[0], target2[0])), Math.abs(target[1] - target2[1]));
+    }
+
     public static float getRotationDifference(final float[] a, final float[] b) {
         return (float) hypot(Math.abs(getAngleDifference(a[0], b[0])), Math.abs(a[1] - b[1]));
     }

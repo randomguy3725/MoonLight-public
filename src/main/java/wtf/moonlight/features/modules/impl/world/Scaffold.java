@@ -54,7 +54,6 @@ public class Scaffold extends Module {
     private final SliderValue fruitBTicks = new SliderValue("Fruit Bridge Ticks", 2, 1, 5, this, () -> mode.is("Fruit Bridge"));
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> mode.is("God Bridge"));
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
-    private final BoolValue rayCast = new BoolValue("Ray Cast", true, this);
     private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "Normal 2","Normal 3","Normal 4", "God Bridge", "Reverse", "Smart","Bruteforce","Custom","Sex"}, "Normal", this, () -> !mode.is("Grim 1.17"));
     private final ModeValue precision = new ModeValue("Precision", new String[]{"Very Low", "Low", "Moderate", "High", "Very High", "Unlimited"}, "Moderate", this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));
     private final BoolValue normalRTest = new BoolValue("Test", false, this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));

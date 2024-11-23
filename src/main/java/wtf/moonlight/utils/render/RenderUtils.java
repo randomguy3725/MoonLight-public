@@ -372,6 +372,10 @@ public class RenderUtils implements InstanceAccess {
     }
 
     public static void drawAxisAlignedBB(AxisAlignedBB axisAlignedBB, boolean outline, int color) {
+        drawAxisAlignedBB(axisAlignedBB,outline,true,color);
+    }
+
+    public static void drawAxisAlignedBB(AxisAlignedBB axisAlignedBB,boolean filled, boolean outline, int color) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(3042);
         GL11.glLineWidth(2.0f);
@@ -379,7 +383,7 @@ public class RenderUtils implements InstanceAccess {
         GL11.glDisable(2929);
         GL11.glDepthMask(false);
         GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
-        drawSelectionBoundingBox(axisAlignedBB, outline, true);
+        drawSelectionBoundingBox(axisAlignedBB, outline, filled);
         GlStateManager.resetColor();
         GL11.glEnable(3553);
         GL11.glEnable(2929);

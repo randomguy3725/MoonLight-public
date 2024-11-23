@@ -24,6 +24,7 @@ import wtf.moonlight.utils.player.RotationUtils;
 @ModuleInfo(name = "Annoy", category = ModuleCategory.Combat)
 public class Annoy extends Module {
 
+    private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
     public SliderValue delay = new SliderValue("Delay", 1000, 500, 5000, 250,this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final ModeValue calcRotSpeedMode = new ModeValue("Calculate Rotate Speed Mode", new String[]{"Linear", "Acceleration"}, "Linear", this, customRotationSetting::get);
@@ -37,9 +38,7 @@ public class Annoy extends Module {
     public final SliderValue constantError = new SliderValue("Constant Error", 0f, 0f, 10f, 0.01f, this, () -> calcRotSpeedMode.is("Acceleration") && customRotationSetting.get());
     public final BoolValue smoothlyResetRotation = new BoolValue("Smoothly Reset Rotation", true, this, customRotationSetting::get);
     public final BoolValue moveFix = new BoolValue("Move Fix",true,this);
-    public final ModeValue moveFixMode = new ModeValue("Movement", new String[]{"Silent", "Strict"}, "Silent", this, () -> {
-        return moveFix.get();
-    });
+    public final ModeValue moveFixMode = new ModeValue("Movement", new String[]{"Silent", "Strict"}, "Silent", this, moveFix::get);
 
     public final TimerUtils timer = new TimerUtils();
     public boolean cancel;
@@ -58,13 +57,11 @@ public class Annoy extends Module {
         }
 
         if (PlayerUtils.getDistanceToEntityBox(target) <= 3) {
-            target = null;
             cancel = false;
             return;
         }
 
         if (!killAura.isEnabled()) {
-            target = null;
             cancel = false;
             return;
         }

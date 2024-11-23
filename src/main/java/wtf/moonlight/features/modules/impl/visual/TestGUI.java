@@ -5,8 +5,8 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 
-@ModuleInfo(name = "Test", category = ModuleCategory.Visual, key = Keyboard.KEY_M)
-public class Test extends Module {
+@ModuleInfo(name = "TestGUI", category = ModuleCategory.Visual, key = Keyboard.KEY_M)
+public class TestGUI extends Module {
     @Override
     public void onEnable() {
         mc.displayGuiScreen(INSTANCE.getMoonGUI());

@@ -1225,22 +1225,4 @@ public class SimulatedPlayer implements InstanceAccess {
     {
         return this.height * 0.85F;
     }
-
-    public Vec3 getPositionEyes(float partialTicks)
-    {
-        double prevPosX = posX;
-        double prevPosY = posY;
-        double prevPosZ = posZ;
-        if (partialTicks == 1.0F)
-        {
-            return new Vec3(this.posX, this.posY + (double)this.getEyeHeight(), this.posZ);
-        }
-        else
-        {
-            double d0 = prevPosX + (posX - prevPosX) * (double)partialTicks;
-            double d1 = prevPosY + (posY - prevPosY) * (double)partialTicks + (double)getEyeHeight();
-            double d2 = prevPosZ + (posZ - prevPosZ) * (double)partialTicks;
-            return new Vec3(d0, d1, d2);
-        }
-    }
 }

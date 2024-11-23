@@ -110,7 +110,7 @@ public class ModuleManager {
                 Shaders.class,
                 Trajectories.class,
                 Test.class,
-                Test2.class,
+                TestGUI.class,
 
                 //world
                 BedNuker.class,
