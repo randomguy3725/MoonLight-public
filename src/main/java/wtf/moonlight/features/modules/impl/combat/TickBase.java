@@ -46,7 +46,7 @@ public class TickBase extends Module {
 
         EntityOtherPlayerMP target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
 
-        if (target != null && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) &&
+        if (target != null && predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector()) < mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) &&
                 mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) &&
                 (RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90 && check.get() || !check.get())) {
             shouldCharge = shifted < maxBalance.get();

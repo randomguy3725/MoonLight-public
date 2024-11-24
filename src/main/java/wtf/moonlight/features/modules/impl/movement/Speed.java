@@ -28,17 +28,19 @@ import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide","BlocksMC"}, "Watchdog", this);
-    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide"}, "Basic", this, () -> mode.is("Watchdog"));
+    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
-    private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && !wdMode.is("Glide") && !wdMode.is("Low"));
+    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this);
+    private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && !wdMode.is("Glide") && !wdMode.is("Full Strafe"));
     private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
     private final BoolValue strafe = new BoolValue("Strafe", false, this, () -> fastFall.canDisplay() && fastFall.get());
-    private final BoolValue strafe8Tick = new BoolValue("8 Tick Strafe", true, this, () -> fastFall.canDisplay() && fastFall.get()&& wdFastFallMode.is("8 Tick"));
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
     private final BoolValue ignoreDamage = new BoolValue("Ignore Damage", true, this, () -> Objects.equals(mode.get(), "EntityCollide"));
@@ -57,7 +59,7 @@ public class Speed extends Module {
     @Override
     public void onEnable() {
         if (mode.is("Watchdog")) {
-            if (fastFall.canDisplay() && fastFall.get()) {
+            if (fastFall.canDisplay() && fastFall.get() || wdFastFallMode.is("Full Strafe") && !fullStrafeMode.is("A")) {
                 if (mc.thePlayer.onGround) {
                     mc.thePlayer.jump();
                     MovementUtils.strafe();
@@ -85,6 +87,9 @@ public class Speed extends Module {
         setTag(mode.get());
         if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
             return;
+
+        if(printOffGroundTicks.get())
+            DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
             case "EntityCollide": {
@@ -245,9 +250,63 @@ public class Speed extends Module {
                                 }
                             }
                             break;
+
+                        case "Custom":
+                            if (MovementUtils.isMoving()) {
+                                if (mc.thePlayer.onGround) {
+                                    mc.thePlayer.jump();
+                                    MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
+                                }
+                            }
+                            break;
+
+                        case "Full Strafe":
+                            if (MovementUtils.isMoving()) {
+
+                                switch (fullStrafeMode.get()) {
+
+                                    case "A":
+
+                                        if (mc.thePlayer.onGround) {
+                                            mc.thePlayer.jump();
+                                            MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
+                                        }
+
+                                        if (!disable) {
+                                            //????????
+                                            ArrayList<Double> values = new ArrayList<>(Arrays.asList(0.32, 0.3, -0.075, -0.425, -0.375));
+
+                                            if (mc.thePlayer.offGroundTicks != 0) {
+                                                mc.thePlayer.motionY = values.get(mc.thePlayer.offGroundTicks - 1);
+                                            }
+                                        }
+
+                                        break;
+                                    case "B":
+                                        if (mc.thePlayer.onGround) {
+                                            mc.thePlayer.jump();
+                                            MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
+                                        }
+
+                                        if (!disable) {
+                                            int simpleY = (int) Math.round((event.y % 1) * 10000);
+
+                                            if (simpleY == 13) {
+                                                mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY);
+                                            }
+                                        }
+                                        break;
+                                }
+
+                                if (mc.thePlayer.offGroundTicks <= 7 && mc.thePlayer.offGroundTicks != 0) {
+                                    MovementUtils.strafe();
+                                    couldStrafe = true;
+                                }
+                            }
+                            break;
                     }
 
-                    if (fastFall.canDisplay() && fastFall.get()) {
+                    if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
                         if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
                             disable = false;
                         }
@@ -259,13 +318,11 @@ public class Speed extends Module {
                         }
                     }
 
-                    if(printOffGroundTicks.get())
-                        DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
-
 
                     if (fastFall.canDisplay() && fastFall.get() && isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
 
-                        if (!disable && wdFastFallMode.is("8 Tick")) {
+                        if (!disable &&
+                                wdFastFallMode.is("8 Tick")) {
                             boolean down = false;
                             int simpleY = (int) Math.round((event.y % 1) * 10000);
 
@@ -295,12 +352,6 @@ public class Speed extends Module {
 
                             if (simpleY == 13) down = true;
                             if (down) event.y -= 1E-5;
-
-                            if(strafe8Tick.get() && (mc.thePlayer.offGroundTicks == 1 ||// mc.thePlayer.offGroundTicks >= 3 && mc.thePlayer.offGroundTicks <= 4 ||
-                                    mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)){
-                                MovementUtils.strafe();
-                                couldStrafe = true;
-                            }
                         }
                     }
                 }

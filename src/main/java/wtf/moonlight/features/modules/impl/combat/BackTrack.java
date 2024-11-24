@@ -99,8 +99,8 @@ public class BackTrack extends Module {
             if(on) {
                 if (packet instanceof S14PacketEntity s14PacketEntity) {
                     if (s14PacketEntity.getEntityId() == target.getEntityId()) {
-                        realPosition = realPosition.addVector(s14PacketEntity.func_149062_c() / 32.0D, s14PacketEntity.func_149061_d() / 32.0D,
-                                s14PacketEntity.func_149064_e() / 32.0D);
+                        realPosition = realPosition.addVector(s14PacketEntity.getX() / 32.0D, s14PacketEntity.getY() / 32.0D,
+                                s14PacketEntity.getZ() / 32.0D);
                     }
                 } else if (packet instanceof S18PacketEntityTeleport s18PacketEntityTeleport) {
 

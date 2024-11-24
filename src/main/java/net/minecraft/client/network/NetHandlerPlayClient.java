@@ -59,7 +59,6 @@ import net.minecraft.entity.IMerchant;
 import net.minecraft.entity.NpcMerchant;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.BaseAttributeMap;
-import net.minecraft.entity.ai.attributes.IAttribute;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.ai.attributes.RangedAttribute;
 import net.minecraft.entity.effect.EntityLightningBolt;
@@ -551,9 +550,9 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
         if (entity != null)
         {
-            entity.serverPosX += packetIn.func_149062_c();
-            entity.serverPosY += packetIn.func_149061_d();
-            entity.serverPosZ += packetIn.func_149064_e();
+            entity.serverPosX += packetIn.getX();
+            entity.serverPosY += packetIn.getY();
+            entity.serverPosZ += packetIn.getZ();
             double d0 = (double)entity.serverPosX / 32.0D;
             double d1 = (double)entity.serverPosY / 32.0D;
             double d2 = (double)entity.serverPosZ / 32.0D;
