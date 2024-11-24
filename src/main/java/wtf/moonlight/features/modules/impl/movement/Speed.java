@@ -34,7 +34,7 @@ import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide","BlocksMC","Intave"}, "Watchdog", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
     private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this);
@@ -44,6 +44,12 @@ public class Speed extends Module {
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
     private final BoolValue ignoreDamage = new BoolValue("Ignore Damage", true, this, () -> Objects.equals(mode.get(), "EntityCollide"));
+    private final BoolValue pullDown = new BoolValue("Pull Down", true, this, () -> Objects.equals(mode.get(), "NCP"));
+    private final SliderValue onTick = new SliderValue("On Tick", 5, 1, 10, 1, this, () -> Objects.equals(mode.get(), "NCP") && pullDown.get());
+    private final BoolValue onHurt = new BoolValue("On Hurt", true, this, () -> Objects.equals(mode.get(), "NCP") && pullDown.get());
+    private final BoolValue airBoost = new BoolValue("Air Boost", true, this, () -> Objects.equals(mode.get(), "NCP"));
+    private final BoolValue damageBoost = new BoolValue("Damage Boost", false, this, () -> Objects.equals(mode.get(), "NCP"));
+    private final BoolValue airStrafe = new BoolValue("Air Strafe", true, this, () -> Objects.equals(mode.get(), "NCP"));
     public final BoolValue noBob = new BoolValue("No Bob", true, this);
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
@@ -92,13 +98,29 @@ public class Speed extends Module {
             DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
-            case "Intave": {
-                couldStrafe = false;
-                if (mc.thePlayer.motionY > 0.03 && mc.thePlayer.isSprinting()) {
-                    mc.thePlayer.motionX *= 1f + 0.003;
-                    mc.thePlayer.motionX *= 1f + 0.003;
+            case "NCP": {
+                if (mc.thePlayer.offGroundTicks == onTick.get() && pullDown.get()) {
+                    MovementUtils.strafe();
+                    mc.thePlayer.motionY -= 0.1523351824467155;
+                }
+
+                if (onHurt.get() && mc.thePlayer.hurtTime >= 5 && mc.thePlayer.motionY >= 0) {
+                    mc.thePlayer.motionY -= 0.1;
+                }
+
+                if (airBoost.get() && MovementUtils.isMoving()) {
+                    mc.thePlayer.motionX *= 1f + 0.00718;
+                    mc.thePlayer.motionZ *= 1f + 0.00718;
                 }
             }
+
+            case "Intave": {
+                if (mc.thePlayer.motionY > 0.03 && mc.thePlayer.isSprinting()) {
+                    mc.thePlayer.motionX *= 1f + 0.003;
+                    mc.thePlayer.motionZ *= 1f + 0.003;
+                }
+            }
+
             case "EntityCollide": {
                 couldStrafe = false;
                 if (mc.thePlayer.hurtTime <= 1) {
@@ -239,10 +261,23 @@ public class Speed extends Module {
 
         switch (mode.get()) {
             case "Intave": {
-                if (mc.thePlayer.onGround) {
+                if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
                     mc.gameSettings.keyBindJump.isPressed();
                 }
             }
+
+            case "NCP": {
+                if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+                    mc.thePlayer.jump();
+                }
+
+                if (damageBoost.get() && mc.thePlayer.hurtTime > 0) {
+                    MovementUtils.strafe(0.5);
+                }
+
+                if (airStrafe.get() && !mc.thePlayer.onGround) MovementUtils.strafe();
+            }
+
             case "Watchdog":
                 if (mc.gameSettings.keyBindJump.isKeyDown())
                     KeyBinding.setKeyBindState(mc.gameSettings.keyBindJump.getKeyCode(), false);
@@ -389,90 +424,86 @@ public class Speed extends Module {
         if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
             return;
 
-        switch (mode.get()) {
-            case "Watchdog":
-                switch (wdMode.get()) {
-                    case "Glide":
-                        if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
-                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
-                            mc.thePlayer.jump();
+        if (mode.get().equals("Watchdog")) {
+            if (wdMode.get().equals("Glide")) {
+                if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                    MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
+                    mc.thePlayer.jump();
+                }
+
+                if (mc.thePlayer.onGround) {
+                    speed = 1.0F;
+                }
+
+                final int[] allowedAirTicks = new int[]{10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 28, 29};
+
+                if (!(mc.theWorld.getBlockState(mc.thePlayer.getPosition().add(0, -0.25, 0)).getBlock() instanceof BlockAir)) {
+                    for (final int allowedAirTick : allowedAirTicks) {
+                        if (mc.thePlayer.offGroundTicks == allowedAirTick && allowedAirTick <= 11) {
+                            mc.thePlayer.motionY = 0;
+                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() * speed);
+                            couldStrafe = true;
+
+                            speed *= 0.98F;
+
                         }
+                    }
+                }
+            }
 
-                        if (mc.thePlayer.onGround) {
-                            speed = 1.0F;
+            if (fastFall.canDisplay() && fastFall.get() && isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
+                switch (wdFastFallMode.get()) {
+                    case "Test 5":
+                        if (!disable) {
+                            switch (mc.thePlayer.offGroundTicks) {
+                                case 3:
+                                    mc.thePlayer.motionY -= -0.0025;
+                                    break;
+                                case 4:
+                                    mc.thePlayer.motionY -= 0.04;
+                                    break;
+                                case 5:
+                                    mc.thePlayer.motionY -= 0.1905189780583944;
+                                    break;
+                                case 6:
+                                    mc.thePlayer.motionX *= 1.001;
+                                    mc.thePlayer.motionZ *= 1.001;
+                                case 7:
+                                    mc.thePlayer.motionY -= 0.004;
+                                    break;
+                                case 8:
+                                    mc.thePlayer.motionY -= 0.01;
+                            }
                         }
-
-                        final int[] allowedAirTicks = new int[]{10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 28, 29};
-
-                        if (!(mc.theWorld.getBlockState(mc.thePlayer.getPosition().add(0, -0.25, 0)).getBlock() instanceof BlockAir)) {
-                            for (final int allowedAirTick : allowedAirTicks) {
-                                if (mc.thePlayer.offGroundTicks == allowedAirTick && allowedAirTick <= 11) {
-                                    mc.thePlayer.motionY = 0;
-                                    MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() * speed);
-                                    couldStrafe = true;
-
-                                    speed *= 0.98F;
-
-                                }
+                        break;
+                    case "Predict":
+                        if (!disable) {
+                            if (mc.thePlayer.offGroundTicks == predictTicks.get()) {
+                                mc.thePlayer.motionY = MovementUtils.predictedMotionY(mc.thePlayer.motionY, 2);
+                            }
+                        }
+                        break;
+                    case "Predict 2":
+                        if (!disable) {
+                            if (mc.thePlayer.offGroundTicks == 5 || mc.thePlayer.offGroundTicks == 6) {
+                                mc.thePlayer.motionY = MovementUtils.predictedMotionY(mc.thePlayer.motionY, 1);
                             }
                         }
                         break;
                 }
 
-                if (fastFall.canDisplay() && fastFall.get() && isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
-                    switch (wdFastFallMode.get()) {
-                        case "Test 5":
-                            if (!disable) {
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 3:
-                                        mc.thePlayer.motionY -= -0.0025;
-                                        break;
-                                    case 4:
-                                        mc.thePlayer.motionY -= 0.04;
-                                        break;
-                                    case 5:
-                                        mc.thePlayer.motionY -= 0.1905189780583944;
-                                        break;
-                                    case 6:
-                                        mc.thePlayer.motionX *= 1.001;
-                                        mc.thePlayer.motionZ *= 1.001;
-                                    case 7:
-                                        mc.thePlayer.motionY -= 0.004;
-                                        break;
-                                    case 8:
-                                        mc.thePlayer.motionY -= 0.01;
-                                }
-                            }
-                            break;
-                        case "Predict":
-                            if (!disable) {
-                                if (mc.thePlayer.offGroundTicks == predictTicks.get()) {
-                                    mc.thePlayer.motionY = MovementUtils.predictedMotionY(mc.thePlayer.motionY, 2);
-                                }
-                            }
-                            break;
-                        case "Predict 2":
-                            if (!disable) {
-                                if (mc.thePlayer.offGroundTicks == 5 || mc.thePlayer.offGroundTicks == 6) {
-                                    mc.thePlayer.motionY = MovementUtils.predictedMotionY(mc.thePlayer.motionY, 1);
-                                }
-                            }
-                            break;
-                    }
-
-                    if(strafe.get()) {
-                        if (mc.thePlayer.offGroundTicks == 1 || mc.thePlayer.offGroundTicks == 3  || (mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)) {
-                            MovementUtils.strafe();
-                            couldStrafe = true;
-                        }
-                    }
-
-                    if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && mc.thePlayer.offGroundTicks > 2) {
+                if (strafe.get()) {
+                    if (mc.thePlayer.offGroundTicks == 1 || mc.thePlayer.offGroundTicks == 3 || (mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)) {
                         MovementUtils.strafe();
                         couldStrafe = true;
                     }
                 }
-                break;
+
+                if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && mc.thePlayer.offGroundTicks > 2) {
+                    MovementUtils.strafe();
+                    couldStrafe = true;
+                }
+            }
         }
     }
 
