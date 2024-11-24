@@ -34,7 +34,7 @@ import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide","BlocksMC"}, "Watchdog", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide","BlocksMC","Intave"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
     private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this);
@@ -92,6 +92,13 @@ public class Speed extends Module {
             DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
+            case "Intave": {
+                couldStrafe = false;
+                if (mc.thePlayer.motionY > 0.03 && mc.thePlayer.isSprinting()) {
+                    mc.thePlayer.motionX *= 1f + 0.003;
+                    mc.thePlayer.motionX *= 1f + 0.003;
+                }
+            }
             case "EntityCollide": {
                 couldStrafe = false;
                 if (mc.thePlayer.hurtTime <= 1) {
@@ -231,6 +238,11 @@ public class Speed extends Module {
             return;
 
         switch (mode.get()) {
+            case "Intave": {
+                if (mc.thePlayer.onGround) {
+                    mc.gameSettings.keyBindJump.isPressed();
+                }
+            }
             case "Watchdog":
                 if (mc.gameSettings.keyBindJump.isKeyDown())
                     KeyBinding.setKeyBindState(mc.gameSettings.keyBindJump.getKeyCode(), false);

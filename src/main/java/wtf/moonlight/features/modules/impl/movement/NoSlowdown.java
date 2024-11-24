@@ -9,6 +9,7 @@ import net.minecraft.item.*;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
 import net.minecraft.util.BlockPos;
@@ -33,18 +34,35 @@ import static net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RE
 @ModuleInfo(name = "NoSlowdown", category = ModuleCategory.Movement)
 public class NoSlowdown extends Module {
 
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "GrimAC", "Intave", "Watchdog", "Watchdog Test"}, "Vanilla", this);
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "GrimAC", "Intave", "Old Intave", "Watchdog", "Watchdog Test", "NCP"}, "Vanilla", this);
     private final BoolValue sprint = new BoolValue("Sprint", true, this);
     private boolean eat = true;
     private int lastFoodAmount;
     private float foodSpeed;
     private boolean send = false;
+    private boolean ncpShouldWork = true;
 
     @EventTarget
     public void onMotion(MotionEvent event) {
         setTag(mode.get());
 
         switch (mode.get()) {
+            case "Old Intave":
+                if (isUsingConsumable() && event.isPre()) {
+                    sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
+                    sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+                }
+                break;
+
+
+            case "NCP":
+                if (mc.thePlayer.isUsingItem() && ncpShouldWork) {
+                    if (mc.thePlayer.ticksExisted % 3 == 0) {
+                        sendPacketNoEvent(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 1, null, 0, 0, 0));
+                    }
+                }
+                break;
+
             case "GrimAC":
                 if (event.isPost()) {
                     if (isUsingSword() || isUsingBow()) {
@@ -119,8 +137,12 @@ public class NoSlowdown extends Module {
     public void onPacket(PacketEvent event) {
         final Packet packet = event.getPacket();
         switch (mode.get()) {
+            case "NCP": {
+                ncpShouldWork = !(packet instanceof C07PacketPlayerDigging);
+            }
+
             case "GrimAC":
-                if(!isEnabled(AutoGap.class)) {
+                if (!isEnabled(AutoGap.class)) {
                     if (mc.thePlayer.isUsingItem()) {
                         if (mc.thePlayer.getHeldItem().getItem() instanceof ItemAppleGold) {
                             if (mc.gameSettings.keyBindUseItem.isKeyDown()) {
