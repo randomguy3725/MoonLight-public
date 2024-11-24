@@ -40,26 +40,28 @@ public class NoSlowdown extends Module {
     private int lastFoodAmount;
     private float foodSpeed;
     private boolean send = false;
+    private boolean ncpShouldWork = true;
 
     @EventTarget
     public void onMotion(MotionEvent event) {
         setTag(mode.get());
 
         switch (mode.get()) {
-            case "Old Intave": {
+            case "Old Intave":
                 if (isUsingConsumable() && event.isPre()) {
                     sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
                     sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                 }
-            }
+                break;
 
-            case "NCP": {
-                if (mc.thePlayer.isUsingItem()) {
+
+            case "NCP":
+                if (mc.thePlayer.isUsingItem() && ncpShouldWork) {
                     if (mc.thePlayer.ticksExisted % 3 == 0) {
-                        mc.thePlayer.sendQueue.addToSendQueue(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 1, null, 0, 0, 0));
+                        sendPacketNoEvent(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 1, null, 0, 0, 0));
                     }
                 }
-            }
+                break;
 
             case "GrimAC":
                 if (event.isPost()) {
@@ -136,9 +138,7 @@ public class NoSlowdown extends Module {
         final Packet packet = event.getPacket();
         switch (mode.get()) {
             case "NCP": {
-                if (packet instanceof C07PacketPlayerDigging) {
-                    return;
-                }
+                ncpShouldWork = !(packet instanceof C07PacketPlayerDigging);
             }
 
             case "GrimAC":
