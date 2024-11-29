@@ -123,6 +123,8 @@ public class KillAura extends Module {
     private final ModeValue markMode = new ModeValue("Mark Mode", new String[]{"Points", "Rectangle", "Exhi"}, "Points", this, mark::get);
     private final BoolValue aimPoint = new BoolValue("Aim Point", false, this);
     private final SliderValue dotSize = new SliderValue("Size", 0.1f, 0.05f, 0.2f, 0.05f, this, aimPoint::get);
+    private final SliderValue interpolation = new SliderValue("Interpolation", 0.15f, 0.01f, 1, 0.01f, this, aimPoint::get);
+    private final SliderValue delay = new SliderValue("Delay", 20, 1, 100, 1, this, aimPoint::get);
     public final BoolValue noScaffold = new BoolValue("No Scaffold", false, this);
     public final BoolValue noInventory = new BoolValue("No Inventory", false, this);
     public final BoolValue noBedNuker = new BoolValue("No Bed Nuker", false, this);
@@ -178,6 +180,10 @@ public class KillAura extends Module {
                 iterator.remove();
             }
         }
+    }
+
+    private float lerp(float start, float end, float factor) {
+        return start + factor * (end - start);
     }
 
     @EventTarget
@@ -451,9 +457,13 @@ public class KillAura extends Module {
         }
 
         if (aimPoint.get() && target != null && PlayerUtils.getDistanceToEntityBox(target) < rotationRange.get() && aimVec != null) {
-            animatedX.animate((float) aimVec.xCoord, 20);
-            animatedY.animate((float) aimVec.yCoord, 20);
-            animatedZ.animate((float) aimVec.zCoord, 20);
+            float interpolatedX = lerp(animatedX.getOutput(), (float) aimVec.xCoord, interpolation.get());
+            float interpolatedY = lerp(animatedY.getOutput(), (float) aimVec.yCoord, interpolation.get());
+            float interpolatedZ = lerp(animatedZ.getOutput(), (float) aimVec.zCoord, interpolation.get());
+
+            animatedX.animate(interpolatedX, Math.round(delay.get()));
+            animatedY.animate(interpolatedY, Math.round(delay.get()));
+            animatedZ.animate(interpolatedZ, Math.round(delay.get()));
 
             drawDot(new Vec3(animatedX.getOutput(), animatedY.getOutput(), animatedZ.getOutput()), dotSize.get(), getModule(Interface.class).color());
         }
