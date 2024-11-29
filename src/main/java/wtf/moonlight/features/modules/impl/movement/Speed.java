@@ -37,7 +37,7 @@ public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
-    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this);
+    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this,() -> wdMode.is("Full Strafe"));
     private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && !wdMode.is("Glide") && !wdMode.is("Full Strafe"));
     private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
     private final BoolValue strafe = new BoolValue("Strafe", false, this, () -> fastFall.canDisplay() && fastFall.get());
@@ -319,13 +319,19 @@ public class Speed extends Module {
                                             MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
                                         }
 
-                                        if (!disable) {
-                                            //????????
-                                            ArrayList<Double> values = new ArrayList<>(Arrays.asList(0.32, 0.3, -0.075, -0.425, -0.375));
 
-                                            if (mc.thePlayer.offGroundTicks != 0) {
-                                                mc.thePlayer.motionY = values.get(mc.thePlayer.offGroundTicks - 1);
+                                        if (!disable) {
+                                            int simpleY = (int) Math.round((event.y % 1) * 10000);
+                                            if(debug.get())
+                                                DebugUtils.sendMessage(simpleY + "Value");
+
+                                            if (simpleY == 1661) {
+                                                mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY) * 2;
                                             }
+
+                                            //1661
+                                            //2492
+                                            //1691
                                         }
 
                                         break;

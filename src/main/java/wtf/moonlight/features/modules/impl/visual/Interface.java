@@ -84,7 +84,7 @@ public class Interface extends Module {
     public final BoolValue line = new BoolValue("Line",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
-    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi"}, "Default", this);
+    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy"}, "Default", this);
     public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust"}, "Astolfo", this);
     public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Test", "Test2","Exhi"}, "Default", this);
     public final ModeValue sessionInfoMode = new ModeValue("Session Info Mode", new String[]{"Default","Exhi","Rise"}, "Default", this,() -> elements.isEnabled("Session Info"));
@@ -93,7 +93,8 @@ public class Interface extends Module {
     private final ColorValue mainColor = new ColorValue("Main Color", new Color(128, 128, 255), this);
     private final ColorValue secondColor = new ColorValue("Second Color", new Color(128, 255, 255), this, () -> color.is("Fade"));
     public final SliderValue fadeSpeed = new SliderValue("Fade Speed", 1, 1, 10, 1, this, () -> color.is("Dynamic") || color.is("Fade"));
-    public final ModeValue bgColor = new ModeValue("Background", new String[]{"Dark", "Synced"}, "Dark", this);
+    public final ModeValue bgColor = new ModeValue("Background", new String[]{"Dark", "Synced","Custom"}, "Dark", this);
+    private final ColorValue bgCustomColor = new ColorValue("Background Color", new Color(64, 64, 128), this,() -> bgColor.is("Custom"));
     public final BoolValue hideScoreRed = new BoolValue("Hide Scoreboard Red Points", true, this);
     public final BoolValue chatCombine = new BoolValue("Chat Combine", true, this);
 
@@ -407,30 +408,29 @@ public class Interface extends Module {
                         continue;
                     }
 
-                    if (background.get()) {
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
+                    if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
+                        if (background.get()) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY() - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             } else {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY() - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                            }
-                        }
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY() - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count,0.2f));
-                            } else {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY() - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count,0.2f));
+                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             }
                         }
                     }
 
-                    if (line.get()) {
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                    if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                        if (line.get()) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + moduleWidth + 1, (float) translate.getY() - 0.5f, 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
                             } else {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + moduleWidth + 1, (float) translate.getY() - 0.5f, 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
                             }
+                        }
+
+                        if (cFont.get()) {
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
+                        } else {
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
                         }
                     }
 
@@ -483,6 +483,14 @@ public class Interface extends Module {
                             } else {
                                 RenderUtils.drawRect(x + moduleWidth + 1, y - 0.5f, 1, textHeight.get(), color(count));
                             }
+                        }
+                    }
+
+                    if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                        if (cFont.get()) {
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), 1));
+                        } else {
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), 1));
                         }
                     }
 
@@ -732,7 +740,7 @@ public class Interface extends Module {
                 colors = ColorUtils.applyOpacity((ColorUtils.colorSwitch(getMainColor(), getSecondColor(), 2000.0F, counter, 75L, fadeSpeed.get()).getRGB()), alpha);
                 break;
             case "Astolfo":
-                colors = astolfoRainbow(0,mainColor.getSaturation(),mainColor.getBrightness());
+                colors = astolfoRainbow(counter,mainColor.getSaturation(),mainColor.getBrightness());
                 break;
         }
         return colors;
@@ -753,6 +761,9 @@ public class Interface extends Module {
                 break;
             case "None":
                 colors = new Color(0, 0, 0, 0).getRGB();
+                break;
+            case "Custom":
+                colors = bgCustomColor.get().getRGB();
                 break;
         }
         return colors;

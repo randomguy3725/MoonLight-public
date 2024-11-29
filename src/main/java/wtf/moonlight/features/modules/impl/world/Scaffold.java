@@ -48,17 +48,17 @@ import java.util.Objects;
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.World, key = Keyboard.KEY_B)
 public class Scaffold extends Module {
     private final ModeValue switchBlock = new ModeValue("Switch Block", new String[]{"Silent", "Switch", "Spoof"}, "Normal", this);
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Normal", "Telly", "Snap", "Watchdog", "God Bridge", "Grim 1.17","Fruit Bridge"}, "Normal", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Normal", "Telly", "Snap", "Watchdog", "God Bridge", "Grim 1.17", "Fruit Bridge"}, "Normal", this);
     private final SliderValue minTellyTicks = new SliderValue("Min Telly Ticks", 2, 1, 5, this, () -> mode.is("Telly"));
     private final SliderValue maxTellyTicks = new SliderValue("Max Telly Ticks", 4, 1, 5, this, () -> mode.is("Telly"));
     private final SliderValue fruitBTicks = new SliderValue("Fruit Bridge Ticks", 2, 1, 5, this, () -> mode.is("Fruit Bridge"));
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> mode.is("God Bridge"));
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
-    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "Normal 2","Normal 3","Normal 4", "God Bridge", "Reverse", "Smart","Bruteforce","Custom","Sex"}, "Normal", this, () -> !mode.is("Grim 1.17"));
+    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "Normal 2", "Normal 3", "Normal 4", "God Bridge", "Reverse", "Smart", "Custom", "Sex"}, "Normal", this, () -> !mode.is("Grim 1.17"));
     private final ModeValue precision = new ModeValue("Precision", new String[]{"Very Low", "Low", "Moderate", "High", "Very High", "Unlimited"}, "Moderate", this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));
     private final BoolValue normalRTest = new BoolValue("Test", false, this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));
     private final ModeValue godBridgePitch = new ModeValue("God Bridge Pitch Mode", new String[]{"Static", "In Range"}, "In Range", this, () -> rotations.is("God Bridge") && !mode.is("Grim 1.17"));
-    private final SliderValue customYaw = new SliderValue("Custom Yaw", 180, 0, 180 , 1, this, () -> rotations.is("Custom"));
+    private final SliderValue customYaw = new SliderValue("Custom Yaw", 180, 0, 180, 1, this, () -> rotations.is("Custom"));
     private final SliderValue pitch = new SliderValue("Static Pitch", 76, 50, 90, .1f, this, () -> godBridgePitch.canDisplay() && godBridgePitch.is("Static"));
     private final SliderValue minPitch = new SliderValue("Min Pitch Range", 55, 50, 90, .1f, this, () -> godBridgePitch.canDisplay() && godBridgePitch.is("In Range"));
     public final SliderValue maxPitch = new SliderValue("Max Pitch Range", 75, 50, 90, .1f, this, () -> godBridgePitch.canDisplay() && godBridgePitch.is("In Range"));
@@ -89,22 +89,20 @@ public class Scaffold extends Module {
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Watchdog","Watchdog Test"}, "Jump", this, () -> mode.is("Watchdog"));
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Watchdog", "Watchdog Test"}, "Jump", this, () -> mode.is("Watchdog"));
     private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")));
-    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","2.5 Tick"}, "Jump", this, () -> mode.is("Watchdog"));
+    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla", "2.5 Tick"}, "Jump", this, () -> mode.is("Watchdog"));
     private final BoolValue stop = new BoolValue("Stop", false, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final SliderValue towerSpeedWhenDiagonal = new SliderValue("Tower Move Diagonal Speed", 0.22f, 0.2f, 0.28f, 0.005f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final BoolValue boost = new BoolValue("Tower Move Boost", true, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final SliderValue speedBoost = new SliderValue("Tower Move Speed Boost", 0.06f, 0.01f, 0.1f, 0.01f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla") && boost.get());
-    private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom", "Low","Spoof","Blink"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
-    private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal","None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
+    private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom", "Low", "Spoof", "Blink"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
+    private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final SliderValue straightSpeed = new SliderValue("Keep Y Straight Speed", 1, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final SliderValue diagonalSpeed = new SliderValue("Keep Y Diagonal Speed", 0.95f, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
-    public final ModeValue lowMode = new ModeValue("Low Hop",new String[]{"None","1","2","3"},"1",this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
+    public final ModeValue lowMode = new ModeValue("Low Hop", new String[]{"None", "1", "2", "3"}, "1", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     public final ModeValue counter = new ModeValue("Counter", new String[]{"None", "Simple", "Normal", "Exhibition"}, "Normal", this);
-    private final EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
-    private final BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     public BlockData data;
     public BlockPos targetBlock;
     public BlockPos previousBlock;
@@ -244,7 +242,7 @@ public class Scaffold extends Module {
                 canJump = false;
         }
 
-        if(mode.is("Telly") && mc.thePlayer.onGround){
+        if (mode.is("Telly") && mc.thePlayer.onGround) {
             tellyTicks = MathUtils.randomizeInt((int) minTellyTicks.get(), (int) maxTellyTicks.get());
         }
 
@@ -312,9 +310,9 @@ public class Scaffold extends Module {
         }
 
         if (towerMove.canDisplay()) {
-            switch (towerMove.get()){
+            switch (towerMove.get()) {
                 case "2.5 Tick":
-                    if(towerMoveTicks >= 2 && towerStarted){
+                    if (towerMoveTicks >= 2 && towerStarted) {
                         mc.thePlayer.motionY = -0.0784000015258789;
                     }
                     break;
@@ -535,11 +533,9 @@ public class Scaffold extends Module {
                             finalYaw = Math.round(yaw / 45f) * 45f;
                             pitchList.forEach(pitches -> {
                                 raycast[0] = RotationUtils.rayTrace(new float[]{finalYaw, pitches}, mc.playerController.getBlockReachDistance(), 1);
-                                if (raycast[0] != null) {
-                                    if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                                        rayCasted[0] = raycast[0];
-                                        rotation = new float[]{finalYaw, pitches};
-                                    }
+                                if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                                    rayCasted[0] = raycast[0];
+                                    rotation = new float[]{finalYaw, pitches};
                                 }
                             });
 
@@ -549,36 +545,30 @@ public class Scaffold extends Module {
                             yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 45 : -45)) : movingYaw;
                             finalYaw = Math.round(yaw / 45f) * 45f;
                             raycast[0] = RotationUtils.rayTrace(new float[]{finalYaw, pitch.get()}, mc.playerController.getBlockReachDistance(), 1);
-                            if (raycast[0] != null) {
-                                if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                                    rayCasted[0] = raycast[0];
-                                    rotation = new float[]{finalYaw, pitch.get()};
-                                }
+                            if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                                rayCasted[0] = raycast[0];
+                                rotation = new float[]{finalYaw, pitch.get()};
                             }
+
                             break;
                     }
                     break;
 
                 case "Normal 2":
                     raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
-                                rayCasted[0] = raycast[0];
-                                rotation = RotationUtils.getRotations(getVec3(data));
-                            }
-                        }
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) || alwaysRot.get()) {
+                        rayCasted[0] = raycast[0];
+                        rotation = RotationUtils.getRotations(getVec3(data));
                     }
                     break;
 
                 case "Reverse":
                     raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw + 180, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)}, mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            rayCasted[0] = raycast[0];
-                            rotation = new float[]{mc.thePlayer.rotationYaw + 180, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)};
-                        }
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                        rayCasted[0] = raycast[0];
+                        rotation = new float[]{mc.thePlayer.rotationYaw + 180, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)};
                     }
+
 
                     break;
 
@@ -618,13 +608,9 @@ public class Scaffold extends Module {
                     }
 
                     raycast[0] = RotationUtils.rayTrace(vecRotation, mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) {
-                                rayCasted[0] = raycast[0];
-                                this.rotation = RotationUtils.getRotations(getVec3(data));
-                            }
-                        }
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) {
+                        rayCasted[0] = raycast[0];
+                        this.rotation = RotationUtils.getRotations(getVec3(data));
                     }
                     break;
 
@@ -632,13 +618,9 @@ public class Scaffold extends Module {
                     Vec3 hitVec = new Vec3(data.position.offset(data.facing)).addVector(0.5, 0.5, 0.5).add(data.facing.getOpposite().getDirectionVec().multiply(0.5));
 
                     raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(hitVec), mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
-                                rayCasted[0] = raycast[0];
-                                rotation = RotationUtils.getRotations(hitVec);
-                            }
-                        }
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock)) || alwaysRot.get()) {
+                        rayCasted[0] = raycast[0];
+                        rotation = RotationUtils.getRotations(hitVec);
                     }
                     break;
 
@@ -656,7 +638,7 @@ public class Scaffold extends Module {
                         float[] rotations = RotationUtils.getRotations(raycast[0].hitVec);
 
                         if (RotationUtils.rayTrace(rotations, mc.playerController.getBlockReachDistance(), 1).typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
+                            if (rayCasted[0] == null || raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
                                 rotation = rotations;
                                 rayCasted[0] = raycast[0];
                             }
@@ -666,37 +648,19 @@ public class Scaffold extends Module {
 
                 case "Custom":
                     raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw + customYaw.get(), getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)}, mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            rayCasted[0] = raycast[0];
-                            rotation = new float[]{mc.thePlayer.rotationYaw + customYaw.get(), getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)};
-                        }
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                        rayCasted[0] = raycast[0];
+                        rotation = new float[]{mc.thePlayer.rotationYaw + customYaw.get(), getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 90)};
                     }
 
                     break;
 
                 case "Sex":
-                    raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw, previousRotation[1],100)}, mc.playerController.getBlockReachDistance(), 1);
-                    if (raycast[0] != null) {
-                        if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                            rayCasted[0] = raycast[0];
-                            rotation = new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw, previousRotation[1],100)};
-                        }
-                    }
-                    break;
-                case "Bruteforce":
-                    for (float possibleYaw = mc.thePlayer.rotationYaw - 180 + 0; possibleYaw <= mc.thePlayer.rotationYaw + 360 - 180; possibleYaw += 45) {
-                        for (float possiblePitch = 90; possiblePitch > 30; possiblePitch -= possiblePitch > (mc.thePlayer.isPotionActive(Potion.moveSpeed) ? 60 : 80) ? 1 : 10) {
-                            raycast[0] = RotationUtils.rayTrace(new float[]{possibleYaw, possiblePitch}, mc.playerController.getBlockReachDistance(), 1);
-                            if (raycast[0] != null) {
-                                if (raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                                    if (raycast[0].getBlockPos().equals(data.getPosition()) || raycast[0].getBlockPos().equals(previousBlock) || alwaysRot.get()) {
-                                        rotation = new float[]{possibleYaw,possiblePitch};
-                                        rayCasted[0] = raycast[0];
-                                    }
-                                }
-                            }
-                        }
+                    raycast[0] = RotationUtils.rayTrace(new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw, previousRotation[1], 100)}, mc.playerController.getBlockReachDistance(), 1);
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                        rayCasted[0] = raycast[0];
+                        rotation = new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw, previousRotation[1], 100)};
+
                     }
                     break;
             }
@@ -719,7 +683,7 @@ public class Scaffold extends Module {
                     clutching = false;
             }
 
-            if(unPatch.canDisplay() && unPatch.get() && mc.thePlayer.onGround && (wdKeepY.is("Opal") && start || !wdKeepY.is("Opal") && !towering() && !towerMoving())){
+            if (unPatch.canDisplay() && unPatch.get() && mc.thePlayer.onGround && (wdKeepY.is("Opal") && start || !wdKeepY.is("Opal") && !towering() && !towerMoving())) {
                 rotation = new float[]{mc.thePlayer.rotationYaw, (float) (0f + getRandom())};
             }
 
@@ -872,12 +836,13 @@ public class Scaffold extends Module {
         }
 
         if (wdSprint.canDisplay() && wdSprint.is("Low") && mc.thePlayer.onGround && !towerMoving() && !towering() && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
-            if(!placed){
+            if (!placed) {
                 MovementUtils.strafe(event, 0.185 - randomAmount());
                 MovementUtils.jump(event);
-            } if(mc.thePlayer.ticksExisted % 12 != 0){
+            }
+            if (mc.thePlayer.ticksExisted % 12 != 0) {
                 MovementUtils.strafe(event, MovementUtils.getSpeed() * 1.06);
-            }else {
+            } else {
                 event.setY(event.getY() + 0.0005f);
             }
         }
@@ -996,7 +961,7 @@ public class Scaffold extends Module {
     public void onStrafe(StrafeEvent event) {
 
         if (mc.thePlayer.onGround) {
-            if ((addons.isEnabled("Keep Y")  && !isEnabled(Speed.class) && (mode.is("Telly") || wdKeepY.canDisplay() && !towering() && !towerMoving() && wdKeepY.is("Opal") && start || placed && !start) || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class)) && MovementUtils.isMoving() && !mc.gameSettings.keyBindJump.isKeyDown()) {
+            if ((addons.isEnabled("Keep Y") && !isEnabled(Speed.class) && (mode.is("Telly") || wdKeepY.canDisplay() && !towering() && !towerMoving() && wdKeepY.is("Opal") && start || placed && !start) || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class)) && MovementUtils.isMoving() && !mc.gameSettings.keyBindJump.isKeyDown()) {
                 mc.thePlayer.jump();
                 jumpCount += 1;
             } else {
@@ -1201,14 +1166,14 @@ public class Scaffold extends Module {
             return mc.thePlayer.ticksExisted % 6 != 0 ? onGroundY : mc.thePlayer.getEntityBoundingBox().minY;
         }
         if (wdKeepY.is("Opal")) {
-            if(FallDistanceComponent.distance > 0 && !start) {
+            if (FallDistanceComponent.distance > 0 && !start) {
                 start = true;
                 return mc.thePlayer.getEntityBoundingBox().minY;
             }
             return onGroundY;
         }
 
-        if(wdKeepY.is("None")){
+        if (wdKeepY.is("None")) {
             return onGroundY;
         }
 
@@ -1300,9 +1265,9 @@ public class Scaffold extends Module {
     }
 
     public static float getYawBasedPitch(BlockPos blockPos, EnumFacing facing, float currentYaw, float lastPitch, int maxPitch) {
-        float increment = (float)(Math.random() / 20.0) + 0.05F;
+        float increment = (float) (Math.random() / 20.0) + 0.05F;
 
-        for(float i = (float)maxPitch; i > 45.0F; i -= increment) {
+        for (float i = (float) maxPitch; i > 45.0F; i -= increment) {
             MovingObjectPosition ray = RotationUtils.rayTrace(new float[]{currentYaw, i}, mc.playerController.getBlockReachDistance(), 1);
             if (ray.getBlockPos() == null || ray.sideHit == null) {
                 return lastPitch;
@@ -1344,7 +1309,7 @@ public class Scaffold extends Module {
         EnumFacing face = data.getFacing();
         double x = pos.getX() + 0.5D;
         double y = pos.getY() + 0.5D;
-        double z =  pos.getZ() + 0.5D;
+        double z = pos.getZ() + 0.5D;
         x += face.getFrontOffsetX() / 2.0D;
         z += face.getFrontOffsetZ() / 2.0D;
         y += face.getFrontOffsetY() / 2.0D;
@@ -1362,6 +1327,7 @@ public class Scaffold extends Module {
         private final BlockPos position;
         private final EnumFacing facing;
     }
+
     enum HoverState {
         JUMP,
         FALL,
