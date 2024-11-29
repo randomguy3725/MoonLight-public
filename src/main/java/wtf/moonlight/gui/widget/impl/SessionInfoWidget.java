@@ -20,8 +20,8 @@ public class SessionInfoWidget extends Widget {
     public void onShader(Shader2DEvent event) {
         switch (setting.sessionInfoMode.get()){
             case "Rise":
-                if(event.getShaderType() == Shader2DEvent.ShaderType.BLUR) {
-                    RoundedUtils.drawRoundOutline(renderX, renderY, this.width, this.height, 11, 0.5f, new Color(0, 0, 0, 100), new Color(setting.color(0)));
+                if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                    RoundedUtils.drawRound(renderX, renderY, this.width, this.height, 11, new Color(setting.color(0)));
                 }
                 break;
         }
@@ -48,7 +48,6 @@ public class SessionInfoWidget extends Widget {
                         int barHeight = i == 5 ? setting.matchKilled : prevKilled;
 
                         GL11.glPushMatrix();
-                        //RenderUtils.scissor(renderX + xOffset,(renderY + height) + 2,5,2);
                         RenderUtils.scissor(renderX + xOffset, (renderY + height) - (2 * 10), 5, (2 * 10));
                         GL11.glEnable(GL11.GL_SCISSOR_TEST);
                         Color color = i == 5 ? new Color(setting.color()) : new Color(setting.color()).darker().darker();

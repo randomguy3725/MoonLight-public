@@ -54,7 +54,7 @@ public class Scaffold extends Module {
     private final SliderValue fruitBTicks = new SliderValue("Fruit Bridge Ticks", 2, 1, 5, this, () -> mode.is("Fruit Bridge"));
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> mode.is("God Bridge"));
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
-    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "Normal 2", "Normal 3", "Normal 4", "God Bridge", "Reverse", "Smart", "Bruteforce", "Custom", "Sex"}, "Normal", this, () -> !mode.is("Grim 1.17"));
+    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "Normal 2", "Normal 3", "Normal 4", "God Bridge", "Reverse", "Smart", "Custom", "Sex"}, "Normal", this, () -> !mode.is("Grim 1.17"));
     private final ModeValue precision = new ModeValue("Precision", new String[]{"Very Low", "Low", "Moderate", "High", "Very High", "Unlimited"}, "Moderate", this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));
     private final BoolValue normalRTest = new BoolValue("Test", false, this, () -> !mode.is("Grim 1.17") && rotations.is("Normal"));
     private final ModeValue godBridgePitch = new ModeValue("God Bridge Pitch Mode", new String[]{"Static", "In Range"}, "In Range", this, () -> rotations.is("God Bridge") && !mode.is("Grim 1.17"));
@@ -103,8 +103,6 @@ public class Scaffold extends Module {
     private final SliderValue diagonalSpeed = new SliderValue("Keep Y Diagonal Speed", 0.95f, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     public final ModeValue lowMode = new ModeValue("Low Hop", new String[]{"None", "1", "2", "3"}, "1", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     public final ModeValue counter = new ModeValue("Counter", new String[]{"None", "Simple", "Normal", "Exhibition"}, "Normal", this);
-    private final EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
-    private final BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     public BlockData data;
     public BlockPos targetBlock;
     public BlockPos previousBlock;

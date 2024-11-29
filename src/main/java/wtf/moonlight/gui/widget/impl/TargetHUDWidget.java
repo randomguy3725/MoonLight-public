@@ -165,17 +165,17 @@ class TargetHUD implements InstanceAccess {
             case "Type 2": {
                 if (!shader) {
                     target.healthAnimation.animate((width - (5 * 4 + 26.5f)) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
-                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(31, 31, 31, 140));
+                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor()));
                     RenderUtils.renderPlayer2D(target, x + 5, y + 6.8, 26.5, 2, -1);
 
                     RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(setting.color()));
 
-                    Fonts.psRegular.get(14).drawString(target.getDisplayName().getFormattedText(), x + 5 * 3 + 26.5f, y + 6.8f + (float) Fonts.psRegular.get(14).getHeight() / 2, -1);
-                    Fonts.psRegular.get(12).drawString((int) (MathUtils.roundToHalf(target.getHealth())) + "HP", x + 5 * 3 + 26.5f, y + 6.8f * 2.25 + (float) Fonts.psRegular.get(14).getHeight() / 2, -1);
+                    Fonts.interSemiBold.get(14).drawString(target.getDisplayName().getFormattedText(), x + 5 * 3 + 26.5f, y + 6.8f + (float) Fonts.interSemiBold.get(14).getHeight() / 2, -1);
+                    Fonts.interRegular.get(12).drawString((int) (MathUtils.roundToHalf(target.getHealth())) + "HP", x + 5 * 3 + 26.5f, y + 6.8f * 2.25 + (float) Fonts.interSemiBold.get(14).getHeight() / 2, -1);
 
                     RoundedUtils.drawGradientHorizontal(x + 5 * 3 + 26.5f, y + 26.5f, target.healthAnimation.getOutput(), 3.8f, 2, new Color(setting.color(0)), new Color(setting.color(90)));
 
-                    RenderUtils.drawRect(x + 5 * 3 + 26.5f + Fonts.psRegular.get(12).getStringWidth((int) (MathUtils.roundToHalf(target.getHealth())) + "HP") + 2, y + 6.8f * 2.25f + 1.5f, 0.5f, Fonts.psRegular.get(12).getHeight(), new Color(128, 128, 128).getRGB());
+                    RenderUtils.drawRect(x + 5 * 3 + 26.5f + Fonts.interRegular.get(12).getStringWidth((int) (MathUtils.roundToHalf(target.getHealth())) + "HP") + 2, y + 6.8f * 2.25f + 1.5f, 0.5f, Fonts.psRegular.get(12).getHeight(), new Color(128, 128, 128).getRGB());
 
                     List<ItemStack> items = new ArrayList<>();
                     if (target.getHeldItem() != null) {
@@ -190,12 +190,12 @@ class TargetHUD implements InstanceAccess {
                     float i = 0;
 
                     for (ItemStack stack : items) {
-                        RenderUtils.renderItemStack(stack, i + x + 5 * 3 + 26.5f + Fonts.psRegular.get(12).getStringWidth((int) (MathUtils.roundToHalf(target.getHealth())) + "HP") + 2 + 1, y + 6.8f * 2.25f + 1.5f, 0.5f);
+                        RenderUtils.renderItemStack(stack, i + x + 5 * 3 + 26.5f + Fonts.interRegular.get(12).getStringWidth((int) (MathUtils.roundToHalf(target.getHealth())) + "HP") + 2 + 1, y + 6.8f * 2.25f + 1.5f, 0.5f);
                         i += 7.5f;
                     }
 
                 } else {
-                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.color(90)));
+                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.bgColor()));
                 }
             }
             break;
