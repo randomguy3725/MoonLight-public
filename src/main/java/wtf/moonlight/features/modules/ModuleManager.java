@@ -60,6 +60,7 @@ public class ModuleManager {
                 FakeLag.class,
                 NoRotate.class,
                 Timer.class,
+                AntiHunger.class,
 
                 //misc
                 AutoAuthenticate.class,
