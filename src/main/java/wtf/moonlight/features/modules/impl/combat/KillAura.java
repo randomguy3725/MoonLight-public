@@ -461,9 +461,9 @@ public class KillAura extends Module {
             float interpolatedY = lerp(animatedY.getOutput(), (float) aimVec.yCoord, interpolation.get());
             float interpolatedZ = lerp(animatedZ.getOutput(), (float) aimVec.zCoord, interpolation.get());
 
-            animatedX.animate(interpolatedX, Math.round(delay.get()));
-            animatedY.animate(interpolatedY, Math.round(delay.get()));
-            animatedZ.animate(interpolatedZ, Math.round(delay.get()));
+            animatedX.animate(interpolatedX, (int) delay.get());
+            animatedY.animate(interpolatedY, (int) delay.get());
+            animatedZ.animate(interpolatedZ, (int) delay.get());
 
             drawDot(new Vec3(animatedX.getOutput(), animatedY.getOutput(), animatedZ.getOutput()), dotSize.get(), getModule(Interface.class).color());
         }

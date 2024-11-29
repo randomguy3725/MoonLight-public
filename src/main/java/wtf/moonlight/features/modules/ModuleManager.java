@@ -79,6 +79,8 @@ public class ModuleManager {
                 Speed.class,
                 Sprint.class,
                 Step.class,
+                Strafe.class,
+                Fly.class,
 
                 //player
                 AntiFireball.class,

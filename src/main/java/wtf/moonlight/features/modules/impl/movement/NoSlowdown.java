@@ -54,7 +54,6 @@ public class NoSlowdown extends Module {
                 }
                 break;
 
-
             case "NCP":
                 if (mc.thePlayer.isUsingItem() && ncpShouldWork) {
                     if (mc.thePlayer.ticksExisted % 3 == 0) {
