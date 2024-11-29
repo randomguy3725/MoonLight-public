@@ -9,6 +9,7 @@ import net.minecraft.network.play.server.S14PacketEntity;
 import net.minecraft.network.play.server.S18PacketEntityTeleport;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
+import org.lwjgl.opengl.GL11;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;
@@ -32,6 +33,7 @@ import java.awt.*;
 public class BackTrack extends Module {
     private final ModeValue esp = new ModeValue("Mode", new String[]{"Fake Player", "Box"}, "Box", this);
     public final BoolValue cancelClientP = new BoolValue("Cancel Client Packet",false,this);
+    public final BoolValue swingCheck = new BoolValue("Swing Check",false,this);
     public final BoolValue releaseOnHit = new BoolValue("Release On Hit",false,this);
     public final BoolValue releaseOnVelocity = new BoolValue("Release On Velocity",false,this);
     public SliderValue ms = new SliderValue("MS", 50, 0, 5000, 5, this,() -> !releaseOnHit.get());
@@ -58,7 +60,7 @@ public class BackTrack extends Module {
             if (target == null)
                 return;
 
-            if (!(mc.thePlayer.isSwingInProgress)) {
+            if (swingCheck.get() && !mc.thePlayer.isSwingInProgress) {
                 return;
             }
 
@@ -133,38 +135,12 @@ public class BackTrack extends Module {
                     break;
 
                 case "Fake Player":
-                    GlStateManager.pushMatrix();
-                    renderFrozenEntity(target, event);
-                    GlStateManager.popMatrix();
+                    GL11.glPushMatrix();
+                    mc.getRenderManager().doRenderEntity(target, animatedX.getOutput() - mc.getRenderManager().renderPosX, animatedY.getOutput() - mc.getRenderManager().renderPosY, animatedZ.getOutput() - mc.getRenderManager().renderPosZ, target.rotationYaw, event.getPartialTicks(), true);
+                    GL11.glPopMatrix();
+                    GlStateManager.resetColor();
                     break;
             }
         }
-    }
-
-    private void renderFrozenEntity(Entity entity, Render3DEvent event) {
-        if (!(entity instanceof EntityOtherPlayerMP)) {
-            return;
-        }
-
-        EntityOtherPlayerMP mp = new EntityOtherPlayerMP(mc.theWorld, ((EntityOtherPlayerMP) entity)
-                .getGameProfile());
-
-        animatedX.animate((float) realPosition.xCoord, 20);
-        animatedY.animate((float) realPosition.yCoord, 20);
-        animatedZ.animate((float) realPosition.zCoord, 20);
-
-        mp.prevPosY = mp.posY = animatedY.getOutput();
-        mp.prevPosX = mp.posX = animatedX.getOutput();
-        mp.prevPosZ = mp.posZ = animatedZ.getOutput();
-
-        mp.renderYawOffset = mp.prevRenderYawOffset = ((EntityOtherPlayerMP) entity).renderYawOffset;
-        mp.prevRotationYaw = mp.rotationYaw = entity.rotationYaw;
-        mp.prevRotationPitch = mp.rotationPitch = entity.rotationPitch;
-
-        mp.prevSwingProgress = ((EntityOtherPlayerMP) entity).prevSwingProgress;
-        mp.swingProgress = ((EntityOtherPlayerMP) entity).swingProgress;
-        mp.swingProgressInt = ((EntityOtherPlayerMP) entity).swingProgressInt;
-
-        mc.getRenderManager().renderEntityStatic(mp, event.getPartialTicks(),false);
     }
 }

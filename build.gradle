@@ -34,7 +34,8 @@ compileJava {
 }
 
 dependencies {
-    implementation group: 'io.netty', name: 'netty-all', version: '5.0.0.Alpha2'
+    implementation 'io.netty:netty-all:5.0.0.Alpha2'
+
     implementation "net.sf.jopt-simple:jopt-simple:4.6"
 
     implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")

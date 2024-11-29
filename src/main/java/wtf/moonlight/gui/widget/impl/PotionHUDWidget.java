@@ -31,12 +31,30 @@ public class PotionHUDWidget extends Widget {
         this.y = 0.0f;
     }
 
-    @Override
-    public void onShader(Shader2DEvent event) {
-
-    }
     private final ContinualAnimation widthAnimation = new ContinualAnimation();
     private final ContinualAnimation heightAnimation = new ContinualAnimation();
+    @Override
+    public void onShader(Shader2DEvent event) {
+        ArrayList<PotionEffect> potions = new ArrayList<>(mc.thePlayer.getActivePotionEffects());
+        if (setting.potionHudMode.is("Default")) {
+            widthAnimation.animate(width, 18);
+            potions.sort(Comparator.comparingDouble(effect -> -Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName())))));
+            float yOffset = 0;
+            heightAnimation.animate(potions.size() * 13 - 14, 18);
+            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), Fonts.interBold.get(15).getHeight() + 12f + heightAnimation.getOutput() + 4 + 2, 4, new Color(setting.bgColor(),true));
+            Fonts.interBold.get(15).drawString("Potions Status", renderX + 5, renderY + 5.5, setting.color());
+            width = (MathHelper.clamp_int(!potions.isEmpty() ? Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(potions.stream().max(Comparator.comparingDouble(effect -> Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName()))))).stream().findFirst().orElse(null)).getEffectName()) + 20 : 0, 80, 999));
+            height = ((Fonts.interRegular.get(15).getHeight() + 2 + (12 + heightAnimation.getOutput())));
+        }
+        if(setting.potionHudMode.is("Sexy")){
+            width = 92;
+            height = heightAnimation.getOutput();
+
+            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor()));
+
+            heightAnimation.animate(20 + potions.size() * 10,20);
+        }
+    }
     @Override
     public void render() {
         ArrayList<PotionEffect> potions = new ArrayList<>(mc.thePlayer.getActivePotionEffects());

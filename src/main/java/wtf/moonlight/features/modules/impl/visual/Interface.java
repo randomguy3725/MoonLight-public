@@ -137,13 +137,13 @@ public class Interface extends Module {
                     Fonts.interRegular.get(17).drawStringWithShadow(name, Fonts.interBold.get(17).getStringWidth("ML") + x + 2, y + 4.5f, -1);
                     break;
                 case "Nursultan":
-                    RoundedUtils.drawRound(7, 7.5f, 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 5, 15, 4, new Color(17, 17, 17, 215));
+                    RoundedUtils.drawRound(7, 7.5f, 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 5, 15, 4, new Color(bgColor(0)));
                     Fonts.nursultan.get(16).drawString("P", 13, 14, color(0));
                     RenderUtils.drawRect(25, 10.5f, 1, 8.5f, new Color(47, 47, 47).getRGB());
                     Fonts.interMedium.get(15).drawString(INSTANCE.getVersion(), 29, 13, color(0));
 
                     RenderUtils.drawRect(7 + 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 2.5f + 11 + 15, 10.5f, 1, 8.5f, new Color(47, 47, 47).getRGB());
-                    RoundedUtils.drawRound(7 + 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 2.5f + 11, 7.5f, Fonts.interMedium.get(15).getStringWidth("user") + 25, 15, 4, new Color(18, 18, 18, 215));
+                    RoundedUtils.drawRound(7 + 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 2.5f + 11, 7.5f, Fonts.interMedium.get(15).getStringWidth("user") + 25, 15, 4, new Color(bgColor(0)));
                     Fonts.nursultan.get(16).drawString("W", 7 + 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 2.5f + 11 + 5, 14, color(0));
                     Fonts.interMedium.get(15).drawString("user", 7 + 20 + Fonts.interMedium.get(15).getStringWidth(INSTANCE.getVersion()) + 2.5f + 11 + 15 + 5, 13, -1);
                     break;
@@ -757,7 +757,7 @@ public class Interface extends Module {
                 colors = (new Color(17, 17, 17, 215).getRGB());
                 break;
             case "Synced":
-                colors = new Color(ColorUtils.darker(color(counter,opacity),0.2f)).getRGB();
+                colors = new Color(ColorUtils.darker(color(counter,opacity),0.35f)).getRGB();
                 break;
             case "None":
                 colors = new Color(0, 0, 0, 0).getRGB();
