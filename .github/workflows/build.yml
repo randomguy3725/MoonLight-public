@@ -26,8 +26,13 @@ jobs:
           job-id: jdk17
           arguments: shadowJar
           gradle-version: wrapper
+      - name: Rename Jar file
+        run: mv build/libs/MoonLight-1.8.9-all.jar build/libs/MoonLight.jar
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: moonlight
-          path: build/libs/MoonLight-1.8.9-all.jar
+          name: MoonLight
+          path: |
+            build/libs/MoonLight.jar
+            json/MoonLight.json
+          archive: zip
