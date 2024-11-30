@@ -22,7 +22,7 @@ public class AutoPlay extends Module {
     }
 
     @EventTarget
-    private void onPacketReceive(PacketEvent event) {
+    private void onPacket(PacketEvent event) {
         this.setTag(mode.get());
         if (!event.isCancelled() && event.getPacket() instanceof S02PacketChat s02PacketChat) {
             String chatMessage = s02PacketChat.getChatComponent().getUnformattedText();
