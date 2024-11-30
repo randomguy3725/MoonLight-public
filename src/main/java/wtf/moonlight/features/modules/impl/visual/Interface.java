@@ -72,7 +72,7 @@ public class Interface extends Module {
     ), this);
 
     public final BoolValue cFont = new BoolValue("C Fonts",true,this, () -> elements.isEnabled("Module List"));
-    public final ModeValue fontMode = new ModeValue("C Fonts Mode", new String[]{"Bold","Semi Bold","Regular"}, "Semi Bold", this,() -> cFont.canDisplay() && cFont.get());
+    public final ModeValue fontMode = new ModeValue("C Fonts Mode", new String[]{"Bold","Semi Bold","Regular","Tahoma"}, "Semi Bold", this,() -> cFont.canDisplay() && cFont.get());
     public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi"}, "Text", this,() -> elements.isEnabled("Watermark"));
     public final ModeValue animation = new ModeValue("Animation", new String[]{"ScaleIn", "MoveIn","Slide In"}, "ScaleIn", this, () -> elements.isEnabled("Module List"));
     public final ModeValue arrayPosition = new ModeValue("Position", new String[]{"Right","Left"}, "Right", this, () -> elements.isEnabled("Module List"));
@@ -688,6 +688,10 @@ public class Interface extends Module {
             case "Regular":
                 fr = Fonts.interRegular.get(15);
                 break;
+            case "Exhi":
+                fr = Fonts.Tahoma.get(15);
+                break;
+
         }
 
         return fr;
