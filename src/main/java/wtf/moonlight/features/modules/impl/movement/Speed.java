@@ -49,7 +49,6 @@ public class Speed extends Module {
     private final BoolValue onHurt = new BoolValue("On Hurt", true, this, () -> Objects.equals(mode.get(), "NCP") && pullDown.get());
     private final BoolValue airBoost = new BoolValue("Air Boost", true, this, () -> Objects.equals(mode.get(), "NCP"));
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false, this, () -> Objects.equals(mode.get(), "NCP"));
-    private final BoolValue airStrafe = new BoolValue("Air Strafe", true, this, () -> Objects.equals(mode.get(), "NCP"));
     public final BoolValue noBob = new BoolValue("No Bob", true, this);
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
@@ -267,15 +266,18 @@ public class Speed extends Module {
             }
 
             case "NCP": {
-                if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-                    mc.thePlayer.jump();
+                if (MovementUtils.isMoving()) {
+                    couldStrafe = true;
+                    MovementUtils.strafe();
+                    if (mc.thePlayer.onGround) {
+                        mc.thePlayer.jump();
+                        MovementUtils.strafe(0.48 + MovementUtils.getSpeedEffect() * 0.07);
+                    }
                 }
 
                 if (damageBoost.get() && mc.thePlayer.hurtTime > 0) {
-                    MovementUtils.strafe(0.5);
+                    MovementUtils.strafe(Math.max(MovementUtils.getSpeed(),0.5));
                 }
-
-                if (airStrafe.get() && !mc.thePlayer.onGround) MovementUtils.strafe();
             }
 
             case "Watchdog":
@@ -409,17 +411,6 @@ public class Speed extends Module {
                     }
                 }
 
-                break;
-
-            case "BlocksMC":
-                if (MovementUtils.isMoving()) {
-                    couldStrafe = true;
-                    MovementUtils.strafe();
-                    if (mc.thePlayer.onGround) {
-                        mc.thePlayer.jump();
-                        MovementUtils.strafe(0.48 + MovementUtils.getSpeedEffect() * 0.07);
-                    }
-                }
                 break;
         }
     }

@@ -34,7 +34,7 @@ import static net.minecraft.network.play.client.C07PacketPlayerDigging.Action.RE
 @ModuleInfo(name = "NoSlowdown", category = ModuleCategory.Movement)
 public class NoSlowdown extends Module {
 
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "GrimAC", "Intave", "Old Intave", "Watchdog", "Watchdog Test", "NCP"}, "Vanilla", this);
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"Vanilla", "GrimAC", "Intave", "Old Intave", "Watchdog", "NCP"}, "Vanilla", this);
     private final BoolValue sprint = new BoolValue("Sprint", true, this);
     private boolean eat = true;
     private int lastFoodAmount;
@@ -118,7 +118,6 @@ public class NoSlowdown extends Module {
                 break;
 
             case "Watchdog":
-            case "Watchdog Test":
                 if (isHoldingConsumable()) {
                     if (mc.thePlayer.offGroundTicks == 4 && send) {
                         send = false;
@@ -173,7 +172,6 @@ public class NoSlowdown extends Module {
                 break;
 
             case "Watchdog":
-            case "Watchdog Test":
                 if (event.getState() == PacketEvent.State.OUTGOING)
                     if (packet instanceof C08PacketPlayerBlockPlacement blockPlacement && !mc.thePlayer.isUsingItem()) {
                         if (blockPlacement.getPlacedBlockDirection() == 255 && isHoldingConsumable() && mc.thePlayer.offGroundTicks < 2) {
@@ -248,10 +246,7 @@ public class NoSlowdown extends Module {
             event.setStrafe(foodSpeed);
             return;
         }
-
-        if (mode.is("Watchdog Test") && isHoldingConsumable())
-            event.setSprinting(mc.thePlayer.onGround);
-        else event.setSprinting(sprint.get());
+        event.setSprinting(sprint.get());
 
         event.setForward(1);
         event.setStrafe(1);
