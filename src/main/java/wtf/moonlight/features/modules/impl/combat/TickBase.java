@@ -22,6 +22,8 @@ import wtf.moonlight.utils.render.RenderUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @ModuleInfo(name = "TickBase", category = ModuleCategory.Combat)
 public class TickBase extends Module {
@@ -48,7 +50,7 @@ public class TickBase extends Module {
 
         if (target != null && predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector()) < mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) &&
                 mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) &&
-                (RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90 && check.get() || !check.get())) {
+                (RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90 && check.get() || !check.get()) && checks() && !predictProcesses.get((int) (predictTicks.get() - 1)).isCollidedHorizontally) {
             shouldCharge = shifted < maxBalance.get();
         }
 
@@ -127,5 +129,10 @@ public class TickBase extends Module {
             this.onGround = onGround;
             this.isCollidedHorizontally = isCollidedHorizontally;
         }
+    }
+
+    private boolean checks() {
+        return Stream.<Supplier<Boolean>>of(mc.thePlayer::isInLava, mc.thePlayer::isBurning, mc.thePlayer::isInWater,
+                () -> mc.thePlayer.isInWeb).map(Supplier::get).anyMatch(Boolean.TRUE::equals);
     }
 }
