@@ -239,10 +239,6 @@ public class Scaffold extends Module {
                 canJump = false;
         }
 
-        if (mode.is("Telly") && mc.thePlayer.onGround) {
-            tellyTicks = MathUtils.randomizeInt((int) minTellyTicks.get(), (int) maxTellyTicks.get());
-        }
-
         if (mc.thePlayer.onGround || towerMoving() || towering())
             onGroundY = mc.thePlayer.getEntityBoundingBox().minY;
 
@@ -1043,6 +1039,10 @@ public class Scaffold extends Module {
 
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir)) {
             return;
+        }
+
+        if (mode.is("Telly") && mc.thePlayer.onGround) {
+            tellyTicks = MathUtils.randomizeInt((int) minTellyTicks.get(), (int) maxTellyTicks.get());
         }
 
         if (mode.is("Watchdog")) {
