@@ -2,6 +2,10 @@
 
 Welcome to the **MoonLight-public** repository, a fully structured client project.
 
+## Contact Info
+- **Discord Server** https://discord.gg/BrXGxGeY8r
+- **QQ Group** 713315328
+
 ## Requirements
 - **Java 17** is required to build and run this project.
 
