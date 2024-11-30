@@ -35,6 +35,7 @@ compileJava {
 
 dependencies {
     implementation 'io.netty:netty-all:5.0.0.Alpha2'
+    implementation 'io.netty:netty-transport-native-epoll:5.0.0.Alpha2'
 
     implementation "net.sf.jopt-simple:jopt-simple:4.6"
 
@@ -97,7 +98,6 @@ dependencies {
     implementation 'org.jetbrains:annotations:24.1.0'
 
     implementation 'com.madgag:animated-gif-lib:1.4'
-
 
     implementation fileTree(dir: 'libs', include: '*.jar')
     compileOnly fileTree(dir: 'libs', include: '*.jar')

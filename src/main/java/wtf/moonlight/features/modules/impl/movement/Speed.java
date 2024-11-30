@@ -264,6 +264,7 @@ public class Speed extends Module {
                     mc.gameSettings.keyBindJump.isPressed();
                 }
             }
+            break;
 
             case "NCP": {
                 if (MovementUtils.isMoving()) {
@@ -279,6 +280,7 @@ public class Speed extends Module {
                     MovementUtils.strafe(Math.max(MovementUtils.getSpeed(),0.5));
                 }
             }
+            break;
 
             case "Watchdog":
                 if (mc.gameSettings.keyBindJump.isKeyDown())
