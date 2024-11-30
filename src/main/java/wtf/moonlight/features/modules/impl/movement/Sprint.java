@@ -8,6 +8,7 @@ import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.utils.player.MovementCorrection;
+import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 
 @ModuleInfo(name = "Sprint", category = ModuleCategory.Movement)
@@ -25,27 +26,7 @@ public class Sprint extends Module {
         }
 
         if (rotate.get()) {
-            float yaw;
-
-            if (mc.gameSettings.keyBindForward.isKeyDown() && mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown()) {
-                yaw = 45f;
-            } else if (mc.gameSettings.keyBindForward.isKeyDown() && mc.gameSettings.keyBindRight.isKeyDown() && !mc.gameSettings.keyBindLeft.isKeyDown()) {
-                yaw = -45f;
-            } else if (mc.gameSettings.keyBindBack.isKeyDown() && mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown()) {
-                yaw = 135f;
-            } else if (mc.gameSettings.keyBindBack.isKeyDown() && mc.gameSettings.keyBindRight.isKeyDown() && !mc.gameSettings.keyBindLeft.isKeyDown()) {
-                yaw = -135f;
-            } else if (mc.gameSettings.keyBindBack.isKeyDown()) {
-                yaw = 180f;
-            } else if (mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown()) {
-                yaw = 90f;
-            } else if (mc.gameSettings.keyBindRight.isKeyDown() && !mc.gameSettings.keyBindLeft.isKeyDown()) {
-                yaw = -90f;
-            } else {
-                yaw = 0f;
-            }
-
-            float[] finalRotation = new float[]{(mc.thePlayer.cameraRotationYaw - yaw), mc.thePlayer.cameraRotationPitch};
+            float[] finalRotation = new float[]{MovementUtils.getRawDirection(), mc.thePlayer.rotationPitch};
 
             RotationUtils.setRotation(finalRotation, MovementCorrection.SILENT);
         }

@@ -93,8 +93,8 @@ public class Interface extends Module {
     private final ColorValue mainColor = new ColorValue("Main Color", new Color(128, 128, 255), this);
     private final ColorValue secondColor = new ColorValue("Second Color", new Color(128, 255, 255), this, () -> color.is("Fade"));
     public final SliderValue fadeSpeed = new SliderValue("Fade Speed", 1, 1, 10, 1, this, () -> color.is("Dynamic") || color.is("Fade"));
-    public final ModeValue bgColor = new ModeValue("Background", new String[]{"Dark", "Synced","Custom"}, "Dark", this);
-    private final ColorValue bgCustomColor = new ColorValue("Background Color", new Color(64, 64, 128), this,() -> bgColor.is("Custom"));
+    public final ModeValue bgColor = new ModeValue("Background Color", new String[]{"Dark", "Synced","Custom"}, "Dark", this);
+    private final ColorValue bgCustomColor = new ColorValue("Background Custom Color", new Color(32, 32, 64), this,() -> bgColor.is("Custom"));
     public final BoolValue hideScoreRed = new BoolValue("Hide Scoreboard Red Points", true, this);
     public final BoolValue chatCombine = new BoolValue("Chat Combine", true, this);
 
