@@ -16,6 +16,7 @@ public class Sprint extends Module {
 
     private final BoolValue silent = new BoolValue("Silent", false, this);
     private final BoolValue rotate = new BoolValue("Rotate", false, this);
+    private final BoolValue onlyOnGround = new BoolValue("Only On Ground", true, this, rotate::get);
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
@@ -26,6 +27,10 @@ public class Sprint extends Module {
         }
 
         if (rotate.get()) {
+            if (onlyOnGround.get() && !mc.thePlayer.onGround) {
+                return;
+            }
+
             float[] finalRotation = new float[]{MovementUtils.getRawDirection(), mc.thePlayer.rotationPitch};
 
             RotationUtils.setRotation(finalRotation, MovementCorrection.SILENT);
