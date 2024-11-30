@@ -1,69 +1,57 @@
 package wtf.moonlight.utils.misc;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import org.apache.commons.io.FileUtils;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class RequestUtils {
 
-    private static final String DEFAULT_AGENT = "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.7113.93 Safari/537.36 Java/1.8.0_191";
+    private static final String DEFAULT_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0";
 
-    public static String get(URL url) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        connection.setConnectTimeout(2000);
-        connection.setReadTimeout(10000);
-
-        connection.setRequestMethod("GET");
-
-        connection.setInstanceFollowRedirects(true);
-        connection.setDoOutput(true);
-
-        connection.setRequestProperty("User-Agent", DEFAULT_AGENT);
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "GBK"));
-        StringBuilder response = new StringBuilder();
-        String line;
-
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
-        }
-
-        reader.close();
-
-        return response.toString();
+    static {
+        HttpURLConnection.setFollowRedirects(true);
     }
 
-    public static String post(URL url, String data) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+    private static HttpURLConnection make(String url, String method, String agent) throws IOException {
+        HttpURLConnection httpConnection = (HttpURLConnection) new URL(url).openConnection();
 
-        connection.setConnectTimeout(2000);
-        connection.setReadTimeout(10000);
+        httpConnection.setRequestMethod(method);
+        httpConnection.setConnectTimeout(1000);
+        httpConnection.setReadTimeout(1000);
 
-        connection.setRequestMethod("POST");
+        httpConnection.setRequestProperty("User-Agent", agent);
 
-        connection.setInstanceFollowRedirects(true);
-        connection.setDoOutput(true);
+        httpConnection.setInstanceFollowRedirects(true);
+        httpConnection.setDoOutput(true);
 
-        connection.setRequestProperty("User-Agent", DEFAULT_AGENT);
+        return httpConnection;
+    }
 
-        DataOutputStream dataOutputStream = new DataOutputStream(connection.getOutputStream());
-        dataOutputStream.writeBytes(data);
-        dataOutputStream.flush();
+    private static HttpURLConnection make(String url, String method) throws IOException {
+        return make(url,method,DEFAULT_AGENT);
+    }
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "GBK"));
-        StringBuilder response = new StringBuilder();
-        String line;
+    public static String request(String url, String method, String agent) throws IOException {
+        HttpURLConnection connection = make(url, method, agent);
 
-        while ((line = reader.readLine()) != null) {
-            response.append(line);
+        try (InputStream inputStream = connection.getInputStream()) {
+            return new String(inputStream.readAllBytes());
         }
+    }
 
-        reader.close();
+    public static InputStream requestStream(String url, String method, String agent) throws IOException {
+        HttpURLConnection connection = make(url, method, agent);
 
-        return response.toString();
+        return connection.getInputStream();
+    }
+
+    public static String get(String url) throws IOException {
+        return request(url, "GET", DEFAULT_AGENT);
+    }
+
+    public static void download(String url, File file) throws IOException {
+        FileUtils.copyInputStreamToFile(make(url, "GET").getInputStream(), file);
     }
 }

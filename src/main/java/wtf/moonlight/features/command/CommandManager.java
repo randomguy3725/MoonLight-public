@@ -1,21 +1,27 @@
 package wtf.moonlight.features.command;
 
-import lombok.Getter;
 import wtf.moonlight.MoonLight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.SendMessageEvent;
 import wtf.moonlight.features.command.impl.*;
 import wtf.moonlight.utils.misc.DebugUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public final class CommandManager {
-    @Getter
-    public static List<Command> cmd;
+
+    public List<Command> cmd = new ArrayList<>();
 
     public CommandManager() {
-        cmd = Arrays.asList(new HelpCommand(), new ToggleCommand(), new BindCommand(), new HideCommand(), new FriendCommand(), new ConfigCommand());
+        addCommands(new HelpCommand(), new ToggleCommand(), new BindCommand(), new HideCommand(), new FriendCommand(), new ConfigCommand(),new OnlineConfigCommand());
+
+        MoonLight.INSTANCE.getModuleManager().getModules().forEach(module -> {
+            if(!module.getValues().isEmpty())
+                cmd.add(new ModuleCommand(module,module.getValues()));
+        });
+
         MoonLight.INSTANCE.getEventManager().register(this);
     }
 
@@ -44,5 +50,8 @@ public final class CommandManager {
                 DebugUtils.sendMessage("No arguments were supplied. Try '.help'");
             }
         }
+    }
+    public void addCommands(Command... checks) {
+        this.cmd.addAll(Arrays.asList(checks));
     }
 }

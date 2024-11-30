@@ -4,6 +4,8 @@ import lombok.Getter;
 import wtf.moonlight.MoonLight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
+import wtf.moonlight.features.command.CommandManager;
+import wtf.moonlight.features.command.impl.ModuleCommand;
 import wtf.moonlight.features.modules.impl.combat.*;
 import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.exploit.Timer;

@@ -440,7 +440,12 @@ public class PlayerControllerMP
     public void attackEntity(EntityPlayer playerIn, Entity targetEntity)
     {
 
-        MoonLight.INSTANCE.getEventManager().call(new AttackEvent(targetEntity));
+        AttackEvent event = new AttackEvent(targetEntity);
+
+        MoonLight.INSTANCE.getEventManager().call(event);
+
+        if(event.isCancelled())
+            return;
 
         this.syncCurrentPlayItem();
         this.netClientHandler.addToSendQueue(new C02PacketUseEntity(targetEntity, C02PacketUseEntity.Action.ATTACK));

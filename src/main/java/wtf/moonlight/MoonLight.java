@@ -35,6 +35,7 @@ import java.util.Objects;
 public class MoonLight {
     public final String clientName = "MoonLight";
     public final String version = "Alpha";
+    public final String clientCloud = "https://randomguy3725.github.io/MoonLightCloud/";
     public static MoonLight INSTANCE = new MoonLight();
     private final File mainDir = new File(Minecraft.getMinecraft().mcDataDir, clientName);
     private EventManager eventManager;

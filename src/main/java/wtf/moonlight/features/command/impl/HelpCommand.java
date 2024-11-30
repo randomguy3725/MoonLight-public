@@ -1,5 +1,6 @@
 package wtf.moonlight.features.command.impl;
 
+import wtf.moonlight.MoonLight;
 import wtf.moonlight.features.command.Command;
 import wtf.moonlight.features.command.CommandManager;
 import wtf.moonlight.utils.misc.DebugUtils;
@@ -14,8 +15,9 @@ public final class HelpCommand extends Command {
 
     @Override
     public void execute(final String[] arguments) {
-        for (final Command command : CommandManager.cmd) {
-            DebugUtils.sendMessage(Arrays.toString(command.getAliases()) + ": " + command.getUsage());
+        for (final Command command : MoonLight.INSTANCE.getCommandManager().cmd) {
+            if(!(command instanceof ModuleCommand))
+                DebugUtils.sendMessage(Arrays.toString(command.getAliases()) + ": " + command.getUsage());
         }
     }
 

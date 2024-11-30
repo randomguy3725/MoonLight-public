@@ -36,6 +36,14 @@ public class ConfigManager {
         }
     }
 
+    public boolean loadOnlineConfig(Config config,JsonObject object) {
+        if (config == null) {
+            return false;
+        }
+        config.loadConfig(object);
+        return true;
+    }
+
     public boolean saveConfig(Config config) {
         if (config == null) {
             return false;

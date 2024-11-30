@@ -141,4 +141,7 @@ public class Module implements InstanceAccess {
     public void addValue(Value value) {
         this.values.add(value);
     }
+    public Value getValue(final String valueName) {
+        return this.values.stream().filter(value -> value.getName().toLowerCase().equals(valueName.toLowerCase())).findFirst().orElse(null);
+    }
 }
