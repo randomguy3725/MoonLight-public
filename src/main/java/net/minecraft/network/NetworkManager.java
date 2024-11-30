@@ -316,9 +316,11 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 try {
                     p_initChannel_1_.config().setOption(ChannelOption.TCP_NODELAY, Boolean.TRUE);
                 } catch (ChannelException var3) {
+                    throw new RuntimeException(var3);
                 }
 
                 p_initChannel_1_.pipeline().addLast("timeout", new ReadTimeoutHandler(30)).addLast("splitter", new MessageDeserializer2()).addLast("decoder", new MessageDeserializer(EnumPacketDirection.CLIENTBOUND)).addLast("prepender", new MessageSerializer2()).addLast("encoder", new MessageSerializer(EnumPacketDirection.SERVERBOUND)).addLast("packet_handler", networkmanager);
+
 
                 if (p_initChannel_1_ instanceof SocketChannel && ViaLoadingBase.getInstance().getTargetVersion().getVersion() != ViaMCP.NATIVE_VERSION) {
                     final UserConnection user = new UserConnectionImpl(p_initChannel_1_, true);
@@ -328,7 +330,6 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
                 }
             }
         }).channel(oclass).connect(address, serverPort).syncUninterruptibly();
-
         return networkmanager;
     }
 

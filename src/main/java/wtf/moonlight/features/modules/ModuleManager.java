@@ -108,6 +108,7 @@ public class ModuleManager {
                 FireFlies.class,
                 FreeLook.class,
                 FullBright.class,
+                GifTest.class,
                 GlowESP.class,
                 Hat.class,
                 HitBubbles.class,
