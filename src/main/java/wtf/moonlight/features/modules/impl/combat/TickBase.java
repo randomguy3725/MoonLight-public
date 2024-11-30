@@ -11,6 +11,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
+import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
@@ -42,25 +43,34 @@ public class TickBase extends Module {
     @EventTarget
     public void onTimerManipulation(TimerManipulationEvent event) {
 
-        boolean shouldCharge = false;
+        if (mc.thePlayer != null) {
+            boolean shouldCharge = false;
 
-        boolean shouldDischarge = shifted >= maxBalance.get();
+            boolean shouldDischarge = shifted >= maxBalance.get();
 
-        EntityOtherPlayerMP target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
+            EntityOtherPlayerMP target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
 
-        if (target != null && predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector()) < mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) &&
-                mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) &&
-                (RotationUtils.getRotationDifference(mc.thePlayer,target) <= 90 && check.get() || !check.get()) && checks() && !predictProcesses.get((int) (predictTicks.get() - 1)).isCollidedHorizontally) {
-            shouldCharge = shifted < maxBalance.get();
-        }
+            if (target != null &&
+                    predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector()) < mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) &&
+                    (!autoSettings.get() && MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (predictTicks.get() - 1)).position.distanceTo(target.getPositionVector())) ||
+                            autoSettings.get() && mc.thePlayer.getPositionVector().distanceTo(predictProcesses.get((int) (predictTicks.get() - 1)).position) > 3)
+                    &&
+                    mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) &&
+                    (RotationUtils.getRotationDifference(mc.thePlayer, target) <= 90 && check.get() || !check.get()) && !checks() && !predictProcesses.get((int) (predictTicks.get() - 1)).isCollidedHorizontally) {
+                shouldCharge = shifted < maxBalance.get();
+            }
 
-        if (shouldCharge && timeHelper.hasTimeElapsed(delay.get())) {
-            shifted += event.getTime() - previousTime;
-        }
+            if (shouldCharge && timeHelper.hasTimeElapsed(delay.get())) {
+                shifted += event.getTime() - previousTime;
+            }
 
-        if (shouldDischarge) {
-            shifted = 0;
-            timeHelper.reset();
+            if (shouldDischarge) {
+                shifted = 0;
+                timeHelper.reset();
+            }
+
+        } else {
+            shifted = 0L;
         }
 
         previousTime = event.getTime();
