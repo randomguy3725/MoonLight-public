@@ -231,6 +231,7 @@ public class Scaffold extends Module {
             hoverState = HoverState.JUMP;
             blocksPlaced = 0;
             start = false;
+            canDoOffGround = false;
         }
 
         if (mode.is("Watchdog") && mc.gameSettings.keyBindJump.isKeyDown() && towerMove.is("Jump")) {
