@@ -6,6 +6,7 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import de.florianmichael.viamcp.fixes.AttackOrder;
+import lombok.val;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -96,9 +97,18 @@ public class KillAura extends Module {
     public final SliderValue constantError = new SliderValue("Constant Error", 0f, 0f, 10f, 0.01f, this, () -> calcRotSpeedMode.is("Acceleration") && customRotationSetting.get());
     public final BoolValue smoothlyResetRotation = new BoolValue("Smoothly Reset Rotation", true, this, customRotationSetting::get);
     private final BoolValue shake = new BoolValue("Shake", false, this);
-    private final BoolValue intaveShake = new BoolValue("Intave Shake", false, this, shake::get);
-    private final SliderValue pitchShakeRange = new SliderValue("Pitch Shake Range", 0, 0, 0.5f, 0.01f, this, shake::get);
-    private final SliderValue yawShakeRange = new SliderValue("Yaw Shake Range", 0, 0, 0.5f, 0.01f, this, shake::get);
+    public final ModeValue shakeMode = new ModeValue("Shake Mode", new String[]{"Random", "Secure Random", "Noise"}, "Noise", this,shake::get);
+    private final SliderValue pitchShakeRange = new SliderValue("Pitch Shake Range", 0, 0, 0.5f, 0.01f, this, () -> shake.get() && !shakeMode.is("Noise"));
+    private final SliderValue yawShakeRange = new SliderValue("Yaw Shake Range", 0, 0, 0.5f, 0.01f, this, () -> shake.get() && !shakeMode.is("Noise"));
+    private final SliderValue minPitchFactor = new SliderValue("Min Pitch Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue minYawFactor = new SliderValue("Min Yaw Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue maxPitchFactor = new SliderValue("Max Pitch Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue maxYawFactor = new SliderValue("Max Yaw Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue dynamicPitchFactor = new SliderValue("Dynaimc Pitch Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue dynamicYawFactor = new SliderValue("Dynaimc Yaw Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue tolerance = new SliderValue("Tolerance",0.1f,0.01f,0.1f,0.01f,this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue minSpeed = new SliderValue("Min Speed", 0.1f, 0.01f, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue maxSpeed = new SliderValue("Max Speed", 0.2f, 0.01f, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue minAps = new SliderValue("Min Aps", 9, 1, 20, this);
     private final SliderValue maxAps = new SliderValue("Max Aps", 11, 1, 20, this);
     private final ModeValue apsMode = new ModeValue("Aps Mode", new String[]{"Random", "Secure Random", "Full Random"}, "Random", this);
@@ -133,6 +143,7 @@ public class KillAura extends Module {
     private final TimerUtils attackTimer = new TimerUtils();
     private final TimerUtils switchTimer = new TimerUtils();
     private final TimerUtils perfectHitTimer = new TimerUtils();
+    private Random random = new Random();
     private int index;
     private int clicks;
     private int maxClicks;
@@ -140,7 +151,8 @@ public class KillAura extends Module {
     public boolean renderBlocking;
     public boolean blinked;
     public boolean lag;
-    public Vec3 aimVec;
+    public Vec3 currentVec;
+    public Vec3 targetVec;
     public boolean damaged = false;
     private final long startTime = System.currentTimeMillis();
     private final Animation alphaAnim = new DecelerateAnimation(400, 1);
@@ -456,10 +468,10 @@ public class KillAura extends Module {
             }
         }
 
-        if (aimPoint.get() && target != null && PlayerUtils.getDistanceToEntityBox(target) < rotationRange.get() && aimVec != null) {
-            float interpolatedX = lerp(animatedX.getOutput(), (float) aimVec.xCoord, interpolation.get());
-            float interpolatedY = lerp(animatedY.getOutput(), (float) aimVec.yCoord, interpolation.get());
-            float interpolatedZ = lerp(animatedZ.getOutput(), (float) aimVec.zCoord, interpolation.get());
+        if (aimPoint.get() && target != null && PlayerUtils.getDistanceToEntityBox(target) < rotationRange.get() && currentVec != null) {
+            float interpolatedX = lerp(animatedX.getOutput(), (float) currentVec.xCoord, interpolation.get());
+            float interpolatedY = lerp(animatedY.getOutput(), (float) currentVec.yCoord, interpolation.get());
+            float interpolatedZ = lerp(animatedZ.getOutput(), (float) currentVec.zCoord, interpolation.get());
 
             animatedX.animate(interpolatedX, (int) delay.get());
             animatedY.animate(interpolatedY, (int) delay.get());
@@ -603,16 +615,16 @@ public class KillAura extends Module {
 
         switch (aimMode.get()) {
             case "Head":
-                aimVec = entityPos.add(0.0, entity.getEyeHeight(), 0.0);
+                targetVec = entityPos.add(0.0, entity.getEyeHeight(), 0.0);
                 break;
             case "Torso":
-                aimVec = entityPos.add(0.0, entity.height * 0.75, 0.0);
+                targetVec = entityPos.add(0.0, entity.height * 0.75, 0.0);
                 break;
             case "Legs":
-                aimVec = entityPos.add(0.0, entity.height * 0.45, 0.0);
+                targetVec = entityPos.add(0.0, entity.height * 0.45, 0.0);
                 break;
             case "Nearest":
-                aimVec = RotationUtils.getBestHitVec(entity);
+                targetVec = RotationUtils.getBestHitVec(entity);
                 break;
             case "Test":
 
@@ -624,18 +636,18 @@ public class KillAura extends Module {
                         test = new Vec3(entity.posX, diffY, entity.posZ);
                     }
                 }
-                aimVec = test;
+                targetVec = test;
                 break;
             default:
-                aimVec = entityPos;
+                targetVec = entityPos;
         }
 
         if(heuristics.get()){
-            aimVec = RotationUtils.heuristics(entity,aimVec);
+            targetVec = RotationUtils.heuristics(entity,targetVec);
         }
 
         if(bruteforce.get()) {
-            if (RotationUtils.rayCast(RotationUtils.getRotations(aimVec), rotationRange.get()).typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {
+            if (RotationUtils.rayCast(RotationUtils.getRotations(targetVec), rotationRange.get()).typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {
                 final double xWidth = boundingBox.maxX - boundingBox.minX;
                 final double zWidth = boundingBox.maxZ - boundingBox.minZ;
                 final double height = boundingBox.maxY - boundingBox.minY;
@@ -644,7 +656,7 @@ public class KillAura extends Module {
                         for (double z = 0.0; z < 1.0; z += 0.2) {
                             final Vec3 hitVec = new Vec3(boundingBox.minX + xWidth * x, boundingBox.minY + height * y, boundingBox.minZ + zWidth * z);
                             if (RotationUtils.rayCast(RotationUtils.getRotations(hitVec), rotationRange.get()).typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY) {
-                                aimVec = hitVec;
+                                targetVec = hitVec;
                             }
                         }
                     }
@@ -657,33 +669,58 @@ public class KillAura extends Module {
             double maxAimY = entity.posY + entity.getEyeHeight() * maxAimRange.get();
 
             if (RotationUtils.getBestHitVec(entity).yCoord < minAimY) {
-                aimVec.yCoord = minAimY;
+                targetVec.yCoord = minAimY;
             }
 
             if (RotationUtils.getBestHitVec(entity).yCoord > maxAimY) {
-                aimVec.yCoord = maxAimY;
+                targetVec.yCoord = maxAimY;
             }
         }
 
-        if (shake.get() && (MovementUtils.isMoving() || MovementUtils.isMoving(entity))) {
-            if (intaveShake.get()) {
-                aimVec = aimVec.addVector(
-                        MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.xCoord * 3.141592653589793) * yawShakeRange.get(),
-                        MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.yCoord * 3.141592653589793) * pitchShakeRange.get(),
-                        MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(aimVec.zCoord * 3.141592653589793) * yawShakeRange.get()
-                );
-            } else {
-                aimVec = aimVec.addVector(
-                        MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get()),
-                        MathUtils.randomizeDouble(-pitchShakeRange.get(), pitchShakeRange.get()),
-                        MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get())
-                );
+        currentVec = targetVec;
+
+        if (shake.get()) {
+            switch (shakeMode.get()){
+                case "Random":
+                    currentVec = currentVec.addVector(
+                            MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get()),
+                            MathUtils.randomizeDouble(-pitchShakeRange.get(), pitchShakeRange.get()),
+                            MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get())
+                    );
+                    break;
+                case "Secure Random":
+                    currentVec = currentVec.addVector(
+                            MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(targetVec.xCoord * 3.141592653589793) * yawShakeRange.get(),
+                            MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(targetVec.yCoord * 3.141592653589793) * pitchShakeRange.get(),
+                            MathUtils.nextSecureFloat(1.0, 2.0) * Math.sin(targetVec.zCoord * 3.141592653589793) * yawShakeRange.get()
+                    );
+                    break;
+                case "Noise":
+                    if (gaussianHasReachedTarget(currentVec,targetVec,tolerance.get())) {
+
+                        double yawFactor = dynamicYawFactor.get() > 0f ? (MathUtils.randomizeDouble(minYawFactor.get(), maxYawFactor.get()) + MovementUtils.getSpeed() * dynamicYawFactor.get()) : (MathUtils.randomizeDouble(minYawFactor.get(), maxYawFactor.get()));
+
+                        double pitchFactor = dynamicPitchFactor.get() > 0f ? (MathUtils.randomizeDouble(minPitchFactor.get(), maxPitchFactor.get()) + MovementUtils.getSpeed() * dynamicPitchFactor.get()) : (MathUtils.randomizeDouble(minPitchFactor.get(), minPitchFactor.get()));
+
+                        currentVec = currentVec.addVector(
+                                random.nextGaussian(0.00942273861037109, 0.23319837528201348) * yawFactor,
+                                random.nextGaussian(0.30075078007595923, 0.3492437109081718) * pitchFactor,
+                                random.nextGaussian(0.013282929419023442, 0.24453708645460387) * yawFactor
+                        );
+                    } else {
+                        currentVec = new Vec3(
+                                MathUtils.interpolate(currentVec.xCoord, targetVec.xCoord, MathUtils.randomizeDouble(minSpeed.get(), maxSpeed.get())),
+                                MathUtils.interpolate(currentVec.yCoord, targetVec.yCoord, MathUtils.randomizeDouble(minSpeed.get(), maxSpeed.get())),
+                                MathUtils.interpolate(currentVec.zCoord, targetVec.zCoord, MathUtils.randomizeDouble(minSpeed.get(), maxSpeed.get()))
+                        );
+                    }
+                    break;
             }
         }
 
-        double deltaX = aimVec.xCoord - playerPos.xCoord;
-        double deltaY = aimVec.yCoord - playerPos.yCoord;
-        double deltaZ = aimVec.zCoord - playerPos.zCoord;
+        double deltaX = currentVec.xCoord - playerPos.xCoord;
+        double deltaY = currentVec.yCoord - playerPos.yCoord;
+        double deltaZ = currentVec.zCoord - playerPos.zCoord;
 
         yaw = (float) -(Math.atan2(deltaX, deltaZ) * (180.0 / Math.PI));
         pitch = (float) (-Math.toDegrees(Math.atan2(deltaY, Math.hypot(deltaX, deltaZ))));
@@ -695,6 +732,11 @@ public class KillAura extends Module {
         }
         return new float[]{yaw, pitch};
     }
+    private boolean gaussianHasReachedTarget(Vec3 vec1, Vec3 vec2, float tolerance){
+        return MathHelper.abs((float) (vec1.xCoord - vec2.xCoord)) < tolerance &&
+                MathHelper.abs((float) (vec1.yCoord - vec2.yCoord)) < tolerance &&
+                MathHelper.abs((float) (vec1.zCoord - vec2.zCoord)) < tolerance;
+    }
     public static void drawDot(@NotNull Vec3 pos, double size, int color) {
         double d = size / 2;
         AxisAlignedBB bbox = new AxisAlignedBB(pos.xCoord - d, pos.yCoord - d, pos.zCoord - d, pos.xCoord + d, pos.yCoord + d, pos.zCoord + d);
@@ -705,7 +747,7 @@ public class KillAura extends Module {
 
     private void resetVariables() {
         alphaAnim.setDirection(Direction.BACKWARDS);
-        aimVec = null;
+        currentVec = targetVec = null;
         if (!autoBlock.is("Watchdog"))
             unblock();
     }

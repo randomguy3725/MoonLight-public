@@ -290,9 +290,9 @@ public class Speed extends Module {
                         case "Basic":
                             if (MovementUtils.isMoving()) {
                                 if (mc.thePlayer.onGround) {
-                                    float baseSpeed = 0.4825f;
+                                    float baseSpeed = 0.482f;
                                     mc.thePlayer.jump();
-                                    MovementUtils.strafe(baseSpeed + ((MovementUtils.getSpeedEffect() * 0.042f)));
+                                    MovementUtils.strafe(baseSpeed + ((MovementUtils.getSpeedEffect() * 0.057f)));
                                 }
 
                                 if (boost.get()) {
