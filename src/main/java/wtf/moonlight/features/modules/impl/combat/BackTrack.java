@@ -31,7 +31,7 @@ import java.awt.*;
 
 @ModuleInfo(name = "BackTrack", category = ModuleCategory.Combat)
 public class BackTrack extends Module {
-    private final ModeValue esp = new ModeValue("Mode", new String[]{"Fake Player", "Box"}, "Box", this);
+    private final ModeValue esp = new ModeValue("Mode", new String[]{"Off", "Box"}, "Box", this);
     public final BoolValue cancelClientP = new BoolValue("Cancel Client Packet",false,this);
     public final BoolValue swingCheck = new BoolValue("Swing Check",false,this);
     public final BoolValue releaseOnHit = new BoolValue("Release On Hit",false,this);
@@ -132,13 +132,6 @@ public class BackTrack extends Module {
                     AxisAlignedBB box = mc.thePlayer.getEntityBoundingBox().expand(0.1D, 0.1, 0.1);
                     AxisAlignedBB axis = new AxisAlignedBB(box.minX - mc.thePlayer.posX + animatedX.getOutput(), box.minY - mc.thePlayer.posY + animatedY.getOutput(), box.minZ - mc.thePlayer.posZ + animatedZ.getOutput(), box.maxX - mc.thePlayer.posX + animatedX.getOutput(), box.maxY - mc.thePlayer.posY + animatedY.getOutput(), box.maxZ - mc.thePlayer.posZ + animatedZ.getOutput());
                     RenderUtils.drawAxisAlignedBB(axis, true, new Color(50, 255, 255, 150).getRGB());
-                    break;
-
-                case "Fake Player":
-                    GL11.glPushMatrix();
-                    mc.getRenderManager().doRenderEntity(target, animatedX.getOutput() - mc.getRenderManager().renderPosX, animatedY.getOutput() - mc.getRenderManager().renderPosY, animatedZ.getOutput() - mc.getRenderManager().renderPosZ, target.rotationYaw, event.getPartialTicks(), true);
-                    GL11.glPopMatrix();
-                    GlStateManager.resetColor();
                     break;
             }
         }

@@ -31,6 +31,7 @@ public class LagRange extends Module {
     private final SliderValue delayMS = new SliderValue("Delay MS", 1, 200, 1000, this);
     private final BoolValue velocity = new BoolValue("Velocity", true, this);
     private final BoolValue teleport = new BoolValue("Teleport", true, this);
+    private final BoolValue displayPrevPos = new BoolValue("Display Prev Pos",true,this);
     private boolean blinking = false, picked = false,attacked;
     private final TimerUtils delay = new TimerUtils();
     private final TimerUtils ever = new TimerUtils();
@@ -130,7 +131,7 @@ public class LagRange extends Module {
 
     @EventTarget
     public void onRender3D(Render3DEvent event) {
-        if (blinking) {
+        if (displayPrevPos.get() && blinking) {
             double x = this.x - mc.getRenderManager().viewerPosX;
             double y = this.y - mc.getRenderManager().viewerPosY;
             double z = this.z - mc.getRenderManager().viewerPosZ;
