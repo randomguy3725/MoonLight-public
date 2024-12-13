@@ -469,7 +469,7 @@ public class KillAura extends Module {
                 if (clicks + 1 == maxClicks) {
                     if (!(releaseBlockRate.get() > 0 && RandomUtils.nextInt(0, 100) <= releaseBlockRate.get()))
                         break;
-                    sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                    block();
                     isBlocking = true;
                 }
                 break;
@@ -483,7 +483,6 @@ public class KillAura extends Module {
                 isBlocking = false;
                 block();
                 BlinkComponent.dispatch();
-
                 break;
             case "Vanilla":
                 block();
@@ -505,6 +504,8 @@ public class KillAura extends Module {
                     useItem.write(Type.VAR_INT, 1);
                     com.viaversion.viarewind.utils.PacketUtil.sendToServer(useItem, Protocol1_8To1_9.class, true, true);
                 }
+            } else {
+                sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
             }
             isBlocking = true;
         }
