@@ -19,6 +19,7 @@ import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;
+import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
@@ -46,6 +47,7 @@ public final class Stealer extends Module {
     public final BoolValue menuCheck = new BoolValue("Menu Check", true, this);
     public final BoolValue silent = new BoolValue("Silent", false, this);
     public final BoolValue aura = new BoolValue("Aura", false, this);
+    private final BoolValue startDelay = new BoolValue("Start Delay", true, this);
 
     public final BoolValue furnace = new BoolValue("Furnace", false, this);
     public final BoolValue brewingStand = new BoolValue("Brewing Stand", false, this);
@@ -90,7 +92,7 @@ public final class Stealer extends Module {
         setTag(String.valueOf(delay.get()));
         rotation = null;
         if (aura.get() && !(isEnabled(Scaffold.class) || getModule(KillAura.class).isBlocking)) {
-            if (event.isPre()) {
+            if(event.isPre()) {
                 if (!isStealing) {
                     for (TileEntity chest : tileEntityList()) {
                         if (!posList.contains(chest.getPos()) && timerAura.hasTimeElapsed(300)) {
@@ -152,8 +154,7 @@ public final class Stealer extends Module {
     }
 
     @EventTarget
-    private void onUpdate(MotionEvent event) {
-        if (event.getState() == MotionEvent.State.PRE) {
+    private void onUpdate(UpdateEvent event) {
             if (mc.thePlayer.openContainer != null) {
                 if (mc.thePlayer.openContainer instanceof ContainerChest) {
                     if (isStealing) {
@@ -217,7 +218,6 @@ public final class Stealer extends Module {
                     }
                 }
             }
-        }
     }
 
     @EventTarget
@@ -229,6 +229,8 @@ public final class Stealer extends Module {
                     return;
                 }
             }
+            if(startDelay.get())
+                timer.reset();
             isStealing = packetOpenWindow.getGuiId().equals("minecraft:chest") || furnace.get() && packetOpenWindow.getGuiId().equals("minecraft:furnace")
             //bug
             //|| brewingStand.get() && packetOpenWindow.getGuiId().equals("minecraft:brewing_stand")

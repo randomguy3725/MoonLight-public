@@ -28,6 +28,7 @@ public class InvManager extends Module {
     private final BoolValue dropItems = new BoolValue("Drop Items", true, this);
     private final BoolValue sortItems = new BoolValue("Sort Items", true, this);
     private final BoolValue autoArmor = new BoolValue("Auto Armor", true, this);
+    private final BoolValue startDelay = new BoolValue("Start Delay", true, this);
     public final BoolValue display = new BoolValue("Display", true, this);
     private final TimerUtils timer = new TimerUtils();
     private final int[] bestArmorPieces = new int[4];
@@ -49,6 +50,8 @@ public class InvManager extends Module {
         if (packet instanceof C16PacketClientStatus clientStatus) {
 
             if (clientStatus.getStatus() == C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT) {
+                if(startDelay.get())
+                    timer.reset();
                 this.clientOpen = true;
                 this.serverOpen = true;
             }
@@ -57,6 +60,7 @@ public class InvManager extends Module {
             if (packetCloseWindow.windowId == mc.thePlayer.inventoryContainer.windowId) {
                 this.clientOpen = false;
                 this.serverOpen = false;
+                slot = -1;
             }
         }
         if (packet instanceof S2DPacketOpenWindow) {

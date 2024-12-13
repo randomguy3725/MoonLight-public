@@ -111,7 +111,7 @@ public abstract class GuiContainer extends GuiScreen
             Slot slot = this.inventorySlots.inventorySlots.get(i1);
             this.drawSlot(slot);
 
-            if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered() || stealer.display.get() && stealer.slot == i || invManager.display.get() && invManager.slot == i)
+            if (this.isMouseOverSlot(slot, mouseX, mouseY) && slot.canBeHovered() || invManager.display.get() && invManager.slot == i1)
             {
                 this.theSlot = slot;
                 GlStateManager.disableLighting();

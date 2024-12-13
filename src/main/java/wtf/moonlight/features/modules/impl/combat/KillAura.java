@@ -11,6 +11,7 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
@@ -120,8 +121,9 @@ public class KillAura extends Module {
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
-    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Via", "Watchdog", "Release"}, "Fake", this);
+    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog", "Release"}, "Fake", this);
     public final BoolValue interact = new BoolValue("Interact", false, this, () -> !autoBlock.is("None"));
+    public final BoolValue via = new BoolValue("Via", false, this, () -> !autoBlock.is("None"));
     public final BoolValue slow = new BoolValue("Slowdown", false, this, () -> !autoBlock.is("None"));
     public final SliderValue releaseBlockRate = new SliderValue("Block Rate", 100, 1, 100, 1, this, () -> autoBlock.is("Release"));
     public final BoolValue forceDisplayBlocking = new BoolValue("Force Display Blocking", false, this);
@@ -150,6 +152,7 @@ public class KillAura extends Module {
     public boolean isBlocking;
     public boolean renderBlocking;
     public boolean blinked;
+    private boolean inInv = false;
     public boolean lag;
     public Vec3 currentVec;
     public Vec3 targetVec;
@@ -166,6 +169,7 @@ public class KillAura extends Module {
     public void onEnable() {
         clicks = 0;
         attackTimer.reset();
+        if (mc.currentScreen instanceof GuiInventory) inInv = true;
     }
 
     @Override
@@ -177,6 +181,7 @@ public class KillAura extends Module {
         if (blinked) {
             BlinkComponent.dispatch();
         }
+        if (inInv) sendPacketNoEvent(new C0DPacketCloseWindow());
         target = null;
         targets.clear();
         index = 0;
@@ -310,62 +315,23 @@ public class KillAura extends Module {
             if (shouldBlock()) {
                 renderBlocking = true;
             }
-            if (PlayerUtils.getDistanceToEntityBox(target) < blockRange.get()) {
 
-                if (!autoBlock.is("Watchdog")) {
+            if (isBlocking)
+                if (preAttack()) return;
 
-                    if (shouldAttack()) {
-                        maxClicks = clicks;
-
-                        for (int i = 0; i < maxClicks; i++) {
-                            attack();
-                            clicks--;
-                        }
-                    }
-
-                    if (!autoBlock.is("None") && isHoldingSword()) {
-                        if (Mouse.isButtonDown(2))
-                            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-                        block();
-                    }
+            if (shouldAttack()) {
+                maxClicks = clicks;
+                for (int i = 0; i < maxClicks; i++) {
+                    attack();
+                    clicks--;
                 }
+            }
 
-                if (autoBlock.is("Watchdog")) {
-                    if (isHoldingSword() && !getModule(BedNuker.class).rotate && getModule(BedNuker.class).bedPos == null && !getModule(Scaffold.class).isEnabled()) {
-                        if (lag) {
-                            BlinkComponent.blinking = true;
-                            blinked = true;
-                            unblock();
-                            lag = false;
-                        } else {
-                            if (shouldAttack()) {
-                                maxClicks = clicks;
-
-                                for (int i = 0; i < maxClicks; i++) {
-                                    attack();
-                                    sendPacket(new C02PacketUseEntity(target, new Vec3(0, 0, 0)));
-                                    sendPacket(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
-                                    clicks--;
-                                }
-                            }
-                            BlinkComponent.dispatch();
-                            block();
-                            lag = true;
-                        }
-                    } else {
-                        if (blinked) {
-                            BlinkComponent.dispatch();
-                            blinked = false;
-                        }
-                        if (shouldAttack()) {
-                            maxClicks = clicks;
-
-                            for (int i = 0; i < maxClicks; i++) {
-                                attack();
-                                clicks--;
-                            }
-                        }
-                    }
+            if (PlayerUtils.getDistanceToEntityBox(target) < blockRange.get()) {
+                if (!autoBlock.is("None") && isHoldingSword()) {
+                    if (Mouse.isButtonDown(2))
+                        KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+                    postAttack();
                 }
             }
         }
@@ -482,6 +448,49 @@ public class KillAura extends Module {
 
     }
 
+    private boolean preAttack() {
+
+        switch (autoBlock.get()){
+            case "Watchdog":
+                if (inInv) {
+                    BlinkComponent.dispatch();
+                    blinked = false;
+                    sendPacketNoEvent(new C0DPacketCloseWindow());
+                    inInv = false;
+                } else {
+                    BlinkComponent.blinking = true;
+                    sendPacketNoEvent(new C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT));
+                    inInv = true;
+                    blinked = true;
+                    return true;
+                }
+                break;
+            case "Release":
+                if (clicks + 1 == maxClicks) {
+                    if (!(releaseBlockRate.get() > 0 && RandomUtils.nextInt(0, 100) <= releaseBlockRate.get()))
+                        break;
+                    sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                    isBlocking = true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    private void postAttack() {
+        switch (autoBlock.get()) {
+            case "Watchdog":
+                isBlocking = false;
+                block();
+                BlinkComponent.dispatch();
+
+                break;
+            case "Vanilla":
+                block();
+                break;
+        }
+    }
+
     public void block() {
         if (!isBlocking) {
 
@@ -489,35 +498,15 @@ public class KillAura extends Module {
                 PacketUtils.sendPacket(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
             }
 
-            switch (autoBlock.get()) {
-                case "Vanilla":
-                case "Watchdog":
-                    sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                    isBlocking = true;
-                    break;
-                case "Release":
-                    if (clicks + 1 == maxClicks) {
-                        if (!(releaseBlockRate.get() > 0 && RandomUtils.nextInt(0, 100) <= releaseBlockRate.get()))
-                            break;
-                        sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                        isBlocking = true;
-                    }
-                    break;
-                case "Interact":
-                    sendPacket(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
-                    sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                    isBlocking = true;
-                    break;
-                case "Via":
-                    if (ViaLoadingBase.getInstance().getTargetVersion().getVersion() > 47) {
-                        sendPacketNoEvent(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 255, mc.thePlayer.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F));
-                        PacketWrapper useItem = PacketWrapper.create(29, null, Via.getManager().getConnectionManager().getConnections().iterator().next());
-                        useItem.write(Type.VAR_INT, 1);
-                        com.viaversion.viarewind.utils.PacketUtil.sendToServer(useItem, Protocol1_8To1_9.class, true, true);
-                    }
-                    isBlocking = true;
-                    break;
+            if (via.get()) {
+                if (ViaLoadingBase.getInstance().getTargetVersion().getVersion() > 47) {
+                    sendPacketNoEvent(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 255, mc.thePlayer.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F));
+                    PacketWrapper useItem = PacketWrapper.create(29, null, Via.getManager().getConnectionManager().getConnections().iterator().next());
+                    useItem.write(Type.VAR_INT, 1);
+                    com.viaversion.viarewind.utils.PacketUtil.sendToServer(useItem, Protocol1_8To1_9.class, true, true);
+                }
             }
+            isBlocking = true;
         }
     }
 

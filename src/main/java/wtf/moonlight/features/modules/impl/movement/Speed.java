@@ -7,6 +7,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
+import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
 import org.lwjglx.input.Keyboard;
 import wtf.moonlight.events.annotations.EventTarget;
@@ -37,9 +38,9 @@ public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
-    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B"},"A",this,() -> wdMode.is("Full Strafe"));
+    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B","C","D"},"A",this,() -> wdMode.is("Full Strafe"));
     private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && !wdMode.is("Glide") && !wdMode.is("Full Strafe"));
-    private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
+    private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick","7 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
     private final BoolValue strafe = new BoolValue("Strafe", false, this, () -> fastFall.canDisplay() && fastFall.get());
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
@@ -64,7 +65,7 @@ public class Speed extends Module {
     @Override
     public void onEnable() {
         if (mode.is("Watchdog")) {
-            if (fastFall.canDisplay() && fastFall.get() || wdFastFallMode.is("Full Strafe") && !fullStrafeMode.is("A")) {
+            if (fastFall.canDisplay() && fastFall.get() || wdFastFallMode.is("Full Strafe")) {
                 if (mc.thePlayer.onGround) {
                     mc.thePlayer.jump();
                     MovementUtils.strafe();
@@ -90,10 +91,10 @@ public class Speed extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
             return;
 
-        if(printOffGroundTicks.get())
+        if (printOffGroundTicks.get())
             DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
@@ -151,97 +152,158 @@ public class Speed extends Module {
             break;
 
             case "Watchdog":
-                if (fastFall.canDisplay() && fastFall.get() && isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
-                    if (!disable) {
-                        switch (wdFastFallMode.get()) {
-                            case "Normal":
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 5:
-                                        mc.thePlayer.motionY = -0.1523351824467155;
-                                        break;
-                                    case 8:
-                                        mc.thePlayer.motionY = -0.3;
-                                        break;
-                                }
-                                break;
 
-                            case "Test 1":
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 1:
-                                        MovementUtils.strafe();
-                                        couldStrafe = true;
-                                        break;
-                                    case 4:
-                                        mc.thePlayer.motionY -= 0.03;
-                                        break;
-                                    case 5:
-                                        mc.thePlayer.motionY -= 0.1905189780583944;
-                                        break;
-                                    case 6:
-                                        mc.thePlayer.motionY *= 1.01;
-                                        break;
-                                }
-                                break;
+                    switch (wdMode.get()) {
+                        case "Full Strafe":
+                            if (MovementUtils.isMoving()) {
 
-                            case "Test 2":
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 4:
-                                        mc.thePlayer.motionY -= 0.045;
-                                        break;
-                                    case 5:
-                                        mc.thePlayer.motionY = -0.19;
-                                        break;
-                                    case 6:
-                                        mc.thePlayer.motionY = -0.269;
-                                        break;
-                                    case 7:
-                                        mc.thePlayer.motionY = -0.347;
+                                switch (fullStrafeMode.get()) {
+                                    case "D":
+                                        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+                                            MovementUtils.strafe((float) (0.57f + Math.random() * 0.01f));
+                                            mc.thePlayer.motionY = MovementUtils.getJumpHeight();
+                                            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                                                float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
+                                                MovementUtils.strafe(0.58f + 0.024f * (amplifier + 1));
+                                            }
+                                        }
+                                        switch (mc.thePlayer.offGroundTicks) {
+                                            case 1:
+                                                MovementUtils.strafe(Math.max(MovementUtils.getSpeed(), 0.34f));
+                                                if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                                                    MovementUtils.strafe(0.37f);
+                                                }
+                                                mc.thePlayer.motionY += 0.05700000002980232;
+                                                break;
+                                            case 3:
+                                                mc.thePlayer.motionY -= 0.1309;
+                                                break;
+                                            case 4:
+                                                mc.thePlayer.motionY -= 0.2;
+                                                break;
+                                        }
                                         break;
                                 }
-                                break;
 
-                            case "Test 3":
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 3:
-                                        mc.thePlayer.motionY -= -0.0045;
-                                        break;
-                                    case 4:
-                                        mc.thePlayer.motionY -= 0.186;
-                                        break;
-                                    case 5:
-                                        mc.thePlayer.motionY -= 0.042;
-                                        break;
-                                    case 7:
-                                        mc.thePlayer.motionY += 0.012f;
-                                        break;
-                                    case 8:
-                                        mc.thePlayer.motionY += 0.015f;
-                                        break;
+                                if (mc.thePlayer.offGroundTicks <= 7 && mc.thePlayer.offGroundTicks != 0) {
+                                    MovementUtils.strafe();
+                                    couldStrafe = true;
                                 }
-                                break;
+                                if (MovementUtils.getSpeed() < 0.12f) {
+                                    MovementUtils.strafe(0.12f);
+                                }
+                            }
+                            break;
+                    }
 
-                            case "Test 4":
-                                switch (mc.thePlayer.offGroundTicks) {
-                                    case 3:
-                                        mc.thePlayer.motionY -= -0.0025;
-                                        break;
-                                    case 4:
-                                        mc.thePlayer.motionY -= 0.04;
-                                        break;
-                                    case 5:
-                                        mc.thePlayer.motionY -= 0.1905189780583944;
-                                        break;
-                                    case 6:
-                                        mc.thePlayer.motionX *= 1.001;
-                                        mc.thePlayer.motionZ *= 1.001;
-                                    case 7:
-                                        mc.thePlayer.motionY -= 0.004;
-                                        break;
-                                    case 8:
-                                        mc.thePlayer.motionY -= 0.01;
-                                        break;
-                                }
-                                break;
+
+                if (isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
+
+                    if (fastFall.canDisplay() && fastFall.get()) {
+                        if (!disable) {
+                            switch (wdFastFallMode.get()) {
+                                case "Normal":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 5:
+                                            mc.thePlayer.motionY = -0.1523351824467155;
+                                            break;
+                                        case 8:
+                                            mc.thePlayer.motionY = -0.3;
+                                            break;
+                                    }
+                                    break;
+
+                                case "Test 1":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 1:
+                                            MovementUtils.strafe();
+                                            couldStrafe = true;
+                                            break;
+                                        case 4:
+                                            mc.thePlayer.motionY -= 0.03;
+                                            break;
+                                        case 5:
+                                            mc.thePlayer.motionY -= 0.1905189780583944;
+                                            break;
+                                        case 6:
+                                            mc.thePlayer.motionY *= 1.01;
+                                            break;
+                                    }
+                                    break;
+
+                                case "Test 2":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 4:
+                                            mc.thePlayer.motionY -= 0.045;
+                                            break;
+                                        case 5:
+                                            mc.thePlayer.motionY = -0.19;
+                                            break;
+                                        case 6:
+                                            mc.thePlayer.motionY = -0.269;
+                                            break;
+                                        case 7:
+                                            mc.thePlayer.motionY = -0.347;
+                                            break;
+                                    }
+                                    break;
+
+                                case "Test 3":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 3:
+                                            mc.thePlayer.motionY -= -0.0045;
+                                            break;
+                                        case 4:
+                                            mc.thePlayer.motionY -= 0.186;
+                                            break;
+                                        case 5:
+                                            mc.thePlayer.motionY -= 0.042;
+                                            break;
+                                        case 7:
+                                            mc.thePlayer.motionY += 0.012f;
+                                            break;
+                                        case 8:
+                                            mc.thePlayer.motionY += 0.015f;
+                                            break;
+                                    }
+                                    break;
+
+                                case "Test 4":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 3:
+                                            mc.thePlayer.motionY -= -0.0025;
+                                            break;
+                                        case 4:
+                                            mc.thePlayer.motionY -= 0.04;
+                                            break;
+                                        case 5:
+                                            mc.thePlayer.motionY -= 0.1905189780583944;
+                                            break;
+                                        case 6:
+                                            mc.thePlayer.motionX *= 1.001;
+                                            mc.thePlayer.motionZ *= 1.001;
+                                        case 7:
+                                            mc.thePlayer.motionY -= 0.004;
+                                            break;
+                                        case 8:
+                                            mc.thePlayer.motionY -= 0.01;
+                                            break;
+                                    }
+                                    break;
+                                case "7 Tick":
+                                    switch (mc.thePlayer.offGroundTicks) {
+                                        case 1:
+                                            mc.thePlayer.motionY += 0.05700000002980232;
+                                            break;
+                                        case 3:
+                                            mc.thePlayer.motionY -= 0.1309;
+                                            break;
+                                        case 4:
+                                            mc.thePlayer.motionY -= 0.2;
+                                            break;
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
@@ -320,13 +382,13 @@ public class Speed extends Module {
 
                                         if (mc.thePlayer.onGround) {
                                             mc.thePlayer.jump();
-                                            MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
+                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
                                         }
 
 
                                         if (!disable) {
                                             int simpleY = (int) Math.round((event.y % 1) * 10000);
-                                            if(debug.get())
+                                            if (debug.get())
                                                 DebugUtils.sendMessage(simpleY + "Value");
 
                                             if (simpleY == 1661) {
@@ -342,7 +404,7 @@ public class Speed extends Module {
                                     case "B":
                                         if (mc.thePlayer.onGround) {
                                             mc.thePlayer.jump();
-                                            MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
+                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
                                         }
 
                                         if (!disable) {
@@ -353,14 +415,31 @@ public class Speed extends Module {
                                             }
                                         }
                                         break;
-                                }
 
-                                if (mc.thePlayer.offGroundTicks <= 7 && mc.thePlayer.offGroundTicks != 0) {
-                                    MovementUtils.strafe();
-                                    couldStrafe = true;
+                                    case "C":
+
+                                        if (mc.thePlayer.onGround) {
+                                            mc.thePlayer.jump();
+                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
+                                        }
+
+                                        if (!disable) {
+                                            switch (mc.thePlayer.offGroundTicks) {
+                                                case 1:
+                                                    mc.thePlayer.motionY = 0.37;
+                                                    break;
+                                                case 4:
+                                                    mc.thePlayer.motionY += (mc.thePlayer.posY - mc.thePlayer.prevPosY);
+                                                    break;
+                                                case 5:
+                                                    mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY);
+                                                    break;
+                                            }
+                                        }
+                                        break;
                                 }
+                                break;
                             }
-                            break;
                     }
 
                     if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
