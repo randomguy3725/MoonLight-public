@@ -40,6 +40,9 @@ public class MathUtils {
                 (float) interpolate(end.yCoord, start.yCoord, multiple),
                 (float) interpolate(end.zCoord, start.zCoord, multiple));
     }
+    public static double interpolate(double old, double now) {
+        return interpolate(old,now,mc.timer.renderPartialTicks);
+    }
 
     public static float nextSecureFloat(final double origin, final double bound) {
         if (origin == bound) {

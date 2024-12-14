@@ -17,6 +17,7 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
+import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
 
 import java.awt.*;
@@ -829,5 +830,127 @@ public class RenderUtils implements InstanceAccess {
         GlStateManager.disableTexture2D();
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
         GlStateManager.resetColor();
+    }
+
+    public static void drawElipse(float x, float y, float rx, float ry, float start, float end, float radius, int color, int stage1) {
+        float sin;
+        float cos;
+        float i;
+        GlStateManager.color(0, 0, 0, 0);
+        float endOffset;
+        if (start > end) {
+            endOffset = end;
+            end = start;
+            start = endOffset;
+        }
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glLineWidth(2);
+        glBegin(GL11.GL_LINE_STRIP);
+        for (i = start; i <= end; i += 2) {
+
+            double stage = (i - start) / 360;
+
+            int red = ((color >> 16) & 255);
+            int green = ((color >> 8) & 255);
+            int blue = ((color & 255));
+
+            GL11.glColor4f(red / 255f, green / 255f, blue / 255f, 1);
+
+            cos = (float) Math.cos(i * Math.PI / 180) * (radius / ry);
+            sin = (float) Math.sin(i * Math.PI / 180) * (radius / rx);
+            glVertex2f((x + cos), (y + sin));
+        }
+        glEnd();
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
+        if (stage1 != -1) {
+            cos = (float) Math.cos((start - 15) * Math.PI / 180) * (radius / ry);
+            sin = (float) Math.sin((start - 15) * Math.PI / 180) * (radius / rx);
+
+            switch (stage1) {
+                case 0: {
+                    Fonts.interBold.get(15).drawCenteredString("W", (x + cos), (y + sin), -1);
+                    break;
+                }
+                case 1: {
+                    Fonts.interBold.get(15).drawCenteredString("N", (x + cos), (y + sin), -1);
+                    break;
+                }
+                case 2: {
+                    Fonts.interBold.get(15).drawCenteredString("E", (x + cos), (y + sin), -1);
+
+                    break;
+                }
+                case 3: {
+                    Fonts.interBold.get(15).drawCenteredString("S", (x + cos), (y + sin), -1);
+                    break;
+                }
+            }
+        }
+    }
+    public static void drawEllipsCompass(int yaw, float x, float y, float x2, float y2, float radius, int color, boolean dir) {
+        if (dir) {
+            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, 0);
+            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, 1);
+            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, 2);
+            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, 3);
+        } else {
+            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, -1);
+            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, -1);
+            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, -1);
+            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, -1);
+        }
+    }
+
+    public static void drawTracerPointer(float x, float y, float size, float tracerWidth, int color) {
+        boolean blend = GL11.glIsEnabled(GL_BLEND);
+        GL11.glEnable(GL_BLEND);
+        boolean depth = GL11.glIsEnabled(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
+
+        GL11.glDisable(GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL_LINE_SMOOTH);
+        GL11.glPushMatrix();
+
+        color(color);
+        GL11.glBegin(7);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d((x - size * tracerWidth), (y + size));
+        GL11.glVertex2d(x, (y + size - 3.63f));
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+
+        color(ColorUtils.darker(color, 0.8f));
+        GL11.glBegin(7);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d(x, (y + size - 3.63f));
+        GL11.glVertex2d((x + size * tracerWidth), (y + size));
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+
+
+        color(ColorUtils.darker(color, 0.6f));
+        GL11.glBegin(7);
+        GL11.glVertex2d((x - size * tracerWidth), (y + size));
+        GL11.glVertex2d((x + size * tracerWidth), (y + size));
+        GL11.glVertex2d(x, (y + size - 3.63f));
+        GL11.glVertex2d((x - size * tracerWidth), (y + size));
+        GL11.glEnd();
+        GL11.glPopMatrix();
+
+        GL11.glEnable(GL_TEXTURE_2D);
+        if (!blend)
+            GL11.glDisable(GL_BLEND);
+        GL11.glDisable(GL_LINE_SMOOTH);
+
+        if (depth)
+            glEnable(GL_DEPTH_TEST);
+
+
     }
 }

@@ -68,6 +68,7 @@ public class Interface extends Module {
             new BoolValue("Target HUD",true),
             new BoolValue("Inventory",true),
             new BoolValue("Notification",true),
+            new BoolValue("Pointer", true),
             new BoolValue("Session Info",true)
     ), this);
 

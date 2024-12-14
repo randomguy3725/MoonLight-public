@@ -766,7 +766,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
                 GlStateManager.rotate(entity.rotationYaw, 0.0F, 1.0F, 0.0F);
 
-                if (camera.motionCamera.get()) {
+                if (camera.setting.isEnabled("Motion Camera")) {
                     GlStateManager.translate(prevRenderX - d0, d1 - prevRenderY, prevRenderZ - d2);
                 }
 
@@ -1315,6 +1315,11 @@ public class EntityRenderer implements IResourceManagerReloadListener
 
                 if (!this.mc.gameSettings.hideGUI || this.mc.currentScreen != null)
                 {
+
+                    if (MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).setting.isEnabled("World Bloom")) {
+                        MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).drawWorldBloom();
+                    }
+
                     GlStateManager.alphaFunc(516, 0.1F);
                     this.mc.ingameGUI.renderGameOverlay(partialTicks);
 

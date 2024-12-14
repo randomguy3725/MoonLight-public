@@ -193,39 +193,39 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String bloom = """
             #version 120
-                        
+            
             uniform sampler2D inTexture, textureToCheck;
             uniform vec2 texelSize, direction;
             uniform float radius;
             uniform float weights[256];
-                        
+            
             #define offset texelSize * direction
-                        
+            
             void main() {
                 if (direction.y > 0 && texture2D(textureToCheck, gl_TexCoord[0].st).a != 0.0) discard;
                 float blr = texture2D(inTexture, gl_TexCoord[0].st).a * weights[0];
-                        
+            
                 for (float f = 1.0; f <= radius; f++) {
                     blr += texture2D(inTexture, gl_TexCoord[0].st + f * offset).a * (weights[int(abs(f))]);
                     blr += texture2D(inTexture, gl_TexCoord[0].st - f * offset).a * (weights[int(abs(f))]);
                 }
-                        
+            
                 gl_FragColor = vec4(0.0, 0.0, 0.0, blr);
             }
             """;
 
     private final String roundRectTexture = """
             #version 120
-
+            
             uniform vec2 location, rectSize;
             uniform sampler2D textureIn;
             uniform float radius, alpha;
-
+            
             float roundedBoxSDF(vec2 centerPos, vec2 size, float radius) {
                 return length(max(abs(centerPos) -size, 0.)) - radius;
             }
-
-
+            
+            
             void main() {
                 float distance = roundedBoxSDF((rectSize * .5) - (gl_TexCoord[0].st * rectSize), (rectSize * .5) - radius - 1., radius);
                 float smoothedAlpha =  (1.0-smoothstep(0.0, 2.0, distance)) * alpha;
@@ -234,38 +234,38 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String roundRectOutline = """
             #version 120
-
+            
             uniform vec2 location, rectSize;
             uniform vec4 color, outlineColor;
             uniform float radius, outlineThickness;
-
+            
             float roundedSDF(vec2 centerPos, vec2 size, float radius) {
                 return length(max(abs(centerPos) - size + radius, 0.0)) - radius;
             }
-
+            
             void main() {
                 float distance = roundedSDF(gl_FragCoord.xy - location - (rectSize * .5), (rectSize * .5) + (outlineThickness *.5) - 1.0, radius);
-
+            
                 float blendAmount = smoothstep(0., 2., abs(distance) - (outlineThickness * .5));
-
+            
                 vec4 insideColor = (distance < 0.) ? color : vec4(outlineColor.rgb,  0.0);
                 gl_FragColor = mix(outlineColor, insideColor, blendAmount);
-
+            
             }""";
 
     private final String roundedRectGradient = """
             #version 120
-
+            
             uniform vec2 location, rectSize;
             uniform vec4 color1, color2, color3, color4;
             uniform float radius;
-
+            
             #define NOISE .5/255.0
-
+            
             float roundSDF(vec2 p, vec2 b, float r) {
                 return length(max(abs(p) - b , 0.0)) - r;
             }
-
+            
             vec4 createGradient(vec2 coords, vec4 color1, vec4 color2, vec4 color3, vec4 color4){
                 vec4 color = mix(mix(color1, color2, coords.y), mix(color3, color4, coords.y), coords.x);
                 //Dithering the color
@@ -273,7 +273,7 @@ public class ShaderUtils implements InstanceAccess {
                 color += mix(NOISE, -NOISE, fract(sin(dot(coords.xy, vec2(12.9898, 78.233))) * 43758.5453));
                 return color;
             }
-
+            
             void main() {
                 vec2 st = gl_TexCoord[0].st;
                 vec2 halfSize = rectSize * .5;
@@ -286,57 +286,35 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String roundedRect = """
             #version 120
-
+            
             uniform vec2 location, rectSize;
             uniform vec4 color;
             uniform float radius;
             uniform bool blur;
-
+            
             float roundSDF(vec2 p, vec2 b, float r) {
                 return length(max(abs(p) - b, 0.0)) - r;
             }
-
-
+            
+            
             void main() {
                 vec2 rectHalf = rectSize * .5;
                 // Smooth the result (free antialiasing).
                 float smoothedAlpha =  (1.0-smoothstep(0.0, 1.0, roundSDF(rectHalf - (gl_TexCoord[0].st * rectSize), rectHalf - radius - 1., radius))) * color.a;
                 gl_FragColor = vec4(color.rgb, smoothedAlpha);// mix(quadColor, shadowColor, 0.0);
-
+            
             }""";
-
-    private final String gaussainBlur = """
-            #version 120
-                        
-            uniform sampler2D textureIn;
-            uniform vec2 texelSize, direction;
-            uniform float radius;
-            uniform float weights[256];
-                        
-            #define offset texelSize * direction
-                        
-            void main() {
-                vec3 blr = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];
-                        
-                for (float f = 1.0; f <= radius; f++) {
-                    blr += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);
-                    blr += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);
-                }
-                        
-                gl_FragColor = vec4(blr, 1.0);
-            }
-            """;
     private final String kawaseUpBloom = """
             #version 120
-
+            
             uniform sampler2D inTexture, textureToCheck;
             uniform vec2 halfpixel, offset, iResolution;
             uniform int check;
-
+            
             void main() {
               //  if(check && texture2D(textureToCheck, gl_TexCoord[0].st).a > 0.0) discard;
                 vec2 uv = vec2(gl_FragCoord.xy / iResolution);
-
+            
                 vec4 sum = texture2D(inTexture, uv + vec2(-halfpixel.x * 2.0, 0.0) * offset);
                 sum.rgb *= sum.a;
                 vec4 smpl1 =  texture2D(inTexture, uv + vec2(-halfpixel.x, halfpixel.y) * offset);
@@ -366,10 +344,10 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String kawaseDownBloom = """
             #version 120
-
+            
             uniform sampler2D inTexture;
             uniform vec2 offset, halfpixel, iResolution;
-
+            
             void main() {
                 vec2 uv = vec2(gl_FragCoord.xy / iResolution);
                 vec4 sum = texture2D(inTexture, gl_TexCoord[0].st);
@@ -428,13 +406,13 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String gradient = """
             #version 120
-                                    
+            
             uniform vec2 location, rectSize;
             uniform sampler2D tex;
             uniform vec4 color1, color2, color3, color4;
-                                    
+            
             #define NOISE .5/255.0
-                                    
+            
             vec3 createGradient(vec2 coords, vec4 color1, vec4 color2, vec4 color3, vec4 color4){
                 vec3 color = mix(mix(color1.rgb, color2.rgb, coords.y), mix(color3.rgb, color4.rgb, coords.y), coords.x);
                 //Dithering the color from https://shader-tutorial.dev/advanced/color-banding-dithering/
@@ -452,17 +430,17 @@ public class ShaderUtils implements InstanceAccess {
             uniform vec2 RESOLUTION;
             const float PI = 3.141592654;
             const float TAU = 3.141592654 * 2;
-
+            
             const float gravity = 1.0;
             const float waterTension = 0.01;
-
+            
             const vec3 skyCol1 = vec3(0.6, 0.35, 0.3).zyx*0.5;
             const vec3 skyCol2 = vec3(1.0, 0.3, 0.3).zyx*0.5 ;
             const vec3 sunCol1 = vec3(1.0,0.5,0.4).zyx;
             const vec3 sunCol2 = vec3(1.0,0.8,0.8).zyx;
             const vec3 seaCol1 = vec3(0.1,0.2,0.2)*0.2;
             const vec3 seaCol2 = vec3(0.2,0.9,0.6)*0.5;
-
+            
             // License: Unknown, author: Unknown, found: don't remember
             float tanh_approx(float x) {
               //  Found this somewhere on the interwebs
@@ -470,104 +448,104 @@ public class ShaderUtils implements InstanceAccess {
               float x2 = x*x;
               return clamp(x*(27.0 + x2)/(27.0+9.0*x2), -1.0, 1.0);
             }
-
+            
             vec2 wave(in float t, in float a, in float w, in float p) {
               float x = t;
               float y = a*sin(t*w + p);
               return vec2(x, y);
             }
-
+            
             vec2 dwave(in float t, in float a, in float w, in float p) {
               float dx = 1.0;
               float dy = a*w*cos(t*w + p);
               return vec2(dx, dy);
             }
-
+            
             vec2 gravityWave(in float t, in float a, in float k, in float h) {
               float w = sqrt(gravity*k*tanh_approx(k*h));
               return wave(t, a ,k, w*TIME);
             }
-
+            
             vec2 capillaryWave(in float t, in float a, in float k, in float h) {
               float w = sqrt((gravity*k + waterTension*k*k*k)*tanh_approx(k*h));
               return wave(t, a, k, w*TIME);
             }
-
+            
             vec2 gravityWaveD(in float t, in float a, in float k, in float h) {
               float w = sqrt(gravity*k*tanh_approx(k*h));
               return dwave(t, a, k, w*TIME);
             }
-
+            
             vec2 capillaryWaveD(in float t, in float a, in float k, in float h) {
               float w = sqrt((gravity*k + waterTension*k*k*k)*tanh_approx(k*h));
               return dwave(t, a, k, w*TIME);
             }
-
+            
             void mrot(inout vec2 p, in float a) {
               float c = cos(a);
               float s = sin(a);
               p = vec2(c*p.x + s*p.y, -s*p.x + c*p.y);
             }
-
+            
             vec4 sea(in vec2 p, in float ia) {
               float y = 0.0;
               vec3 d = vec3(0.0);
-
+            
               const int maxIter = 8;
               const int midIter = 4;
-
+            
               float kk = 1.0/1.3;
               float aa = 1.0/(kk*kk);
               float k = 1.0*pow(kk, -float(maxIter) + 1.0);
               float a = ia*0.25*pow(aa, -float(maxIter) + 1.0);
-
+            
               float h = 25.0;
               p *= 0.5;
-             
+            
               vec2 waveDir = vec2(0.0, 1.0);
-
+            
               for (int i = midIter; i < maxIter; ++i) {
                 float t = dot(-waveDir, p) + float(i);
                 y += capillaryWave(t, a, k, h).y;
                 vec2 dw = capillaryWaveD(-t, a, k, h);
-               
+            
                 d += vec3(waveDir.x, dw.y, waveDir.y);
-
+            
                 mrot(waveDir, PI/3.0);
-
+            
                 k *= kk;
                 a *= aa;
               }
-             
+            
               waveDir = vec2(0.0, 1.0);
-
+            
               for (int i = 0; i < midIter; ++i) {
                 float t = dot(waveDir, p) + float(i);
                 y += gravityWave(t, a, k, h).y;
                 vec2 dw = gravityWaveD(t, a, k, h);
-               
+            
                 vec2 d2 = vec2(0.0, dw.x);
-               
+            
                 d += vec3(waveDir.x, dw.y, waveDir.y);
-
+            
                 mrot(waveDir, -step(2.0, float(i)));
-
+            
                 k *= kk;
                 a *= aa;
               }
-
+            
               vec3 t = normalize(d);
               vec3 nxz = normalize(vec3(t.z, 0.0, -t.x));
               vec3 nor = cross(t, nxz);
-
+            
               return vec4(y, nor);
             }
-
+            
             vec3 sunDirection() {
               vec3 dir = normalize(vec3(0, 0.06, 1));
               return dir;
             }
-
+            
             vec3 skyColor(in vec3 rd) {
               vec3 sunDir = sunDirection();
               float sunDot = max(dot(rd, sunDir), 0.0);
@@ -577,60 +555,60 @@ public class ShaderUtils implements InstanceAccess {
               final += 4.0*sunCol2*pow(sunDot, 900.0);
               return final;
             }
-
+            
             vec3 render(in vec3 ro, in vec3 rd) {
               vec3 col = vec3(0.0);
-
+            
               float dsea = (0.0 - ro.y)/rd.y;
-             
+            
               vec3 sunDir = sunDirection();
-             
+            
               vec3 sky = skyColor(rd);
-             
+            
               if (dsea > 0.0) {
                 vec3 p = ro + dsea*rd;
                 vec4 s = sea(p.xz, 1.0);
                 float h = s.x;   
                 vec3 nor = s.yzw;
                 nor = mix(nor, vec3(0.0, 1.0, 0.0), smoothstep(0.0, 200.0, dsea));
-
+            
                 float fre = clamp(1.0 - dot(-nor,rd), 0.0, 1.0);
                 fre = fre*fre*fre;
                 float dif = mix(0.25, 1.0, max(dot(nor,sunDir), 0.0));
-               
+            
                 vec3 refl = skyColor(reflect(rd, nor));
                 vec3 refr = seaCol1 + dif*sunCol1*seaCol2*0.1;
-               
+            
                 col = mix(refr, 0.9*refl, fre);
-               
+            
                 float atten = max(1.0 - dot(dsea,dsea) * 0.001, 0.0);
                 col += seaCol2*(p.y - h) * 2.0 * atten;
-               
+            
                 col = mix(col, sky, 1.0 - exp(-0.01*dsea));
-               
+            
               } else {
                 col = sky;
               }
-             
+            
               return col;
             }
-
+            
             void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
               vec2 q = fragCoord/RESOLUTION.xy;
               vec2 p = -1.0 + 2.0*q;
               p.x *= RESOLUTION.x/RESOLUTION.y;
-
+            
               vec3 ro = vec3(0.0, 10.0, 0.0);
               vec3 ww = normalize(vec3(0.0, -0.1, 1.0));
               vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww));
               vec3 vv = normalize(cross(ww,uu));
               vec3 rd = normalize(p.x*uu + p.y*vv + 2.5*ww);
-
+            
               vec3 col = render(ro, rd);
-
+            
               fragColor = vec4(col,1.0);
             }
-                        
+            
             void main(void)
             {
              mainImage(gl_FragColor, gl_FragCoord.xy);
@@ -639,45 +617,44 @@ public class ShaderUtils implements InstanceAccess {
 
     private final String gaussianBlur = """
             #version 120
-
+            
             uniform sampler2D textureIn;
             uniform vec2 texelSize, direction;
-            uniform float radius, weights[256];
-
+            uniform float radius;
+            uniform float weights[256];
+            
             #define offset texelSize * direction
-
+            
             void main() {
-                vec3 color = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];
-                float totalWeight = weights[0];
-
+                vec3 blr = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];
+            
                 for (float f = 1.0; f <= radius; f++) {
-                    color += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);
-                    color += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);
-
-                    totalWeight += (weights[int(abs(f))]) * 2.0;
+                    blr += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);
+                    blr += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);
                 }
-
-                gl_FragColor = vec4(color / totalWeight, 1.0);
-            }""";
+            
+                gl_FragColor = vec4(blr, 1.0);
+            }
+            """;
 
     private final String cape = """
             #extension GL_OES_standard_derivatives : enable
-                       
+            
             #ifdef GL_ES
             precision highp float;
             #endif
-                       
+            
             uniform float time;
             uniform vec2  resolution;
             uniform float zoom;
-                       
+            
             #define PI 3.1415926535
-                       
+            
             mat2 rotate3d(float angle)
             {
                 return mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
             }
-                       
+            
             void main()
             {
                 vec2 p = (gl_FragCoord.xy * 2.0 - resolution) / min(resolution.x, resolution.y);

@@ -1,5 +1,6 @@
 package net.minecraft.util;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class Vec3
@@ -212,4 +213,10 @@ public class Vec3
         return MathHelper.sqrt_double(d0 * d0 + d2 * d2);
     }
 
+    public double getDistanceAtEyeByVec(Entity self, double x, double y, double z) {
+        double d0 = this.xCoord - x;
+        double d1 = this.yCoord + (double)(self == null ? 0.0f : self.getEyeHeight()) - y;
+        double d2 = this.zCoord - z;
+        return MathHelper.sqrt_double(d0 * d0 + d1 * d1 + d2 * d2);
+    }
 }

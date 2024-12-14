@@ -121,7 +121,7 @@ public class KillAura extends Module {
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
-    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog", "Release"}, "Fake", this);
+    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog", "Release","Interact"}, "Fake", this);
     public final BoolValue interact = new BoolValue("Interact", false, this, () -> !autoBlock.is("None"));
     public final BoolValue via = new BoolValue("Via", false, this, () -> !autoBlock.is("None"));
     public final BoolValue slow = new BoolValue("Slowdown", false, this, () -> !autoBlock.is("None"));
@@ -158,12 +158,14 @@ public class KillAura extends Module {
     private final ContinualAnimation animatedX = new ContinualAnimation();
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
+    private int currentSlot = 0;
 
     @Override
     public void onEnable() {
         clicks = 0;
         attackTimer.reset();
         if (mc.currentScreen instanceof GuiInventory) inInv = true;
+        currentSlot = mc.thePlayer.inventory.currentItem;
     }
 
     @Override
@@ -175,7 +177,12 @@ public class KillAura extends Module {
         if (blinked) {
             BlinkComponent.dispatch();
         }
+
         if (inInv) sendPacketNoEvent(new C0DPacketCloseWindow());
+        if (currentSlot != mc.thePlayer.inventory.currentItem) {
+            sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+            currentSlot = mc.thePlayer.inventory.currentItem;
+        }
         target = null;
         targets.clear();
         index = 0;
@@ -212,7 +219,7 @@ public class KillAura extends Module {
                 !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.getPosition()).getBlock() instanceof BlockAir) ||
                 noInventory.get() && mc.currentScreen instanceof GuiContainer ||
                 noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null
-        ) && autoBlock.is("Watchdog") && target != null) {
+        ) && target != null) {
             if (blinked) {
                 BlinkComponent.dispatch();
                 blinked = false;
@@ -255,11 +262,11 @@ public class KillAura extends Module {
 
         } else {
             target = null;
+            if (blinked) {
+                BlinkComponent.dispatch();
+                blinked = false;
+            }
             if (autoBlock.is("Watchdog")) {
-                if (blinked) {
-                    BlinkComponent.dispatch();
-                    blinked = false;
-                }
                 unblock();
             }
             resetVariables();
@@ -420,6 +427,13 @@ public class KillAura extends Module {
                     isBlocking = true;
                 }
                 break;
+
+            case "Interact":
+                if (isBlocking) {
+                    unblock();
+                    return true;
+                }
+                break;
         }
         return false;
     }
@@ -434,13 +448,19 @@ public class KillAura extends Module {
             case "Vanilla":
                 block();
                 break;
+            case "Interact":
+                block(true);
+                break;
         }
     }
+    private void block() {
+        block(interact.get());
+    }
 
-    public void block() {
+    public void block(boolean interact) {
         if (!isBlocking) {
 
-            if (interact.get()) {
+            if (interact) {
                 sendPacket(new C02PacketUseEntity(target, C02PacketUseEntity.Action.INTERACT));
             }
 

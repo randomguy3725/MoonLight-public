@@ -17,6 +17,7 @@ import net.minecraft.src.Config;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.Vec3;
 import net.optifine.SmartAnimations;
 import net.optifine.render.RenderEnv;
 import net.optifine.shaders.SVertexBuilder;
@@ -593,6 +594,9 @@ public class WorldRenderer
 
     public WorldRenderer pos(double x, double y) {
         return this.pos(x, y, 0.0);
+    }
+    public WorldRenderer pos(Vec3 vec) {
+        return this.pos(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 
     public WorldRenderer pos(double x, double y, double z)

@@ -83,6 +83,13 @@ public class Vec3i implements Comparable<Vec3i>
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
 
+    public double distanceTo(Vec3 vec) {
+        double dx = (double)this.getX() - vec.xCoord;
+        double dy = (double)this.getY() - vec.yCoord;
+        double dz = (double)this.getZ() - vec.zCoord;
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
     public double distanceSq(Vec3i to)
     {
         return this.distanceSq(to.getX(), to.getY(), to.getZ());

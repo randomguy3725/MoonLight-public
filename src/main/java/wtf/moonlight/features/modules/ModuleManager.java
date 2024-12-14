@@ -117,6 +117,7 @@ public class ModuleManager {
                 Indicators.class,
                 Interface.class,
                 JumpCircles.class,
+                LineGlyphs.class,
                 Rotation.class,
                 Shaders.class,
                 Trajectories.class,

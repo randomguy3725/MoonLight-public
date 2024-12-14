@@ -1,8 +1,10 @@
 package wtf.moonlight.utils.render.shader.impl;
 
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.shader.Framebuffer;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL11;
 import wtf.moonlight.utils.InstanceAccess;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.render.RenderUtils;
@@ -64,4 +66,36 @@ public class Blur implements InstanceAccess {
 
     }
 
+    public static void renderBlur(float radius) {
+        mc.getFramebuffer().bindFramebuffer(true);
+
+        GlStateManager.enableBlend();
+        GL11.glDisable(2929);
+        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        update(framebuffer);
+        framebuffer.framebufferClear();
+        framebuffer.bindFramebuffer(true);
+        gaussianBlur.init();
+        setupUniforms(1.0f, 0.0f, radius);
+        RenderUtils.bindTexture(mc.getFramebuffer().framebufferTexture);
+        ShaderUtils.drawQuads();
+        framebuffer.unbindFramebuffer();
+        gaussianBlur.unload();
+        mc.getFramebuffer().bindFramebuffer(false);
+        gaussianBlur.init();
+        setupUniforms(0.0f, 1.0f, radius);
+        RenderUtils.bindTexture(framebuffer.framebufferTexture);
+        ShaderUtils.drawQuads();
+        gaussianBlur.unload();
+        GlStateManager.resetColor();
+        GlStateManager.bindTexture(0);
+        GL11.glEnable(2929);
+    }
+
+    public static void update(Framebuffer framebuffer) {
+        if (framebuffer.framebufferWidth != mc.displayWidth || framebuffer.framebufferHeight != mc.displayHeight) {
+            framebuffer.createBindFramebuffer(mc.displayWidth, mc.displayHeight);
+        }
+    }
 }

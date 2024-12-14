@@ -126,7 +126,7 @@ public class JumpCircles extends Module {
         float waveDelta = valWave01(1.F - deltaTime);
         float alphaPC = (float) easeOutCirc(valWave01(1 - deltaTime));
         if (deltaTime < .5F) alphaPC *= (float) easeInOutExpo(alphaPC);
-        float radius = (float) ((deltaTime > .5F ? easeOutElastic(waveDelta * waveDelta) : easeOutBounce(waveDelta)) * maxRadius);
+        float radius = (float)((deltaTime > 0.5f ? easeOutElastic(waveDelta * waveDelta) : easeOutBack(waveDelta)) * maxRadius);
         double rotate = easeInOutElastic(waveDelta) * 90.D / (1.D + waveDelta);
         ResourceLocation res = jumpTexture(index, deltaTime);
         mc.getTextureManager().bindTexture(res);

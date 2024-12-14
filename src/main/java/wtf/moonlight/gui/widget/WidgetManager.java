@@ -26,6 +26,7 @@ public class WidgetManager implements InstanceAccess {
         register(new InventoryWidget());
         register(new PotionHUDWidget());
         register(new SessionInfoWidget());
+        register(new PointerWidget());
     }
 
     public boolean loaded;
