@@ -26,6 +26,7 @@ import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
+import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.animations.Animation;
 import wtf.moonlight.utils.animations.Direction;
 import wtf.moonlight.utils.animations.impl.DecelerateAnimation;
@@ -44,7 +45,8 @@ import static org.lwjgl.opengl.GL11.glTranslated;
 @ModuleInfo(name = "TargetESP", category = ModuleCategory.Visual)
 public class TargetESP extends Module {
 
-    private final ModeValue mode = new ModeValue("Mark Mode", new String[]{"Points","Ghost", "Rectangle", "Exhi"}, "Points", this);
+    private final ModeValue mode = new ModeValue("Mark Mode", new String[]{"Points","Ghost", "Rectangle", "Exhi","Circle"}, "Points", this);
+    private final SliderValue circleSpeed = new SliderValue("Circle Speed",2.0F, 1.0F, 5.0F, 0.1F,this,() -> mode.is("Circle"));
     private final BoolValue onlyPlayer = new BoolValue("Only Player",true,this);
     private EntityLivingBase target;
     private final TimerUtils timerUtils = new TimerUtils();
@@ -52,6 +54,8 @@ public class TargetESP extends Module {
     private final Animation alphaAnim = new DecelerateAnimation(400, 1);
     private final ResourceLocation glowCircle = new ResourceLocation("moonlight/texture/targetesp/glow_circle.png");
     private final ResourceLocation rectangle = new ResourceLocation("moonlight/texture/targetesp/rectangle.png");
+    public double prevCircleStep;
+    public double circleStep;
     
     @EventTarget
     public void onAttack(AttackEvent event){
@@ -97,8 +101,8 @@ public class TargetESP extends Module {
                 RenderUtils.drawAxisAlignedBB(new AxisAlignedBB(axisAlignedBB.minX - 0.1 - target.posX, axisAlignedBB.minY - 0.1 - target.posY, axisAlignedBB.minZ - 0.1 - target.posZ, axisAlignedBB.maxX + 0.1 - target.posX, axisAlignedBB.maxY + 0.2 - target.posY, axisAlignedBB.maxZ + 0.1 - target.posZ), true, color);
                 GlStateManager.popMatrix();
             }
-            
-            if(mode.is("Ghost")){
+
+            if (mode.is("Ghost")) {
                 GlStateManager.pushMatrix();
                 GlStateManager.disableLighting();
                 GlStateManager.depthMask(false);
@@ -116,7 +120,7 @@ public class TargetESP extends Module {
                 Vec3 interpolated = MathUtils.interpolate(new Vec3(target.lastTickPosX, target.lastTickPosY, target.lastTickPosZ), target.getPositionVector(), event.getPartialTicks());
                 interpolated.yCoord += 0.75f;
 
-                RenderUtils.setupOrientationMatrix(interpolated.xCoord + 0.2f, interpolated.yCoord + 0.5f, interpolated.zCoord);
+                RenderUtils.setupOrientationMatrix(interpolated.xCoord, interpolated.yCoord + 0.5f, interpolated.zCoord);
 
                 float[] idk = new float[]{mc.getRenderManager().playerViewY, mc.getRenderManager().playerViewX};
 
@@ -131,7 +135,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
-                    RenderUtils.drawImage(glowCircle,0f,0f,-size,-size,color);
+                    RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     GlStateManager.translate(-(s), -(c), (c));
@@ -144,7 +148,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
-                    RenderUtils.drawImage(glowCircle,0f,0f,-size,-size,color);
+                    RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     GlStateManager.translate((s), -(s), (c));
@@ -157,7 +161,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
-                    RenderUtils.drawImage(glowCircle,0f,0f,-size,-size,color);
+                    RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
                     GlStateManager.translate((s), (s), -(c));
@@ -168,6 +172,62 @@ public class TargetESP extends Module {
                 GlStateManager.enableAlpha();
                 GlStateManager.depthMask(true);
                 GlStateManager.popMatrix();
+            }
+
+            if (mode.is("Circle")) {
+                prevCircleStep = circleStep;
+                circleStep += (double) this.circleSpeed.get() * RenderUtils.deltaTime();
+                float eyeHeight = target.getEyeHeight();
+                if (target.isSneaking()) {
+                    eyeHeight -= 0.2F;
+                }
+
+                double cs = prevCircleStep + (circleStep - prevCircleStep) * (double) mc.timer.renderPartialTicks;
+                double prevSinAnim = Math.abs(1.0D + Math.sin(cs - 0.5D)) / 2.0D;
+                double sinAnim = Math.abs(1.0D + Math.sin(cs)) / 2.0D;
+                double x = target.lastTickPosX + (target.posX - target.lastTickPosX) * (double) mc.timer.renderPartialTicks - mc.getRenderManager().renderPosX;
+                double y = target.lastTickPosY + (target.posY - target.lastTickPosY) * (double) mc.timer.renderPartialTicks - mc.getRenderManager().renderPosY + prevSinAnim * (double) eyeHeight;
+                double z = target.lastTickPosZ + (target.posZ - target.lastTickPosZ) * (double) mc.timer.renderPartialTicks - mc.getRenderManager().renderPosZ;
+                double nextY = target.lastTickPosY + (target.posY - target.lastTickPosY) * (double) mc.timer.renderPartialTicks - mc.getRenderManager().renderPosY + sinAnim * (double) eyeHeight;
+                GL11.glPushMatrix();
+                GL11.glDisable(2884);
+                GL11.glDisable(3553);
+                GL11.glEnable(3042);
+                GL11.glDisable(2929);
+                GL11.glDisable(3008);
+                GL11.glShadeModel(7425);
+                GL11.glBegin(8);
+
+                int i;
+                Color color;
+                for (i = 0; i <= 360; ++i) {
+                    color = new Color(getModule(Interface.class).color(i));
+                    GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.6F);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                    GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.01F);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, y, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                }
+
+                GL11.glEnd();
+                GL11.glEnable(2848);
+                GL11.glBegin(2);
+
+                for (i = 0; i <= 360; ++i) {
+                    color = new Color(getModule(Interface.class).color(i));
+                    GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.8F);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                }
+
+                GL11.glEnd();
+                GL11.glDisable(2848);
+                GL11.glEnable(3553);
+                GL11.glEnable(3008);
+                GL11.glEnable(2929);
+                GL11.glShadeModel(7424);
+                GL11.glDisable(3042);
+                GL11.glEnable(2884);
+                GL11.glPopMatrix();
+                GlStateManager.resetColor();
             }
         }
     }

@@ -184,6 +184,55 @@ public class PotionHUDWidget extends Widget {
 
             heightAnimation.animate(20 + potions.size() * 10,20);
         }
+        
+        if(setting.potionHudMode.is("Type 1")){
+
+            float posX = renderX;
+            float posY = renderY;
+            float fontSize = 13;
+            float padding = 5;
+            float iconSizeX = 10;
+
+            String name = "Potions";
+
+            RoundedUtils.drawRound(posX, posY, width, height, 4,new Color(setting.bgColor()));
+            Fonts.interMedium.get(fontSize).drawCenteredString(name, posX - 22 + width / 2, posY + padding + 0.5f + 2, -1);
+
+            float imagePosX = posX + width - iconSizeX - padding;
+            Fonts.nursultan.get(fontSize).drawString("E", imagePosX + 2f, posY + 7f + 2, setting.color());
+
+            posY += Fonts.interMedium.get(fontSize).getHeight() + padding * 2;
+
+            float maxWidth = Fonts.interMedium.get(fontSize).getStringWidth(name) + padding * 2;
+            float localHeight = Fonts.interMedium.get(fontSize).getHeight() + padding * 2;
+
+            RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(30, 30, 30));
+            posY += 3f;
+
+            for (PotionEffect effect : potions) {
+                Potion potion = Potion.potionTypes[effect.getPotionID()];
+                String potionName = I18n.format(Potion.potionTypes[potion.getId()].getName());
+                String durationText = Potion.getDurationString(effect);
+                String nameText = potionName + " " + (effect.getAmplifier() > 0 ? I18n.format("enchantment.level." + (effect.getAmplifier() + 1)) : "");
+                float nameWidth = Fonts.interMedium.get(fontSize).getStringWidth(nameText);
+
+                float bindWidth = Fonts.interMedium.get(fontSize).getStringWidth(durationText);
+
+                float localWidth = nameWidth + bindWidth + padding * 3;
+
+                Fonts.interMedium.get(fontSize).drawString(nameText, posX + padding, posY + 2, -1);
+                Fonts.interMedium.get(fontSize).drawString(durationText, posX + width - padding - bindWidth, posY + 2, -1);
+
+                if (localWidth > maxWidth) {
+                    maxWidth = localWidth;
+                }
+
+                posY += Fonts.interMedium.get(fontSize).getHeight() + padding;
+                localHeight += Fonts.interMedium.get(fontSize).getHeight() + padding;
+            }
+            width = Math.max(maxWidth, 80);
+            height = localHeight + 2.5f;
+        }
     }
 
     @Override

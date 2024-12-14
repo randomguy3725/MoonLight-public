@@ -38,6 +38,7 @@ import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.values.impl.*;
 import wtf.moonlight.gui.font.FontRenderer;
 import wtf.moonlight.gui.font.Fonts;
+import wtf.moonlight.utils.InstanceAccess;
 import wtf.moonlight.utils.animations.Animation;
 import wtf.moonlight.utils.animations.Direction;
 import wtf.moonlight.utils.animations.Translate;
@@ -69,12 +70,13 @@ public class Interface extends Module {
             new BoolValue("Inventory",true),
             new BoolValue("Notification",true),
             new BoolValue("Pointer", true),
-            new BoolValue("Session Info",true)
+            new BoolValue("Session Info",true),
+            new BoolValue("Key Bind", true)
     ), this);
 
     public final BoolValue cFont = new BoolValue("C Fonts",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue fontMode = new ModeValue("C Fonts Mode", new String[]{"Bold","Semi Bold","Regular","Tahoma"}, "Semi Bold", this,() -> cFont.canDisplay() && cFont.get());
-    public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi"}, "Text", this,() -> elements.isEnabled("Watermark"));
+    public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi","Type 1"}, "Text", this,() -> elements.isEnabled("Watermark"));
     public final ModeValue animation = new ModeValue("Animation", new String[]{"ScaleIn", "MoveIn","Slide In"}, "ScaleIn", this, () -> elements.isEnabled("Module List"));
     public final ModeValue arrayPosition = new ModeValue("Position", new String[]{"Right","Left"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final SliderValue x = new SliderValue("Module List X", 0, -50, 50, this, () -> elements.isEnabled("Module List"));
@@ -85,9 +87,10 @@ public class Interface extends Module {
     public final BoolValue line = new BoolValue("Line",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
-    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy"}, "Default", this);
+    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1"}, "Default", this);
     public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust"}, "Astolfo", this);
-    public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Test", "Test2","Exhi"}, "Default", this);
+    public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Type 1", "Test2","Exhi"}, "Default", this);
+    public final ModeValue keyBindMode = new ModeValue("Key Bind Mode", new String[]{"Type 1"}, "Type 1", this);
     public final ModeValue sessionInfoMode = new ModeValue("Session Info Mode", new String[]{"Default","Exhi","Rise"}, "Default", this,() -> elements.isEnabled("Session Info"));
     public final BoolValue centerNotif = new BoolValue("Center Notification",true,this,() -> notificationMode.is("Exhi"));
     public final ModeValue color = new ModeValue("Color Setting", new String[]{"Custom", "Rainbow", "Dynamic", "Fade","Astolfo"}, "Custom", this);
@@ -101,7 +104,6 @@ public class Interface extends Module {
 
     public final BoolValue cape = new BoolValue("Cape", true, this);
     public final BoolValue wavey = new BoolValue("Wavey Cape", true, this);
-    public final BoolValue waveyTest = new BoolValue("Wavey Test", true, this,()-> cape.get() && wavey.get());
     public final BoolValue enchanted = new BoolValue("Enchanted", true, this, () -> cape.get() && !wavey.get());
     private final DecimalFormat bpsFormat = new DecimalFormat("0.00");
     private final DecimalFormat xyzFormat = new DecimalFormat("0");
@@ -154,6 +156,62 @@ public class Interface extends Module {
                             "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r " + "§7[§f" +
                             mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID()).getResponseTime() + "ms§7]§r ";
                     mc.fontRendererObj.drawStringWithShadow(text, 2.0f, 2.0f, color());
+                    break;
+                case "Type 1":
+                    float posX = 4.0F;
+                    float posY = 4.0F;
+                    float fontSize = 15f;
+                    float iconSize = 5.0F;
+                    float rectWidth = 10.0F;
+                    String title = "MoonLight";
+                    float titleWidth = Fonts.interMedium.get(fontSize).getStringWidth(title);
+
+                    RoundedUtils.drawRound(posX, posY, rectWidth + iconSize * 2.5F + titleWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+
+                    Fonts.nursultan.get(18).drawString("S", posX + iconSize, posY + 2 + iconSize - 1.0F + 2F, color());
+
+                    Fonts.interMedium.get(fontSize).drawString(title, posX + rectWidth + iconSize * 1.5F, posY + rectWidth / 2.0F + 1.5F + 2F, color());
+
+                    String playerName = mc.thePlayer.getName();
+                    float playerNameWidth = Fonts.interMedium.get(fontSize).getStringWidth(playerName);
+                    float playerNameX = posX + rectWidth + iconSize * 2.5F + titleWidth + iconSize;
+
+                    RoundedUtils.drawRound(playerNameX, posY, rectWidth + iconSize * 2.5F + playerNameWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+
+                    Fonts.nursultan.get(fontSize).drawString("W", playerNameX + iconSize, posY + 1 + iconSize + 2F, color());
+
+                    Fonts.interMedium.get(fontSize).drawString(playerName, playerNameX + iconSize * 1.5F + rectWidth, posY + rectWidth / 2.0F + 1.5F + 2F, -1);
+
+                    int fps = Minecraft.getDebugFPS();
+                    String fpsText = fps + " Fps";
+                    float fpsTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(fpsText);
+                    float fpsX = playerNameX + rectWidth + iconSize * 2.5F + playerNameWidth + iconSize;
+
+                    RoundedUtils.drawRound(fpsX, posY, rectWidth + iconSize * 2.5F + fpsTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+
+                    Fonts.nursultan.get(18).drawString("X", fpsX + iconSize, posY + 1 + iconSize + 2F, color());
+
+                    Fonts.interMedium.get(fontSize).drawString(fpsText, fpsX + rectWidth + iconSize * 1.5F, posY + rectWidth / 2.0F + 1.5F + 2F, -1);
+
+                    String playerPosition = (int) mc.thePlayer.posX + " " + (int) mc.thePlayer.posY + " " + (int) mc.thePlayer.posZ;
+                    float positionTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(playerPosition);
+                    float positionY = posY + rectWidth + iconSize * 2.0F + iconSize;
+
+                    RoundedUtils.drawRound(posX, positionY, rectWidth + iconSize * 2.5F + positionTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+
+                    Fonts.nursultan.get(18).drawString("F", posX + iconSize, positionY + 1.5F + iconSize + 2F, color());
+
+                    Fonts.interMedium.get(fontSize).drawString(playerPosition, posX + iconSize * 1.5F + rectWidth, positionY + rectWidth / 2.0F + 1.5F + 2F, -1);
+
+                    String pingText = mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID()).getResponseTime() + " Ping";
+                    float pingTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(pingText);
+                    float pingX = posX + rectWidth + iconSize * 2.5F + positionTextWidth + iconSize;
+
+                    RoundedUtils.drawRound(pingX, positionY, rectWidth + iconSize * 2.5F + pingTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+
+                    Fonts.nursultan.get(18).drawString("Q", pingX + iconSize, positionY + 1 + iconSize + 2F, color());
+
+                    Fonts.interMedium.get(fontSize).drawString(pingText, pingX + iconSize * 1.5F + rectWidth, positionY + rectWidth / 2.0F + 1.5F + 2F, -1);
                     break;
             }
         }
@@ -759,7 +817,7 @@ public class Interface extends Module {
         int colors = getMainColor().getRGB();
         switch (bgColor.get()) {
             case "Dark":
-                colors = (new Color(17, 17, 17, 215).getRGB());
+                colors = (new Color(21, 21, 21, 255).getRGB());
                 break;
             case "Synced":
                 colors = new Color(ColorUtils.darker(color(counter,opacity),0.35f)).getRGB();
