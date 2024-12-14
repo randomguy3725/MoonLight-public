@@ -52,10 +52,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import org.lwjglx.input.Mouse;
 import wtf.moonlight.MoonLight;
-import wtf.moonlight.events.impl.player.PostStepEvent;
-import wtf.moonlight.events.impl.player.SafeWalkEvent;
-import wtf.moonlight.events.impl.player.PreStepEvent;
-import wtf.moonlight.events.impl.player.StrafeEvent;
+import wtf.moonlight.events.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.FreeLook;
 
 public abstract class Entity implements ICommandSender
@@ -104,6 +101,9 @@ public abstract class Entity implements ICommandSender
     public double lastTickPosX;
     public double lastTickPosY;
     public double lastTickPosZ;
+    public double lastLastTickPosX;
+    public double lastLastTickPosY;
+    public double lastLastTickPosZ;
     public float stepHeight;
     public boolean noClip;
     public float entityCollisionReduction;
@@ -1096,6 +1096,12 @@ public abstract class Entity implements ICommandSender
             float f2 = MathHelper.cos(rotationYaw * (float)Math.PI / 180.0F);
             this.motionX += strafe * f2 - forward * f1;
             this.motionZ += forward * f2 + strafe * f1;
+        }
+
+        if (this == Minecraft.getMinecraft().thePlayer) {
+            final PostStrafeEvent event = new PostStrafeEvent();
+
+            MoonLight.INSTANCE.getEventManager().call(event);
         }
     }
 

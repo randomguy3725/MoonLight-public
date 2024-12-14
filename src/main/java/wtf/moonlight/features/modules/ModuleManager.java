@@ -120,8 +120,8 @@ public class ModuleManager {
                 Rotation.class,
                 Shaders.class,
                 Trajectories.class,
-                Test.class,
                 TestGUI.class,
+                TargetESP.class,
 
                 //world
                 BedNuker.class,

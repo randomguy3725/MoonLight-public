@@ -1677,6 +1677,9 @@ public abstract class World implements IBlockAccess
 
         if (!forceUpdate || this.isAreaLoaded(i - k, 0, j - k, i + k, 0, j + k, true))
         {
+            entityIn.lastLastTickPosX = entityIn.lastTickPosX;
+            entityIn.lastLastTickPosY = entityIn.lastTickPosY;
+            entityIn.lastLastTickPosZ = entityIn.lastTickPosZ;
             entityIn.lastTickPosX = entityIn.posX;
             entityIn.lastTickPosY = entityIn.posY;
             entityIn.lastTickPosZ = entityIn.posZ;

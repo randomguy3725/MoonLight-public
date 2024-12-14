@@ -61,6 +61,7 @@ import wtf.moonlight.events.impl.player.MoveMathEvent;
 import wtf.moonlight.features.modules.impl.visual.Animations;
 import wtf.moonlight.features.modules.impl.visual.Rotation;
 import wtf.moonlight.utils.animations.ContinualAnimation;
+import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 
 import static net.minecraft.potion.Potion.digSlowdown;
@@ -1359,6 +1360,12 @@ public abstract class EntityLivingBase extends Entity
         if (this.isSprinting())
         {
             float f = jumpEvent.getYaw() * 0.017453292F;
+
+            final Minecraft mc = Minecraft.getMinecraft();
+            if (mc.thePlayer.omniSprint) {
+                f = MovementUtils.getRawDirection() * 0.017453292F;
+            }
+
             this.motionX -= MathHelper.sin(f) * 0.2F;
             this.motionZ += MathHelper.cos(f) * 0.2F;
         }

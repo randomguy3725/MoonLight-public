@@ -1,6 +1,7 @@
 package wtf.moonlight.utils.player;
 
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import wtf.moonlight.events.impl.player.MoveEvent;
 import wtf.moonlight.features.modules.impl.combat.TargetStrafe;
 import wtf.moonlight.utils.InstanceAccess;
+
+import java.util.Arrays;
 
 import static java.lang.Math.toRadians;
 
@@ -348,30 +351,6 @@ public class MovementUtils implements InstanceAccess {
 
         return predicted;
     }
-    public static Vec3 predictMovement(Vec3 position, Vec3 delta, float yaw, float[] input, int amount, boolean sprinting) {
-        for (int i = 0; i <= amount; i++) {
-            delta.zCoord *= 0.6f * 0.91f;
-            delta.xCoord *= 0.6f * 0.91f;
-
-            double[] moveFlying = moveFlying(input[0], input[1],
-                    true, yaw, sprinting);
-
-            if (moveFlying == null) return position;
-
-            delta.xCoord += moveFlying[0];
-            delta.yCoord = 0;
-            delta.zCoord += moveFlying[1];
-
-            position = position.add(delta);
-        }
-
-        return position;
-    }
-    public static Vec3 predictMovement(Entity target, float[] input, int amount, boolean sprinting) {
-        double deltaX = (target.posX - target.lastTickPosX);
-        double deltaZ = (target.posZ - target.lastTickPosZ);
-        return predictMovement(new Vec3(target.posX, target.posY, target.posZ), new Vec3(deltaX, 0, deltaZ), target.rotationYaw, input, amount, sprinting);
-    }
 
     public static void boost(double increase) {
         if (!isMoving()) return;
@@ -379,26 +358,30 @@ public class MovementUtils implements InstanceAccess {
         mc.thePlayer.motionX += -MathHelper.sin((float) yaw) * increase;
         mc.thePlayer.motionZ += MathHelper.cos((float) yaw) * increase;
     }
-
-    public static void partialStrafePercent(double percentage) {
-        percentage /= 100;
-        percentage = Math.min(1, Math.max(0, percentage));
-
-        double motionX = mc.thePlayer.motionX;
-        double motionZ = mc.thePlayer.motionZ;
-
-        strafe();
-
-        mc.thePlayer.motionX = motionX + (mc.thePlayer.motionX - motionX) * percentage;
-        mc.thePlayer.motionZ = motionZ + (mc.thePlayer.motionZ - motionZ) * percentage;
+    public static void moveFlying(double increase) {
+        if (!MovementUtils.isMoving()) return;
+        final double yaw = MovementUtils.getDirection();
+        mc.thePlayer.motionX += -MathHelper.sin((float) yaw) * increase;
+        mc.thePlayer.motionZ += MathHelper.cos((float) yaw) * increase;
     }
 
-    public static void adjustMotionYForFall() {
-        if (!mc.thePlayer.onGround) {
-            double gravity = -0.08D;
-            double airResistance = 0.98D;
-            mc.thePlayer.motionY += gravity;
-            mc.thePlayer.motionY *= airResistance;
-        }
+    public static void useDiagonalSpeed() {
+        KeyBinding[] gameSettings = new KeyBinding[]{mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft};
+
+        final int[] down = {0};
+
+        Arrays.stream(gameSettings).forEach(keyBinding -> {
+            down[0] = down[0] + (keyBinding.isKeyDown() ? 1 : 0);
+        });
+
+        boolean active = down[0] == 1;
+
+        if (!active) return;
+
+        final double groundIncrease = (0.1299999676734952 - 0.12739998266255503) + 1E-7 - 1E-8;
+        final double airIncrease = (0.025999999334873708 - 0.025479999685988748) - 1E-8;
+        final double increase = mc.thePlayer.onGround ? groundIncrease : airIncrease;
+
+        moveFlying(increase);
     }
 }

@@ -28,6 +28,7 @@ public class TargetStrafe extends Module {
     public final SliderValue range = new SliderValue("Range", 1, 0.1f, 6, 0.1f, this);
     public final BoolValue holdJump = new BoolValue("Hold Jump", false, this);
     public final BoolValue render = new BoolValue("Render", true, this);
+    public final BoolValue behind = new BoolValue("Behind", true, this);
     public float yaw;
     private boolean left, colliding;
     public boolean active;
@@ -82,7 +83,14 @@ public class TargetStrafe extends Module {
 
         active = true;
 
-        float yaw = getYaw(mc.thePlayer, new Vec3(target.posX, target.posY, target.posZ)) + (90 + 45) * (left ? -1 : 1);
+
+        float yaw;
+
+        if (behind.get()) {
+            yaw = target.rotationYaw + 180;
+        } else {
+            yaw = getYaw(mc.thePlayer, new Vec3(target.posX, target.posY, target.posZ)) + (90 + 45) * (left ? -1 : 1);
+        }
 
         final double range = this.range.get() + Math.random() / 100f;
         final double posX = -MathHelper.sin((float) Math.toRadians(yaw)) * range + target.posX;

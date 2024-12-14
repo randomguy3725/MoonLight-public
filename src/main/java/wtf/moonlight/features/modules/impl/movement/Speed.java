@@ -9,13 +9,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.MathHelper;
 import org.lwjglx.input.Keyboard;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
-import wtf.moonlight.events.impl.player.MotionEvent;
-import wtf.moonlight.events.impl.player.MoveEvent;
-import wtf.moonlight.events.impl.player.StrafeEvent;
-import wtf.moonlight.events.impl.player.UpdateEvent;
+import wtf.moonlight.events.impl.player.*;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
@@ -24,24 +22,25 @@ import wtf.moonlight.features.modules.impl.world.Scaffold;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
+import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.misc.DebugUtils;
+import wtf.moonlight.utils.player.FallDistanceComponent;
 import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP"}, "Watchdog", this);
-    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic","Custom", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
-    private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog"));
-    private final ModeValue fullStrafeMode = new ModeValue("Full Strafe Mode",new String[]{"A","B","C","D"},"A",this,() -> wdMode.is("Full Strafe"));
-    private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && !wdMode.is("Glide") && !wdMode.is("Full Strafe"));
+    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
+    private final BoolValue fallStrafe = new BoolValue("Fall Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
+    private final BoolValue frictionOverride = new BoolValue("Friction Override", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
+    private final BoolValue extraStrafe = new BoolValue("Extra Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
+    private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
+    private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
     private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick","7 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
-    private final BoolValue strafe = new BoolValue("Strafe", false, this, () -> fastFall.canDisplay() && fastFall.get());
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
     private final BoolValue ignoreDamage = new BoolValue("Ignore Damage", true, this, () -> Objects.equals(mode.get(), "EntityCollide"));
@@ -57,10 +56,15 @@ public class Speed extends Module {
     private final BoolValue debug = new BoolValue("Debug", true, this);
     private final BoolValue printOffGroundTicks = new BoolValue("Print Off Ground Ticks", true, this);
     private boolean disable;
-    private boolean stopVelocity = false;
-    public boolean couldStrafe = false;
+    private boolean disable3;
+    private int boostTicks;
+    private boolean recentlyCollided;
+    private boolean ice;
+    private boolean slab;
+    private boolean stopVelocity;
+    public boolean couldStrafe;
     private double speed;
-    private double print1;
+    private int ticksSinceTeleport;
 
     @Override
     public void onEnable() {
@@ -74,13 +78,18 @@ public class Speed extends Module {
             if (wdMode.is("Glide")) {
                 speed = 0.28;
             }
-            disable = true;
+            slab = false;
+
+            disable3 = false;
+            if(mc.thePlayer.offGroundTicks > 2){
+                disable = true;
+            }
         }
-        print1 = 0;
     }
 
     @Override
     public void onDisable() {
+        ice = false;
         disable = false;
         couldStrafe = false;
         if(forceStop.get()){
@@ -91,6 +100,7 @@ public class Speed extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
+        ticksSinceTeleport++;
         if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
             return;
 
@@ -152,50 +162,6 @@ public class Speed extends Module {
             break;
 
             case "Watchdog":
-
-                    switch (wdMode.get()) {
-                        case "Full Strafe":
-                            if (MovementUtils.isMoving()) {
-
-                                switch (fullStrafeMode.get()) {
-                                    case "D":
-                                        if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-                                            MovementUtils.strafe((float) (0.57f + Math.random() * 0.01f));
-                                            mc.thePlayer.motionY = MovementUtils.getJumpHeight();
-                                            if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                                                float amplifier = mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier();
-                                                MovementUtils.strafe(0.58f + 0.024f * (amplifier + 1));
-                                            }
-                                        }
-                                        switch (mc.thePlayer.offGroundTicks) {
-                                            case 1:
-                                                MovementUtils.strafe(Math.max(MovementUtils.getSpeed(), 0.34f));
-                                                if (mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
-                                                    MovementUtils.strafe(0.37f);
-                                                }
-                                                mc.thePlayer.motionY += 0.05700000002980232;
-                                                break;
-                                            case 3:
-                                                mc.thePlayer.motionY -= 0.1309;
-                                                break;
-                                            case 4:
-                                                mc.thePlayer.motionY -= 0.2;
-                                                break;
-                                        }
-                                        break;
-                                }
-
-                                if (mc.thePlayer.offGroundTicks <= 7 && mc.thePlayer.offGroundTicks != 0) {
-                                    MovementUtils.strafe();
-                                    couldStrafe = true;
-                                }
-                                if (MovementUtils.getSpeed() < 0.12f) {
-                                    MovementUtils.strafe(0.12f);
-                                }
-                            }
-                            break;
-                    }
-
 
                 if (isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
 
@@ -321,12 +287,6 @@ public class Speed extends Module {
             return;
 
         switch (mode.get()) {
-            case "Intave": {
-                if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
-                    mc.gameSettings.keyBindJump.isPressed();
-                }
-            }
-            break;
 
             case "NCP": {
                 if (MovementUtils.isMoving()) {
@@ -345,8 +305,6 @@ public class Speed extends Module {
             break;
 
             case "Watchdog":
-                if (mc.gameSettings.keyBindJump.isKeyDown())
-                    KeyBinding.setKeyBindState(mc.gameSettings.keyBindJump.getKeyCode(), false);
                 if (event.isPre()) {
                     switch (wdMode.get()) {
                         case "Basic":
@@ -363,90 +321,59 @@ public class Speed extends Module {
                                 }
                             }
                             break;
-
-                        case "Custom":
-                            if (MovementUtils.isMoving()) {
-                                if (mc.thePlayer.onGround) {
-                                    mc.thePlayer.jump();
-                                    MovementUtils.strafe(0.43 + ((MovementUtils.getSpeedEffect() * 0.02f)));
-                                }
-                            }
-                            break;
-
                         case "Full Strafe":
-                            if (MovementUtils.isMoving()) {
-
-                                switch (fullStrafeMode.get()) {
-
-                                    case "A":
-
-                                        if (mc.thePlayer.onGround) {
-                                            mc.thePlayer.jump();
-                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
-                                        }
-
-
-                                        if (!disable) {
-                                            int simpleY = (int) Math.round((event.y % 1) * 10000);
-                                            if (debug.get())
-                                                DebugUtils.sendMessage(simpleY + "Value");
-
-                                            if (simpleY == 1661) {
-                                                mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY) * 2;
-                                            }
-
-                                            //1661
-                                            //2492
-                                            //1691
-                                        }
-
-                                        break;
-                                    case "B":
-                                        if (mc.thePlayer.onGround) {
-                                            mc.thePlayer.jump();
-                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
-                                        }
-
-                                        if (!disable) {
-                                            int simpleY = (int) Math.round((event.y % 1) * 10000);
-
-                                            if (simpleY == 13) {
-                                                mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY);
-                                            }
-                                        }
-                                        break;
-
-                                    case "C":
-
-                                        if (mc.thePlayer.onGround) {
-                                            mc.thePlayer.jump();
-                                            MovementUtils.strafe(0.48f + ((MovementUtils.getSpeedEffect() * 0.057f)));
-                                        }
-
-                                        if (!disable) {
-                                            switch (mc.thePlayer.offGroundTicks) {
-                                                case 1:
-                                                    mc.thePlayer.motionY = 0.37;
-                                                    break;
-                                                case 4:
-                                                    mc.thePlayer.motionY += (mc.thePlayer.posY - mc.thePlayer.prevPosY);
-                                                    break;
-                                                case 5:
-                                                    mc.thePlayer.motionY -= (mc.thePlayer.posY - mc.thePlayer.prevPosY);
-                                                    break;
-                                            }
-                                        }
-                                        break;
-                                }
-                                break;
+                            if(mc.thePlayer.isInWater() && mc.thePlayer.isInWeb && mc.thePlayer.isInLava() ) {
+                                disable = true;
+                                return;
                             }
+
+                            if(getModule(Scaffold.class).isEnabled()){
+                            }
+
+                            if(mc.thePlayer.isCollidedHorizontally || ticksSinceTeleport < 2){
+                                recentlyCollided = true;
+                                boostTicks = mc.thePlayer.ticksExisted+9;
+                            }
+                            if (!mc.thePlayer.isCollidedHorizontally && (mc.thePlayer.ticksExisted > boostTicks)){
+
+                                recentlyCollided = false;
+
+                            }
+
+                            if (PlayerUtils.blockRelativeToPlayer(0, -1.0, 0) == (Blocks.packed_ice) || PlayerUtils.blockRelativeToPlayer(0, -1.0, 0) == (Blocks.ice)) {
+
+                                ice = true;
+                            } else if(mc.thePlayer.offGroundTicks>1){
+                                ice = false;
+                            }
+
+
+                            if(mc.thePlayer.onGround){
+                                disable3 = false;
+                            }
+                            if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
+                                disable = false;
+                            }
+
+                            if(mc.thePlayer.isCollidedVertically && !mc.thePlayer.onGround && PlayerUtils.isBlockOver(2.0)){
+                                disable = true;
+                            }
+
+                            double posY = event.getY();
+                            if (Math.abs(posY - Math.round(posY)) > 0.03 && mc.thePlayer.onGround) {
+                                slab = true;
+                            } else if(mc.thePlayer.onGround){
+                                slab = false;
+                            }
+
+                            break;
                     }
 
                     if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
                         if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
                             disable = false;
                         }
-                        if (mc.thePlayer.ticksSinceStep < 20 || PlayerUtils.isBlockOver(2)) {
+                        if(mc.thePlayer.isCollidedVertically && !mc.thePlayer.onGround && PlayerUtils.isBlockOver(2.0)){
                             disable = true;
                         }
                         if (!disable) {
@@ -499,34 +426,170 @@ public class Speed extends Module {
     @EventTarget
     public void onStrafe(StrafeEvent event) {
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
             return;
 
+        if (mode.get().equals("Watchdog") && wdMode.get().equals("Full Strafe") && (mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava())) {
+            disable = true;
+            return;
+        }
         if (mode.get().equals("Watchdog")) {
-            if (wdMode.get().equals("Glide")) {
-                if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
-                    MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
-                    mc.thePlayer.jump();
-                }
 
-                if (mc.thePlayer.onGround) {
-                    speed = 1.0F;
-                }
+            switch (wdMode.get()) {
+                case "Glide":
+                    if (MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                        MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
+                        mc.thePlayer.jump();
+                    }
 
-                final int[] allowedAirTicks = new int[]{10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 28, 29};
+                    if (mc.thePlayer.onGround) {
+                        speed = 1.0F;
+                    }
 
-                if (!(mc.theWorld.getBlockState(mc.thePlayer.getPosition().add(0, -0.25, 0)).getBlock() instanceof BlockAir)) {
-                    for (final int allowedAirTick : allowedAirTicks) {
-                        if (mc.thePlayer.offGroundTicks == allowedAirTick && allowedAirTick <= 11) {
-                            mc.thePlayer.motionY = 0;
-                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() * speed);
-                            couldStrafe = true;
+                    final int[] allowedAirTicks = new int[]{10, 11, 13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 28, 29};
 
-                            speed *= 0.98F;
+                    if (!(mc.theWorld.getBlockState(mc.thePlayer.getPosition().add(0, -0.25, 0)).getBlock() instanceof BlockAir)) {
+                        for (final int allowedAirTick : allowedAirTicks) {
+                            if (mc.thePlayer.offGroundTicks == allowedAirTick && allowedAirTick <= 11) {
+                                mc.thePlayer.motionY = 0;
+                                MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() * speed);
+                                couldStrafe = true;
 
+                                speed *= 0.98F;
+
+                            }
                         }
                     }
-                }
+                    break;
+                case "Full Strafe":
+
+                    if (getModule(Scaffold.class).isEnabled() && mc.thePlayer.isPotionActive(Potion.moveSpeed)) {
+                        recentlyCollided = true;
+                        boostTicks = mc.thePlayer.ticksExisted + 8;
+                    }
+
+                    if (MovementUtils.isMoving()) {
+                        MovementUtils.useDiagonalSpeed();
+
+                        if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.onGround) {
+                            if (!(getModule(Scaffold.class).isEnabled()) && !recentlyCollided) {
+                                MovementUtils.strafe(fallStrafe.get() ? MovementUtils.getAllowedHorizontalDistance() : MovementUtils.getAllowedHorizontalDistance() * 0.994);
+                                couldStrafe = true;
+                                mc.thePlayer.jump();
+                            } else if ((getModule(Scaffold.class).isEnabled()) && !recentlyCollided) {
+                                MovementUtils.strafe(0.29);
+                                couldStrafe = true;
+                                mc.thePlayer.jump();
+                            } else {
+                                MovementUtils.strafe(0.29);
+                                couldStrafe = true;
+                                mc.thePlayer.jump();
+                            }
+
+
+                        } else if (mc.thePlayer.onGround) {
+
+                            if (!recentlyCollided) {
+                                MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
+                                couldStrafe = true;
+
+                            } else if ((getModule(Scaffold.class).isEnabled())) {
+                                MovementUtils.strafe(.23);
+                                couldStrafe = true;
+                            } else {
+                                MovementUtils.strafe(MovementUtils.getBaseMoveSpeed());
+                                couldStrafe = true;
+                            }
+                            mc.thePlayer.jump();
+                        }
+
+                        if (mc.thePlayer.offGroundTicks == 1 && !disable) {
+                            mc.thePlayer.motionY += 0.057f;
+
+
+                            if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && !(getModule(Scaffold.class).isEnabled() && mc.gameSettings.keyBindJump.isKeyDown()) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2 && !disable && !recentlyCollided) {
+                                MovementUtils.strafe(0.48);
+                                couldStrafe = true;
+
+                            } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) {
+                                MovementUtils.strafe(0.4);
+                                couldStrafe = true;
+
+                            } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1) {
+                                MovementUtils.strafe(0.405);
+                                couldStrafe = true;
+                            } else {
+                                MovementUtils.strafe(0.33);
+                                couldStrafe = true;
+                            }
+                        }
+
+                        if (mc.thePlayer.offGroundTicks == 2 && !disable && extraStrafe.get()) {
+                            double motionX3 = mc.thePlayer.motionX;
+                            double motionZ3 = mc.thePlayer.motionZ;
+                            mc.thePlayer.motionZ = (mc.thePlayer.motionZ * 1 + motionZ3 * 2) / 3;
+                            mc.thePlayer.motionX = (mc.thePlayer.motionX * 1 + motionX3 * 2) / 3;
+                        }
+
+                        if (mc.thePlayer.offGroundTicks == 3 && !disable) {
+                            mc.thePlayer.motionY -= 0.1309f;
+                        }
+
+                        if (mc.thePlayer.offGroundTicks == 4 && !disable) {
+                            mc.thePlayer.motionY -= 0.2;
+                        }
+
+
+                        if (mc.thePlayer.offGroundTicks == 6 && !disable && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY * 3, 0) != Blocks.air && fallStrafe.get())) {
+                            mc.thePlayer.motionY += 0.075;
+                            MovementUtils.strafe();
+                            couldStrafe = true;
+                            double hypotenuse = Math.sqrt(mc.thePlayer.motionX * mc.thePlayer.motionX + mc.thePlayer.motionZ * mc.thePlayer.motionZ);
+                            if ((hypotenuse < MovementUtils.getAllowedHorizontalDistance() || mc.thePlayer.motionX == 0 || mc.thePlayer.motionZ == 0) && !disable && (!recentlyCollided && mc.thePlayer.isPotionActive(Potion.moveSpeed)) && !getModule(Scaffold.class).isEnabled()) {
+                                MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() - 0.01);
+                                couldStrafe = true;
+
+                            } else if (!disable && !getModule(Scaffold.class).isEnabled() && (hypotenuse < MovementUtils.getAllowedHorizontalDistance() || mc.thePlayer.motionX == 0 || mc.thePlayer.motionZ == 0)) {
+                                MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() - 0.05);
+                                couldStrafe = true;
+                            }
+                        }
+
+                        if (mc.thePlayer.offGroundTicks < 7 && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) && mc.thePlayer.isPotionActive(Potion.moveSpeed) && !slab) {
+
+
+                            boostTicks = mc.thePlayer.ticksExisted + 9;
+                            recentlyCollided = true;
+                        }
+
+                        if (mc.thePlayer.offGroundTicks == 7 && !disable && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY * 2, 0) != Blocks.air) && !getModule(Scaffold.class).isEnabled()) {
+                            MovementUtils.strafe(fallStrafe.get() ? MovementUtils.getSpeed() : MovementUtils.getAllowedHorizontalDistance() * 1.1);
+                            couldStrafe = true;
+                        }
+
+
+                        if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && !disable && fallStrafe.get() && (mc.thePlayer.offGroundTicks > 7) && !disable3) {
+                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance() * 1.079);
+                            couldStrafe = true;
+                            disable3 = true;
+                        } else if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && !disable && mc.thePlayer.offGroundTicks > 6 && !disable3) {
+                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
+                            couldStrafe = true;
+                            disable3 = true;
+                        } else if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && mc.thePlayer.offGroundTicks > 5 && !disable3) {
+                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
+                            couldStrafe = true;
+                            disable3 = true;
+                        }
+
+                        double speed2 = Math.hypot((mc.thePlayer.motionX - (mc.thePlayer.lastTickPosX - mc.thePlayer.lastLastTickPosX)), (mc.thePlayer.motionZ - (mc.thePlayer.lastTickPosZ - mc.thePlayer.lastLastTickPosZ)));
+                        if (speed2 < .0125 && frictionOverride.get()) {
+                            MovementUtils.strafe();
+                            couldStrafe = true;
+                        }
+
+                    }
+                    break;
             }
 
             if (fastFall.canDisplay() && fastFall.get() && isEnabled(Disabler.class) && getModule(Disabler.class).options.isEnabled("Watchdog Motion") && !getModule(Disabler.class).disabled) {
@@ -569,17 +632,41 @@ public class Speed extends Module {
                         }
                         break;
                 }
+            }
 
-                if (strafe.get()) {
-                    if (mc.thePlayer.offGroundTicks == 1 || mc.thePlayer.offGroundTicks == 3 || (mc.thePlayer.offGroundTicks >= 7 && mc.thePlayer.offGroundTicks <= 8)) {
-                        MovementUtils.strafe();
-                        couldStrafe = true;
+            if (MovementUtils.isMoving()) {
+                if (MovementUtils.getSpeed() < .45 || mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1 && MovementUtils.getSpeed() < .55 || (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) && MovementUtils.getSpeed() < .61) {
+                    if (ice && mc.thePlayer.onGround && !disable) {
+                        mc.thePlayer.motionX *= 1.5;
+                        mc.thePlayer.motionZ *= 1.5;
+                    }
+
+                    if (ice && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.ice || PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.packed_ice) && !disable) {
+                        mc.thePlayer.motionX *= 1.1;
+                        mc.thePlayer.motionZ *= 1.1;
+                    }
+
+                    if (ice && mc.thePlayer.offGroundTicks == 1 && !disable) {
+                        mc.thePlayer.motionX *= 1.25;
+                        mc.thePlayer.motionZ *= 1.25;
+                    }
+                    if (ice && mc.thePlayer.offGroundTicks > 1 && !disable && wdMode.is("Full Strafe")) {
+                        mc.thePlayer.motionX *= 1.015;
+                        mc.thePlayer.motionZ *= 1.015;
                     }
                 }
+            }
+        }
+    }
 
-                if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && mc.thePlayer.offGroundTicks > 2) {
-                    MovementUtils.strafe();
-                    couldStrafe = true;
+    @EventTarget
+    public void onPostStrafe(PostStrafeEvent event) {
+        if (mode.is("Watchdog") && wdMode.is("Full Strafe")) {
+            if (extraStrafe.get()) {
+                double attempt_angle = MathHelper.wrapAngleTo180_double(Math.toDegrees(MovementUtils.getDirection()));
+                double movement_angle = MathHelper.wrapAngleTo180_double(Math.toDegrees(Math.atan2(mc.thePlayer.motionZ, mc.thePlayer.motionX)) - 90);
+                if (MathUtils.wrappedDifference(attempt_angle, movement_angle) > 90) {
+                    MovementUtils.strafe(MovementUtils.getSpeed(), (float) movement_angle - 180);
                 }
             }
         }
@@ -595,8 +682,18 @@ public class Speed extends Module {
 
     @EventTarget
     public void onPacket(PacketEvent event) {
-        if (lagBackCheck.get() && event.getPacket() instanceof S08PacketPlayerPosLook)
-            toggle();
+        if (event.getPacket() instanceof S08PacketPlayerPosLook) {
+            ticksSinceTeleport = 0;
+            if (lagBackCheck.get()) {
+                toggle();
+            }
+        }
+    }
+
+    @EventTarget
+    public void onMoveInput(MoveInputEvent event){
+        if(mc.thePlayer.onGround)
+            event.setJumping(false);
     }
 
     private boolean canCauseSpeed(Entity entity) {

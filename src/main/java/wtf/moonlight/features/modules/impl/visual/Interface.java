@@ -709,7 +709,7 @@ public class Interface extends Module {
         return Color.HSBtoRGB(getRainbowHSB(counter)[0], getRainbowHSB(counter)[1], getRainbowHSB(counter)[2]);
     }
     public static int astolfoRainbow(final int offset, final float saturation, final float brightness) {
-        double currentColor = Math.ceil((double)(System.currentTimeMillis() + offset * 130L)) / 6.0;
+        double currentColor = Math.ceil((double)(System.currentTimeMillis() + offset * 20L)) / 6.0;
         return Color.getHSBColor(((float)((currentColor %= 360.0) / 360.0) < 0.5) ? (-(float)(currentColor / 360.0)) : ((float)(currentColor / 360.0)), saturation, brightness).getRGB();
     }
 

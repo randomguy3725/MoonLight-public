@@ -32,7 +32,7 @@ public class Hat extends Module {
     public final ColorValue colorValue = new ColorValue("Color", new Color(255, 255, 255), this, () -> mode.is("Fade") || mode.is("Blend"));
     public final ColorValue secondColorValue = new ColorValue("Second Color", new Color(0, 0, 0), this, () -> mode.is("Blend"));
     public final ColorValue thirdColorValue = new ColorValue("Third Color", new Color(0, 0, 0), this, () -> mode.is("Blend"));
-    public final BoolValue target = new BoolValue("Target", true);
+    public final BoolValue target = new BoolValue("Target", true,this);
     private final double[][] positions = new double[(int) points.getMax() + 1][2];
     private int lastPoints;
     private double lastSize;

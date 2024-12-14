@@ -38,18 +38,21 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ModuleInfo(name = "LongJump", category = ModuleCategory.Movement, key = Keyboard.KEY_F)
 public class LongJump extends Module {
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Fireball", "Watchdog","Old Matrix"}, "Fireball", this);
-    private final ModeValue fbMode = new ModeValue("FB Mode", new String[]{"Boost Only", "Flat", "Opal", "Chef", "Chef High"}, "Opal", this, () -> mode.is("Fireball"));
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball", "Watchdog","Old Matrix"}, "Watchdog Fireball", this);
     private final SliderValue wdSpeed = new SliderValue("Watchdog Speed", 0.5f, 0.5f, 1, 0.01f, this, () -> mode.is("Watchdog"));
     private final BoolValue detectSpeedPot = new BoolValue("Detect Speed Pot Boost", true,this, () -> mode.is("Watchdog"));
     private final SliderValue oMatrixTimer = new SliderValue("Matrix Timer", 0.3f, 0.1f, 1, 0.01f, this, () -> mode.is("Old Matrix"));
+    private final BoolValue boost = new BoolValue("Boost",true,this, () -> mode.is("Watchdog Fireball"));
     private int lastSlot = -1;
     private long lastPlayerTick = 0;
     //fb
-    private int ticks;
+    private int ticks = -1;
+    private boolean setSpeed;
+    private int ticksSinceVelocity;
+    public static boolean stopModules;
     private boolean sentPlace;
-    private boolean start;
     private int initTicks;
+    private boolean thrown;
     //bow
     private int bowState = 0;
     private final Queue<Packet<?>> delayedPackets = new ConcurrentLinkedQueue<>();
@@ -66,14 +69,13 @@ public class LongJump extends Module {
         ticks = 0;
         lastPlayerTick = -1;
         distance = 0;
-        if (mode.is("Fireball")) {
+        if (mode.is("Watchdog Fireball")) {
             int fbSlot = getFBSlot();
             if (fbSlot == -1) {
                 setEnabled(false);
-            } else {
-                mc.thePlayer.inventory.currentItem = fbSlot;
-                mc.playerController.updateController();
             }
+
+            stopModules = true;
             initTicks = 0;
         }
 
@@ -84,13 +86,16 @@ public class LongJump extends Module {
 
     @Override
     public void onDisable() {
-        if (Objects.equals(mode.get(), "Fireball")) {
-            lastSlot = -1;
-            sentPlace = false;
+        if (Objects.equals(mode.get(), "Watchdog Fireball")) {
+            MovementUtils.stop();
+            if (lastSlot != -1) {
+                mc.thePlayer.inventory.currentItem = lastSlot;
+            }
+
+
+            ticks = lastSlot = -1;
+            setSpeed = stopModules = sentPlace = false;
             initTicks = 0;
-            start = false;
-            ticks = 0;
-            distance = 0;
         }
         if (Objects.equals(mode.get(), "Old Matrix")) {
             packet = false;
@@ -102,68 +107,8 @@ public class LongJump extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
+        ticksSinceVelocity++;
         switch (mode.get()) {
-            case "Fireball":
-
-                if (mc.thePlayer.hurtTime >= 3) {
-                    start = true;
-                }
-                if (start && sentPlace) {
-                    ticks++;
-                }
-
-                switch (fbMode.get()) {
-                    case "Flat":
-                        if (ticks > 0 && ticks < 30) {
-                            mc.thePlayer.motionY = 0.01f;
-                        } else if (ticks >= 31) {
-                            setEnabled(false);
-                        }
-                        break;
-                    case "Opal":
-                        if (ticks == 1) {
-                            mc.thePlayer.motionY = mc.thePlayer.motionY + 0.061;
-                        } else {
-                            mc.thePlayer.motionY = mc.thePlayer.motionY + 0.0283;
-                        }
-                        break;
-
-                    case "Chef":
-                        if (ticks >= 1 && ticks <= 33) {
-                            mc.thePlayer.motionY = 0.7 - ticks * 0.015;
-                        } else if (ticks > 1) {
-                            setEnabled(false);
-                        }
-                        break;
-
-                    case "Chef high":
-                        if (ticks >= 1 && ticks <= 28) {
-                            mc.thePlayer.motionY = ticks * 0.016;
-                        } else if (ticks > 1) {
-                            setEnabled(false);
-                        }
-                        break;
-                }
-
-                if (mc.thePlayer.onGround && ticks > 5) {
-                    setEnabled(false);
-                }
-
-                if (start && mc.thePlayer.hurtTime == 9 && mc.gameSettings.keyBindForward.isKeyDown()) {
-                    if (fbMode.is("Boost Only") || fbMode.is("Opal")) {
-                        MovementUtils.strafe(1.94);
-                    } else if (fbMode.is("Flat")) {
-                        MovementUtils.strafe(1.6);
-                    } else if (fbMode.is("Chef") || fbMode.is("Chef High")) {
-                        MovementUtils.strafe(1.75);
-                    }
-                }
-
-                if (fbMode.is("Flat") && start && mc.thePlayer.hurtTime == 8 && mc.gameSettings.keyBindForward.isKeyDown()) {
-                    MovementUtils.strafe(1.8);
-                }
-                break;
-
             case "Old Matrix":
                 if(!packet) {
                     if(mc.thePlayer.onGround)
@@ -193,33 +138,83 @@ public class LongJump extends Module {
             distance += Math.hypot(mc.thePlayer.posX - mc.thePlayer.lastTickPosX, mc.thePlayer.posZ - mc.thePlayer.lastTickPosZ);
         }
         switch (mode.get()) {
-            case "Fireball":
-                switch (initTicks) {
-                    case 0:
+            case "Watchdog Fireball":
+
+                if(event.isPre()){
+                    if (mc.thePlayer.hurtTime == 10){
+                        mc.thePlayer.motionY =1.1f;
+                    }
+
+                    if (ticksSinceVelocity <= 80 && ticksSinceVelocity >= 1) {
+                        mc.thePlayer.motionY += 0.028f;
+                    }
+
+                    if(ticksSinceVelocity==28){
+                        if (boost.get()){
+                            MovementUtils.strafe(0.42);
+                        }
+                        mc.thePlayer.motionY = 0.16f;
+                    }
+                    if(ticksSinceVelocity >= 35 && ticksSinceVelocity <= 50){
+                        MovementUtils.strafe();
+                        mc.thePlayer.posY = mc.thePlayer.posY+ .029f;
+
+                    }
+
+                    if(ticksSinceVelocity >= 3 && ticksSinceVelocity <= 50){
+                        MovementUtils.strafe();
+
+
+                    }
+
+                    if (initTicks == 0) {
+
+                        event.setYaw(mc.thePlayer.rotationYaw - 180);
+                        event.setPitch(89);
                         int fireballSlot = getFBSlot();
                         if (fireballSlot != -1 && fireballSlot != mc.thePlayer.inventory.currentItem) {
                             lastSlot = mc.thePlayer.inventory.currentItem;
-                            mc.thePlayer.inventory.currentItem = (fireballSlot);
+                            mc.thePlayer.inventory.currentItem = fireballSlot;
                         }
-                    case 1:
-                        RotationUtils.setRotation(new float[]{mc.thePlayer.rotationYaw - 180,89});
-                        break;
-                    case 2:
+                    }
+                    if (initTicks == 1) {
+
                         if (!sentPlace) {
-                            sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                            sendPacketNoEvent(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                             sentPlace = true;
+
                         }
-                        break;
-                    case 3:
+                    } else if (initTicks == 2) {
+
                         if (lastSlot != -1) {
-                            mc.thePlayer.inventory.currentItem = (lastSlot);
+                            mc.thePlayer.inventory.currentItem = lastSlot;
                             lastSlot = -1;
                         }
-                        break;
-                }
+                    }
+                    if (ticks > 1) {
+                        this.toggle();
+                        return;
+                    }
+                    if (setSpeed) {
 
-                if (initTicks <= 3) {
-                    initTicks++;
+                        stopModules = true;
+                        MovementUtils.strafe(1.768f);
+                        ticks++;
+                    }
+                    if (initTicks < 3) {
+                        initTicks++;
+                    }
+
+                    if (setSpeed) {
+                        if (ticks > 1) {
+                            stopModules = setSpeed = false;
+                            ticks = 0;
+                            return;
+                        }
+                        stopModules = true;
+                        ticks++;
+                        MovementUtils.strafe(1.768f);
+                    }
                 }
 
                 break;
@@ -300,19 +295,71 @@ public class LongJump extends Module {
                         break;
                 }
                 break;
+
+            case "Watchdog Fireball":
+                if (ticksSinceVelocity <= 70 && ticksSinceVelocity >= 1) {
+                    mc.thePlayer.motionX *= 1.0003;
+                    mc.thePlayer.motionZ *= 1.0003;
+                }
+
+                if (ticksSinceVelocity == 1) {
+                    mc.thePlayer.motionX *= 1.15;
+                    mc.thePlayer.motionZ *= 1.15;
+                }
+
+
+                if (mc.thePlayer.hurtTime == 8){
+                    mc.thePlayer.motionX *= 1.02;
+                    mc.thePlayer.motionZ *= 1.02;
+                }
+
+                if (mc.thePlayer.hurtTime == 7){
+                    mc.thePlayer.motionX *= 1.0004;
+                    mc.thePlayer.motionZ *= 1.0004;
+                }
+
+                if (mc.thePlayer.hurtTime == 6){
+                    mc.thePlayer.motionX *= 1.0004;
+                    mc.thePlayer.motionZ *= 1.0004;
+                }
+
+                if (mc.thePlayer.hurtTime == 5){
+                    mc.thePlayer.motionX *= 1.0004;
+                    mc.thePlayer.motionZ *= 1.0004;
+                }
+
+                if (mc.thePlayer.hurtTime <= 4 && !(mc.thePlayer.hurtTime == 0)){
+                    mc.thePlayer.motionX *= 1.0004;
+                    mc.thePlayer.motionZ *= 1.0004;
+                }
+                break;
         }
     }
 
     @EventTarget
     public void onPacket(PacketEvent event) {
         Packet<?> packet = event.getPacket();
-        if (mode.is("Fireball")) {
-            if (event.getState() == PacketEvent.State.OUTGOING) {
-                if (packet instanceof C08PacketPlayerBlockPlacement
-                        && ((C08PacketPlayerBlockPlacement) event.getPacket()).getStack() != null
-                        && ((C08PacketPlayerBlockPlacement) event.getPacket()).getStack().getItem() instanceof ItemFireball) {
-                    if (mc.thePlayer.onGround && !Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && (fbMode.is("Chef") || fbMode.is("Chef High"))) {
-                        mc.thePlayer.jump();
+
+        if (packet instanceof S12PacketEntityVelocity s12PacketEntityVelocity) {
+            if (s12PacketEntityVelocity.getEntityID() == mc.thePlayer.getEntityId()) {
+                ticksSinceVelocity = 0;
+            }
+        }
+        if (mode.is("Watchdog Fireball")) {
+            if (packet instanceof C08PacketPlayerBlockPlacement c08PacketPlayerBlockPlacement && c08PacketPlayerBlockPlacement.getStack() != null && c08PacketPlayerBlockPlacement.getStack().getItem() instanceof ItemFireball) {
+                thrown = true;
+                if (mc.thePlayer.onGround) {
+                    mc.thePlayer.jump();
+                }
+            }
+
+            if (packet instanceof S12PacketEntityVelocity s12PacketEntityVelocity) {
+                if (s12PacketEntityVelocity.getEntityID() == mc.thePlayer.getEntityId()) {
+                    if (thrown) {
+                        ticks = 0;
+                        setSpeed = true;
+                        thrown = false;
+                        stopModules = true;
                     }
                 }
             }

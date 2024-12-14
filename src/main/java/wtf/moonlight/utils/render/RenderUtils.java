@@ -174,6 +174,21 @@ public class RenderUtils implements InstanceAccess {
         if (!blend)
             GlStateManager.disableBlend();
     }
+    public static void drawImage(ResourceLocation resource, float x, float y, float x2, float y2, int c) {
+        mc.getTextureManager().bindTexture(resource);
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.begin(9, DefaultVertexFormats.POSITION_TEX_COLOR);
+        worldRenderer.pos(x, y2).tex(0.0, 1.0).color(c).endVertex();
+        worldRenderer.pos(x2, y2).tex(1.0, 1.0).color(c).endVertex();
+        worldRenderer.pos(x2, y).tex(1.0, 0.0).color(c).endVertex();
+        worldRenderer.pos(x, y).tex(0.0, 0.0).color(c).endVertex();
+        GL11.glShadeModel(7425);
+        GL11.glDepthMask(false);
+        tessellator.draw();
+        GL11.glDepthMask(true);
+        GL11.glShadeModel(7424);
+    }
 
     public static void drawImage(ResourceLocation resource, float x, float y, float x2, float y2, int c, int c2, int c3, int c4) {
         mc.getTextureManager().bindTexture(resource);

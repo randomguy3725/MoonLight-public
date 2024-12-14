@@ -7,6 +7,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.EntityDragon;
+import net.minecraft.entity.monster.EntityGhast;
+import net.minecraft.entity.monster.EntityGolem;
+import net.minecraft.entity.monster.EntityMob;
+import net.minecraft.entity.monster.EntitySlime;
+import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.entity.passive.EntityBat;
+import net.minecraft.entity.passive.EntitySquid;
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
@@ -300,5 +309,20 @@ public class PlayerUtils implements InstanceAccess {
     public static boolean isAir(BlockPos blockPos) {
         Material material = getBlock(blockPos).getMaterial();
         return material == Material.air;
+    }
+
+    public static boolean isMob(Entity entity) {
+        return entity instanceof EntityMob
+                || entity instanceof EntityVillager
+                || entity instanceof EntitySlime
+                || entity instanceof EntityGhast
+                || entity instanceof EntityDragon;
+    }
+
+    public static boolean isAnimal(Entity entity) {
+        return entity instanceof EntityAnimal
+                || entity instanceof EntitySquid
+                || entity instanceof EntityGolem
+                || entity instanceof EntityBat;
     }
 }

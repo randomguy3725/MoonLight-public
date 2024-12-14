@@ -4,21 +4,26 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.init.Items;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;
 import wtf.moonlight.events.impl.player.MoveMathEvent;
+import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.visual.Interface;
+import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.animations.ContinualAnimation;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.packet.BlinkComponent;
+import wtf.moonlight.utils.packet.PacketUtils;
 import wtf.moonlight.utils.player.InventoryUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
@@ -28,111 +33,93 @@ import java.text.DecimalFormat;
 @ModuleInfo(name = "AutoGap", category = ModuleCategory.Combat)
 public class AutoGap extends Module {
 
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Dev"}, "Dev", this);
     public final SliderValue health = new SliderValue("Health", 15, 1, 20, 0.5f, this);
-    public final SliderValue delay = new SliderValue("Delay", 75, 0, 300, 1, this);
+    public final BoolValue onlyWhileKillAura = new BoolValue("Only While Kill Aura",false,this);
+    public final SliderValue storeDelay = new SliderValue("Store Delay", 5, 0, 10, 1, this);
+    public final SliderValue storePauseTicks = new SliderValue("Store Pause Ticks", 3, 1, 3, 1, this);
     private final TimerUtils timer = new TimerUtils();
-    public boolean eating = false;
-    private int movingPackets = 0;
-    private int slot = 0;
+    public boolean working = false;
+    private int stored = 0;
+    private int pauseTicks = 0;
+    private boolean storeDelayed = false;
+    private boolean toCancel = false;
     private final ContinualAnimation animation = new ContinualAnimation();
 
     @Override
-    public void onEnable() {
-        movingPackets = 0;
-        slot = -1;
-        eating = false;
-    }
-
-    @Override
-    public void onDisable(){
-        eating = false;
-        BlinkComponent.dispatch();
-        movingPackets = 0;
+    public void onDisable() {
+        working = false;
+        stored = 0;
+        reset();
     }
 
     @EventTarget
-    public void onWorld(WorldEvent event){
-        eating = false;
-        movingPackets = 0;
-    }
+    public void onUpdate(UpdateEvent event) {
+        if (mc.thePlayer.isDead || mc.thePlayer.getHealth() >= health.get() || (onlyWhileKillAura.get() && getModule(KillAura.class).target == null)) {
+            working = false;
+            return;
+        }
 
-    @EventTarget
-    public void onMotion(MotionEvent event) {
-        if (mode.is("Dev")) {
+        if (stored >= 33 && working) {
+            reset();
 
-            if (event.isPost() && eating) {
-                movingPackets++;
+            int foodSlot = InventoryUtils.findItem(0,9,Items.golden_apple);
+            sendPacketNoEvent(new C09PacketHeldItemChange(foodSlot));
+            mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem());
+            sendPacketNoEvent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.DROP_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+            for (int i = 0; i < stored; i++) {
+                sendPacketNoEvent(new C03PacketPlayer(mc.thePlayer.onGround));
             }
+            sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+            working = false;
+        }
 
-            if (event.isPre()) {
-
-                if (mc.thePlayer == null || !mc.thePlayer.isEntityAlive()) {
-                    eating = false;
-                    BlinkComponent.dispatch();
-                    movingPackets = 0;
-
-                    return;
-                }
-
-                if (!mc.playerController.getCurrentGameType().isSurvivalOrAdventure() || !timer.hasTimeElapsed(delay.get())) {
-                    eating = false;
-                    BlinkComponent.dispatch();
-                    movingPackets = 0;
-
-                    return;
-                }
-                
-                slot = InventoryUtils.findItem(InventoryUtils.ONLY_HOT_BAR_BEGIN, InventoryUtils.END, Items.golden_apple) - 36;
-                if (slot == -1 || mc.thePlayer.getHealth() >= health.get()) {
-                    if (eating) {
-                        eating = false;
-                        BlinkComponent.dispatch();
-                        movingPackets = 0;
-                    }
-                } else {
-                    eating = true;
-                    BlinkComponent.setExempt(C0EPacketClickWindow.class, C16PacketClientStatus.class,C0DPacketCloseWindow.class,C09PacketHeldItemChange.class);
-                    BlinkComponent.blinking = true;
-                    if (movingPackets >= 32) {
-                        sendPacket(new C09PacketHeldItemChange(slot));
-                        sendPacketNoEvent(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                        mc.thePlayer.itemInUseCount -= 32;
-                        BlinkComponent.dispatch();
-                        movingPackets = 0;
-                        sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-                        timer.reset();
-                    } else if (mc.thePlayer.ticksExisted % 3 == 0) {
-                        while (!BlinkComponent.packets.isEmpty()) {
-                            final Packet<?> packet = BlinkComponent.packets.poll();
-
-                            if (packet instanceof C03PacketPlayer) {
-                                movingPackets--;
-                            }
-
-                            BlinkComponent.dispatch();
-                        }
-                    }
-                }
-            }
+        if (InventoryUtils.findItem(0,9,Items.golden_apple) != -1) {
+            working = true;
+        } else {
+            working = false;
+            stored = 0;
+            reset();
         }
     }
 
     @EventTarget
-    public void onMoveMath(MoveMathEvent event){
-        if(eating)
+    public void onMotion(MotionEvent event) {
+        if(event.isPost())
+            return;
+        if (toCancel)
             event.setCancelled(true);
+        toCancel = false;
+    }
+
+
+    @EventTarget
+    public void onMoveMath(MoveMathEvent event) {
+        if (!working) return;
+
+        if (!storeDelayed && stored % (int) storeDelay.get() == 1) {
+            storeDelayed = true;
+            pauseTicks = (int) storePauseTicks.get();
+        }
+
+        if (pauseTicks > 0) {
+            pauseTicks--;
+        } else {
+            event.setCancelled(true);
+            stored++;
+            storeDelayed = false;
+            toCancel = true;
+        }
     }
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
-        if (mode.is("Dev")) {
-            final ScaledResolution resolution = new ScaledResolution(mc);
+        if (working) {
+            final ScaledResolution resolution = event.getScaledResolution();
             final int x = resolution.getScaledWidth() / 2;
             final int y = resolution.getScaledHeight() - 75;
             final float thickness = 5F;
 
-            float percentage = Math.min(movingPackets, 32) / 32f;
+            float percentage = Math.min(stored, 33) / 33f;
 
             final int width = 100;
             final int half = width / 2;
@@ -147,5 +134,13 @@ public class AutoGap extends Module {
 
             Fonts.interRegular.get(12).drawCenteredString(new DecimalFormat("0.0").format(percentage * 100) + "%", x, y + 2, -1);
         }
+    }
+
+    public void reset() {
+        //working = false;
+        //stored = 0;
+        pauseTicks = 0;
+        storeDelayed = false;
+        toCancel = false;
     }
 }
