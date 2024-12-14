@@ -129,7 +129,7 @@ public class BedNuker extends Module {
 
     private void getBedPos() {
         bedPos = null;
-        double range = breakRange.get() + 2;
+        double range = breakRange.get();
         for (double x = mc.thePlayer.posX - range; x <= mc.thePlayer.posX + range; x++) {
             for (double y = mc.thePlayer.posY + mc.thePlayer.getEyeHeight() - range; y <= mc.thePlayer.posY + mc.thePlayer.getEyeHeight() + range; y++) {
                 for (double z = mc.thePlayer.posZ - range; z <= mc.thePlayer.posZ + range; z++) {
