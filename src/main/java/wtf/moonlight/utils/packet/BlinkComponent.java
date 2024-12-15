@@ -69,8 +69,7 @@ public final class BlinkComponent implements InstanceAccess {
         }
     }
 
-    public static void dispatch(boolean clear) {
-        blinking = false;
+    public static void release(boolean clear) {
         if(!packets.isEmpty()) {
             packets.forEach(PacketUtils::sendPacketNoEvent);
             if(clear) {
@@ -78,6 +77,13 @@ public final class BlinkComponent implements InstanceAccess {
                 exemptedPackets.clear();
             }
         }
+    }
+
+    public static void dispatch(boolean releasePackets) {
+        if (releasePackets) {
+            release(true);
+        }
+        blinking = false;
     }
 
     public static void dispatch() {

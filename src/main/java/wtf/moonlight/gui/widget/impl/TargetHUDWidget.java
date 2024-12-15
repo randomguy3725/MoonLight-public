@@ -168,7 +168,7 @@ class TargetHUD implements InstanceAccess {
                     RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor()));
                     RenderUtils.renderPlayer2D(target, x + 5, y + 6.8, 26.5, 2, -1);
 
-                    RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(setting.color()));
+                    RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(30, 30, 30));
 
                     Fonts.interSemiBold.get(14).drawString(target.getDisplayName().getFormattedText(), x + 5 * 3 + 26.5f, y + 6.8f + (float) Fonts.interSemiBold.get(14).getHeight() / 2, -1);
                     Fonts.interRegular.get(12).drawString((int) (MathUtils.roundToHalf(target.getHealth())) + "HP", x + 5 * 3 + 26.5f, y + 6.8f * 2.25 + (float) Fonts.interSemiBold.get(14).getHeight() / 2, -1);

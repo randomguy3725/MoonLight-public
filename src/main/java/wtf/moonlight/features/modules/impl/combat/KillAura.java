@@ -6,46 +6,27 @@ import com.viaversion.viaversion.api.protocol.packet.PacketWrapper;
 import com.viaversion.viaversion.api.type.Type;
 import de.florianmichael.vialoadingbase.ViaLoadingBase;
 import de.florianmichael.viamcp.fixes.AttackOrder;
-import lombok.val;
 import net.minecraft.block.BlockAir;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.boss.EntityDragon;
-import net.minecraft.entity.monster.EntityGhast;
-import net.minecraft.entity.monster.EntityGolem;
-import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySlime;
-import net.minecraft.entity.passive.EntityAnimal;
-import net.minecraft.entity.passive.EntityBat;
-import net.minecraft.entity.passive.EntitySquid;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemSword;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.util.*;
-import net.optifine.shaders.Shaders;
 import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import wtf.moonlight.MoonLight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
-import wtf.moonlight.events.impl.render.Shader2DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
@@ -56,20 +37,15 @@ import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
-import wtf.moonlight.utils.animations.Animation;
 import wtf.moonlight.utils.animations.ContinualAnimation;
 import wtf.moonlight.utils.animations.Direction;
 import wtf.moonlight.utils.animations.impl.DecelerateAnimation;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.packet.BlinkComponent;
-import wtf.moonlight.utils.packet.PacketUtils;
 import wtf.moonlight.utils.player.*;
-import wtf.moonlight.utils.render.ColorUtils;
-import wtf.moonlight.utils.render.GLUtils;
 import wtf.moonlight.utils.render.RenderUtils;
 
-import java.awt.*;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.*;
@@ -117,7 +93,6 @@ public class KillAura extends Module {
     public final SliderValue rotationRange = new SliderValue("Rotation Range", 3.0F, 2.0F, 16F, .1f, this);
     public final BoolValue preSwingWithRotationRange = new BoolValue("Pre Swing With Rotation Range", true, this);
     public final MultiBoolValue addons = new MultiBoolValue("Addons", Arrays.asList(new BoolValue("Movement Fix", false), new BoolValue("Perfect Hit", true), new BoolValue("Ray Cast", true), new BoolValue("Hit Select", true)), this);
-    public final BoolValue gommeFix = new BoolValue("Gomme Fix", false, this, () -> addons.isEnabled("Perfect Hit"));
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
@@ -150,7 +125,6 @@ public class KillAura extends Module {
     public boolean isBlocking;
     public boolean renderBlocking;
     public boolean blinked;
-    private boolean inInv = false;
     public boolean lag;
     public Vec3 currentVec;
     public Vec3 targetVec;
@@ -158,14 +132,11 @@ public class KillAura extends Module {
     private final ContinualAnimation animatedX = new ContinualAnimation();
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
-    private int currentSlot = 0;
 
     @Override
     public void onEnable() {
         clicks = 0;
         attackTimer.reset();
-        if (mc.currentScreen instanceof GuiInventory) inInv = true;
-        currentSlot = mc.thePlayer.inventory.currentItem;
     }
 
     @Override
@@ -177,17 +148,11 @@ public class KillAura extends Module {
         if (blinked) {
             BlinkComponent.dispatch();
         }
-
-        if (inInv) sendPacketNoEvent(new C0DPacketCloseWindow());
-        if (currentSlot != mc.thePlayer.inventory.currentItem) {
-            sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-            currentSlot = mc.thePlayer.inventory.currentItem;
-        }
         target = null;
         targets.clear();
         index = 0;
         switchTimer.reset();
-        resetVariables();
+        currentVec = targetVec = null;
         Iterator<Map.Entry<EntityPlayer, DecelerateAnimation>> iterator = getModule(Interface.class).animationEntityPlayerMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<EntityPlayer, DecelerateAnimation> entry = iterator.next();
@@ -207,7 +172,6 @@ public class KillAura extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         targets.clear();
-        resetVariables();
 
         if ((target == null || !shouldBlock()) && renderBlocking) {
             renderBlocking = false;
@@ -218,7 +182,7 @@ public class KillAura extends Module {
         if (((isEnabled(Scaffold.class) && noScaffold.get() ||
                 !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.getPosition()).getBlock() instanceof BlockAir) ||
                 noInventory.get() && mc.currentScreen instanceof GuiContainer ||
-                noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null
+                (noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null || !noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).rotate)
         ) && target != null) {
             if (blinked) {
                 BlinkComponent.dispatch();
@@ -262,14 +226,12 @@ public class KillAura extends Module {
 
         } else {
             target = null;
+            currentVec = targetVec = null;
+            unblock();
             if (blinked) {
                 BlinkComponent.dispatch();
                 blinked = false;
             }
-            if (autoBlock.is("Watchdog")) {
-                unblock();
-            }
-            resetVariables();
             clicks = 0;
             return;
         }
@@ -277,7 +239,7 @@ public class KillAura extends Module {
         if (mc.thePlayer.isSpectator() || mc.thePlayer.isDead || (isEnabled(Scaffold.class) && noScaffold.get() ||
                 !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.getPosition()).getBlock() instanceof BlockAir) ||
                 noInventory.get() && mc.currentScreen instanceof GuiContainer ||
-                noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null
+                (noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null || !noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).rotate)
         ) return;
 
         if (target != null) {
@@ -299,7 +261,7 @@ public class KillAura extends Module {
                     RotationUtils.setRotation(finalRotation, addons.isEnabled("Movement Fix") ? movementFix.is("Strict") ? MovementCorrection.STRICT : MovementCorrection.SILENT : MovementCorrection.OFF);
                 }
                 if (preSwingWithRotationRange.get()) {
-                    if (PlayerUtils.getDistanceToEntityBox(target) < (mc.thePlayer.canEntityBeSeen(target) ? rotationRange.get() : 0) &&
+                    if (PlayerUtils.getDistanceToEntityBox(target) <= (mc.thePlayer.canEntityBeSeen(target) ? rotationRange.get() : 0) &&
                             PlayerUtils.getDistanceToEntityBox(target) > (!mc.thePlayer.canEntityBeSeen(target) ? wallAttackRange.get() : attackRange.get())
                     ) {
                         maxClicks = clicks;
@@ -316,6 +278,10 @@ public class KillAura extends Module {
                 renderBlocking = true;
             }
 
+            if (preTickBlock()) return;
+
+            if (clicks == 0) return;
+
             if (isBlocking)
                 if (preAttack()) return;
 
@@ -327,12 +293,10 @@ public class KillAura extends Module {
                 }
             }
 
-            if (PlayerUtils.getDistanceToEntityBox(target) < blockRange.get()) {
-                if (!autoBlock.is("None") && isHoldingSword()) {
-                    if (Mouse.isButtonDown(2))
-                        KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-                    postAttack();
-                }
+            if (!autoBlock.is("None") && shouldBlock()) {
+                if (Mouse.isButtonDown(2))
+                    KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+                postAttack();
             }
         }
     }
@@ -402,23 +366,31 @@ public class KillAura extends Module {
         }
     }
 
+    private boolean preTickBlock() {
+        switch (autoBlock.get()){
+            case "Watchdog":
+                switch (mc.thePlayer.ticksExisted % 3) {
+                    case 0:
+                        unblock();
+                        return true;
+                    case 1:
+                        return false;
+                    case 2:
+                        block();
+                        if (!BlinkComponent.blinking)
+                            BlinkComponent.blinking = true;
+                        BlinkComponent.release(true);
+                        blinked = true;
+                        return true;
+                }
+                break;
+        }
+        return false;
+    }
+
     private boolean preAttack() {
 
         switch (autoBlock.get()){
-            case "Watchdog":
-                if (inInv) {
-                    BlinkComponent.dispatch();
-                    blinked = false;
-                    sendPacketNoEvent(new C0DPacketCloseWindow());
-                    inInv = false;
-                } else {
-                    BlinkComponent.blinking = true;
-                    sendPacketNoEvent(new C16PacketClientStatus(C16PacketClientStatus.EnumState.OPEN_INVENTORY_ACHIEVEMENT));
-                    inInv = true;
-                    blinked = true;
-                    return true;
-                }
-                break;
             case "Release":
                 if (clicks + 1 == maxClicks) {
                     if (!(releaseBlockRate.get() > 0 && RandomUtils.nextInt(0, 100) <= releaseBlockRate.get()))
@@ -440,11 +412,6 @@ public class KillAura extends Module {
 
     private void postAttack() {
         switch (autoBlock.get()) {
-            case "Watchdog":
-                isBlocking = false;
-                block();
-                BlinkComponent.dispatch();
-                break;
             case "Vanilla":
                 block();
                 break;
@@ -466,7 +433,7 @@ public class KillAura extends Module {
 
             if (via.get()) {
                 if (ViaLoadingBase.getInstance().getTargetVersion().getVersion() > 47) {
-                    sendPacketNoEvent(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 255, mc.thePlayer.inventory.getCurrentItem(), 0.0F, 0.0F, 0.0F));
+                    sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                     PacketWrapper useItem = PacketWrapper.create(29, null, Via.getManager().getConnectionManager().getConnections().iterator().next());
                     useItem.write(Type.VAR_INT, 1);
                     com.viaversion.viarewind.utils.PacketUtil.sendToServer(useItem, Protocol1_8To1_9.class, true, true);
@@ -502,7 +469,7 @@ public class KillAura extends Module {
     }
 
     public boolean canAttack(EntityLivingBase entity){
-        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime == 0 || entity.hurtTime == 1 || perfectHitTimer.hasTimeElapsed(1000L) && (gommeFix.get() && entity.hurtTime != 4 || !gommeFix.get()));
+        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime == 0 || entity.hurtTime == 1 || perfectHitTimer.hasTimeElapsed(1000L));
     }
 
     public boolean isHoldingSword() {
@@ -513,7 +480,7 @@ public class KillAura extends Module {
         final List<EntityLivingBase> entities = new ArrayList<>();
         for (final Entity entity : mc.theWorld.loadedEntityList) {
             if (entity instanceof EntityLivingBase e) {
-                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) < searchRange.get() && (RotationUtils.getRotationDifference(e) >= fov.get() || fov.get() == 180)) entities.add(e);
+                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) <= searchRange.get() && (RotationUtils.getRotationDifference(e) >= fov.get() || fov.get() == 180)) entities.add(e);
                 else entities.remove(e);
 
             }
@@ -539,11 +506,11 @@ public class KillAura extends Module {
     }
 
     public boolean shouldAttack() {
-        return PlayerUtils.getDistanceToEntityBox(target) < (!mc.thePlayer.canEntityBeSeen(target) ? wallAttackRange.get() : attackRange.get()) && (!addons.isEnabled("Hit Select") || addons.isEnabled("Hit Select") && damaged);
+        return PlayerUtils.getDistanceToEntityBox(target) <= (!mc.thePlayer.canEntityBeSeen(target) ? wallAttackRange.get() : attackRange.get()) && (!addons.isEnabled("Hit Select") || addons.isEnabled("Hit Select") && damaged);
     }
 
     public boolean shouldBlock() {
-        return PlayerUtils.getDistanceToEntityBox(target) < blockRange.get() && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
+        return PlayerUtils.getDistanceToEntityBox(target) <= blockRange.get() && isHoldingSword();
     }
 
     public float[] calcToEntity(EntityLivingBase entity) {
@@ -685,11 +652,5 @@ public class KillAura extends Module {
 
         AxisAlignedBB axis = new AxisAlignedBB(bbox.minX - mc.thePlayer.posX, bbox.minY - mc.thePlayer.posY, bbox.minZ - mc.thePlayer.posZ, bbox.maxX - mc.thePlayer.posX, bbox.maxY - mc.thePlayer.posY, bbox.maxZ - mc.thePlayer.posZ);
         RenderUtils.drawAxisAlignedBB(axis, true, color);
-    }
-
-    private void resetVariables() {
-        currentVec = targetVec = null;
-        if (!autoBlock.is("Watchdog"))
-            unblock();
     }
 }
