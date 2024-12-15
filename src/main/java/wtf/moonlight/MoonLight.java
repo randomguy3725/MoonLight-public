@@ -15,7 +15,6 @@ import wtf.moonlight.features.modules.ModuleManager;
 import wtf.moonlight.features.modules.impl.visual.ScaffoldCounter;
 import wtf.moonlight.gui.click.dropdown.DropdownGUI;
 import wtf.moonlight.gui.click.menu.MenuGUI;
-import wtf.moonlight.gui.click.dropdown2.MoonGUI;
 import wtf.moonlight.gui.click.skeet.SkeetUI;
 import wtf.moonlight.gui.notification.NotificationManager;
 import wtf.moonlight.gui.widget.WidgetManager;
@@ -48,7 +47,6 @@ public class MoonLight {
     private FriendManager friendManager;
     private MenuGUI menuGUI;
     private DropdownGUI dropdownGUI;
-    private MoonGUI moonGUI;
     private SkeetUI skeetGUI;
     private DiscordInfo discordRP;
     public TrayIcon trayIcon;
@@ -74,7 +72,6 @@ public class MoonLight {
         friendManager = new FriendManager();
         menuGUI = new MenuGUI();
         dropdownGUI = new DropdownGUI();
-        moonGUI = new MoonGUI();
         skeetGUI = new SkeetUI();
 
         eventManager.register(new ScaffoldCounter());

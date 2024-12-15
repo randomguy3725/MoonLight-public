@@ -17,6 +17,8 @@ import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -101,10 +103,9 @@ public class NotificationManager implements InstanceAccess {
                             notification.getAnimation().setDuration(350);
                             actualOffset = 10;
 
-                            x = sr.getScaledWidth() - (width + 5);
+                            x = (float) (sr.getScaledWidth() - (width + 5) * animation.getOutput());
                             y = sr.getScaledHeight() - 43 - height - yOffset;
 
-                            x = x * (float) notification.getAnimation().getOutput();
                             RenderUtils.drawRect(x, y, width, height, INSTANCE.getModuleManager().getModule(Interface.class).bgColor());
                             Fonts.interSemiBold.get(17).drawString(notification.getTitle(), x + 7, y + 7, new Color(255, 255, 255, 255).getRGB());
                             Fonts.interRegular.get(17).drawString(notification.getDescription(), x + 7, y + 18f, new Color(255, 255, 255, 120).getRGB());
@@ -143,6 +144,32 @@ public class NotificationManager implements InstanceAccess {
                         if (!middlePos) {
                             yOffset -= height;
                         }
+                        break;
+
+                    case "Type 2":
+
+                        notification.getAnimation().setDuration(200);
+                        actualOffset = 3;
+
+                        x = (float) (sr.getScaledWidth() - (width + 5) * animation.getOutput());
+                        y = sr.getScaledHeight() - 43 - height - yOffset;
+
+                        RoundedUtils.drawRound(x,y,width,height,4,new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()));
+                        RenderUtils.drawCircle(x + 16f,y + 15f, 0, 360,13f,.1f,true,-1);
+                        RenderUtils.drawGradientCircle(x + 16f, y + 15f, 0, 360,13f,INSTANCE.getModuleManager().getModule(Interface.class).color(0),INSTANCE.getModuleManager().getModule(Interface.class).color(90));
+                        if (notification.getNotificationType() == NotificationType.INFO) {
+                            Fonts.noti.get(42).drawString("B",x + 11F,y + 8F, 0);
+                        } else if (notification.getNotificationType() == NotificationType.NOTIFY) {
+                            Fonts.noti.get(42).drawString("A", x + 14F, y + 8F, 0);
+                        } else if (notification.getNotificationType() == NotificationType.WARNING) {
+                            Fonts.noti2.get(42).drawString("L",x + 9F,y + 10F, 0);
+                        } else {
+                            Fonts.noti2.get(42).drawString("M",x + 8F,y + 10F, 0);
+                        }
+                        Fonts.interMedium.get(20).drawString(notification.getTitle(), x + 34F,y + 4F, -1);
+                        Fonts.interMedium.get(17).drawString(notification.getDescription(),x + 34F,y + 17F, -1);
+
+                        yOffset += (height + actualOffset) * (float) notification.getAnimation().getOutput();
                         break;
                 }
             }

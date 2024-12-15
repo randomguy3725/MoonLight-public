@@ -121,7 +121,6 @@ public class ModuleManager {
                 Rotation.class,
                 Shaders.class,
                 Trajectories.class,
-                TestGUI.class,
                 TargetESP.class,
 
                 //world

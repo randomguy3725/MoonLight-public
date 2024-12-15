@@ -1,5 +1,6 @@
 package wtf.moonlight.utils.render;
 
+import lombok.val;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -950,7 +951,33 @@ public class RenderUtils implements InstanceAccess {
 
         if (depth)
             glEnable(GL_DEPTH_TEST);
+    }
 
-
+    public static void drawGradientCircle(float x, float y ,float start, float end,float radius,int color1,int color2) {
+        GlStateManager.enableBlend();
+        GlStateManager.disableTexture2D();
+        GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glLineWidth(2f);
+        GL11.glBegin(GL11.GL_LINE_STRIP);
+        var i = end;
+        while (i >= start) {
+            int c = ColorUtils.getGradientOffset(
+                    new Color(color1),
+                    new Color(color2),
+                    (Math.abs(System.currentTimeMillis() / 360.0 + (i * 34 / 360) * 56 / 100) / 10)
+            ).getRGB();
+            float r = (c >> 16 & 0xFF) / 255f;
+            float g = (c >> 8 & 0xFF) / 255f;
+            float b = (c & 0xFF) / 255f;
+            float a = (c >> 24 & 0xFF) / 255f;
+            GlStateManager.color(r,g,b,a);
+            GL11.glVertex2f((float) (x + Math.cos(i * PI / 180) * (radius * 1.001f)), (float) (y + Math.sin(i * PI / 180) * (radius * 1.001f)));
+            i -= 360f / 90.0f;
+        }
+        GL11.glEnd();
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
 }

@@ -17,7 +17,9 @@ public enum Fonts {
     psBold("product-sans/Bold"),
     nursultan("others/Nursultan"),
     Tahoma("others/Exhi"),
-    skeet("others/skeet");
+    skeet("others/skeet"),
+    noti("others/noti"),
+    noti2("others/noti2");
     private final String file;
     private final Float2ObjectMap<FontRenderer> fontMap = new Float2ObjectArrayMap<>();
 
