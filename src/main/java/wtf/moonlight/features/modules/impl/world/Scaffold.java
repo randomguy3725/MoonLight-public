@@ -1,10 +1,8 @@
 package wtf.moonlight.features.modules.impl.world;
 
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.blockconnections.BlockData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.block.*;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -12,12 +10,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.*;
 import org.lwjglx.input.Keyboard;
@@ -37,7 +33,6 @@ import wtf.moonlight.features.values.impl.MultiBoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
-import wtf.moonlight.utils.packet.PingSpoofComponent;
 import wtf.moonlight.utils.player.*;
 
 import java.util.ArrayList;
@@ -93,7 +88,7 @@ public class Scaffold extends Module {
     private final SliderValue towerSpeedWhenDiagonal = new SliderValue("Tower Move Diagonal Speed", 0.22f, 0.2f, 0.28f, 0.005f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final BoolValue boost = new BoolValue("Tower Move Boost", true, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final SliderValue speedBoost = new SliderValue("Tower Move Speed Boost", 0.06f, 0.01f, 0.1f, 0.01f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla") && boost.get());
-    private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom", "Spoof","Spoof 2"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
+    private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final SliderValue straightSpeed = new SliderValue("Keep Y Straight Speed", 1, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
@@ -102,12 +97,10 @@ public class Scaffold extends Module {
     public final ModeValue counter = new ModeValue("Counter", new String[]{"None", "Simple", "Normal", "Exhibition"}, "Normal", this);
     public BlockData data;
     public BlockPos targetBlock;
-    public BlockPos previousBlock;
     private int prevSlot = -1;
     private double onGroundY = 0;
     private float[] rotation;
     private float[] previousRotation;
-    private int towerTicks;
     private boolean targetCalculated;
     private boolean canJump;
     private int towerMoveTicks;
@@ -119,9 +112,7 @@ public class Scaffold extends Module {
     private boolean isOnRightSide;
     private int jumpCount;
     private int tellyTicks;
-    private boolean clutching;
-    private boolean canDoOffGround = false;
-    private boolean flagged = false;
+    private boolean setOffset = false;
     private HoverState hoverState = HoverState.DONE;
     private final List<Block> blacklistedBlocks = Arrays.asList(Blocks.air, Blocks.water, Blocks.flowing_water, Blocks.lava, Blocks.wooden_slab, Blocks.chest, Blocks.flowing_lava,
             Blocks.enchanting_table, Blocks.carpet, Blocks.glass_pane, Blocks.skull, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice, Blocks.packed_ice,
@@ -157,21 +148,19 @@ public class Scaffold extends Module {
         placing = false;
 
         if (!mc.thePlayer.onGround) {
-            towerTicks = 100;
             towerMoveTicks = 100;
         }
         previousRotation = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
 
-        if (wdSprint.canDisplay() && (wdSprint.is("Spoof") || wdSprint.is("Spoof 2")) && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid) && !addons.isEnabled("Hover")) {
+        if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid) && !addons.isEnabled("Hover")) {
             if (mc.thePlayer.onGround) {
                 hoverState = HoverState.JUMP;
-                canDoOffGround = false;
             } else {
-                canDoOffGround = true;
+                hoverState = HoverState.DONE;
             }
-
-            flagged = false;
         }
+
+        setOffset = true;
     }
 
     @Override
@@ -195,10 +184,9 @@ public class Scaffold extends Module {
         blocksPlaced = 0;
         placed = false;
         tellyTicks = 0;
-        clutching = false;
         targetCalculated = false;
 
-        if (wdSprint.canDisplay() && wdSprint.is("Spoof 2")) {
+        if (wdSprint.canDisplay() && wdSprint.is("Offset")) {
             mc.thePlayer.motionX *= .8;
             mc.thePlayer.motionZ *= .8;
         }
@@ -225,7 +213,6 @@ public class Scaffold extends Module {
             hoverState = HoverState.JUMP;
             blocksPlaced = 0;
             start = false;
-            canDoOffGround = false;
         }
 
         if (mode.is("Watchdog") && mc.gameSettings.keyBindJump.isKeyDown() && towerMove.is("Jump")) {
@@ -319,6 +306,19 @@ public class Scaffold extends Module {
         if (mode.is("Watchdog") && !sprint.get() && !towerMoving() && !towering()) {
             mc.thePlayer.motionX *= 0.95;
             mc.thePlayer.motionZ *= 0.95;
+        }
+
+        if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
+            if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                MovementUtils.preventDiagonalSpeed();
+                mc.thePlayer.motionZ *= .998;
+                mc.thePlayer.motionX *= .998;
+            }
+
+            if (mc.gameSettings.keyBindJump.isPressed() && mc.thePlayer.onGround) {
+                MovementUtils.stop();
+                setOffset = false;
+            }
         }
 
         final MovingObjectPosition[] raycast = {null};
@@ -502,28 +502,15 @@ public class Scaffold extends Module {
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
             return;
 
-        if (wdSprint.canDisplay() && wdSprint.is("Spoof") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
-            if (flagged) {
-                mc.gameSettings.keyBindSprint.setPressed(false);
-                mc.thePlayer.setSprinting(false);
-            } else {
-                if (canDoOffGround) event.setOnGround(false);
-                else if (!mc.thePlayer.onGround) canDoOffGround = true;
-            }
-        }
-
-        if (wdSprint.canDisplay() && wdSprint.is("Spoof 2") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
-            if (flagged) {
-                mc.gameSettings.keyBindSprint.setPressed(false);
-                mc.thePlayer.setSprinting(false);
-            } else {
-                if (canDoOffGround) event.setOnGround(false);
-                else if (!mc.thePlayer.onGround) canDoOffGround = true;
-            }
-
+        if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
             if (mc.thePlayer.onGround) {
-                mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
-                mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                event.setY(event.getY() + 1E-13);
+            }
+
+            if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                MovementUtils.stop();
+                event.setY(event.getY() + 1E-13);
+                setOffset = true;
             }
         }
     }
@@ -607,7 +594,6 @@ public class Scaffold extends Module {
                     MovementUtils.stopXZ();
 
                     if (mc.thePlayer.onGround) {
-                        towerTicks = 0;
                         mc.thePlayer.motionY = 0.41985F;
                     }
 
@@ -630,10 +616,9 @@ public class Scaffold extends Module {
                                 }
                             }
                         }
-                        towerTicks++;
                     }
                 }
-            } else towerTicks = 0;
+            } else ;
         }
     }
 
@@ -800,12 +785,6 @@ public class Scaffold extends Module {
 
         if (mode.is("Watchdog") && mc.thePlayer.onGround && mc.gameSettings.keyBindJump.isKeyDown() && towerMove.is("Jump") && event.getPacket() instanceof C08PacketPlayerBlockPlacement) {
             canJump = true;
-        }
-
-        if (wdSprint.canDisplay() && (wdSprint.is("Spoof") || wdSprint.is("Spoof 2"))) {
-            if (event.getPacket() instanceof S08PacketPlayerPosLook) {
-                flagged = true;
-            }
         }
     }
 

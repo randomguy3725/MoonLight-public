@@ -365,6 +365,24 @@ public class MovementUtils implements InstanceAccess {
         mc.thePlayer.motionZ += MathHelper.cos((float) yaw) * increase;
     }
 
+    public static void preventDiagonalSpeed() {
+        KeyBinding[] gameSettings = new KeyBinding[]{mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft};
+
+        final int[] down = {0};
+
+        Arrays.stream(gameSettings).forEach(keyBinding -> down[0] = down[0] + (keyBinding.isKeyDown() ? 1 : 0));
+
+        boolean active = down[0] == 1;
+
+        if (active) return;
+
+        final double groundIncrease = (0.1299999676734952 - 0.12739998266255503) + 1E-7 - 1E-8;
+        final double airIncrease = (0.025999999334873708 - 0.025479999685988748) - 1E-8;
+        final double increase = mc.thePlayer.onGround ? groundIncrease : airIncrease;
+
+        moveFlying(-increase);
+    }
+
     public static void useDiagonalSpeed() {
         KeyBinding[] gameSettings = new KeyBinding[]{mc.gameSettings.keyBindForward, mc.gameSettings.keyBindRight, mc.gameSettings.keyBindBack, mc.gameSettings.keyBindLeft};
 

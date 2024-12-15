@@ -2,6 +2,8 @@ package wtf.moonlight.utils.misc;
 
 import lombok.Getter;
 import net.minecraft.item.ItemStack;
+import wtf.moonlight.events.annotations.EventTarget;
+import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.utils.InstanceAccess;
 
 public class SpoofSlotUtils implements InstanceAccess {
@@ -26,5 +28,10 @@ public class SpoofSlotUtils implements InstanceAccess {
 
     public static ItemStack getSpoofedStack() {
         return spoofing ? mc.thePlayer.inventory.getStackInSlot(spoofedSlot) : mc.thePlayer.inventory.getCurrentItem();
+    }
+
+    @EventTarget
+    public void onWorld(WorldEvent event){
+        stopSpoofing();
     }
 }

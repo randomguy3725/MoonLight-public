@@ -20,6 +20,7 @@ import wtf.moonlight.gui.click.skeet.SkeetUI;
 import wtf.moonlight.gui.notification.NotificationManager;
 import wtf.moonlight.gui.widget.WidgetManager;
 import wtf.moonlight.utils.discord.DiscordInfo;
+import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.packet.BadPacketsComponent;
 import wtf.moonlight.utils.packet.BlinkComponent;
 import wtf.moonlight.utils.packet.PingSpoofComponent;
@@ -82,6 +83,7 @@ public class MoonLight {
         eventManager.register(new BadPacketsComponent());
         eventManager.register(new PingSpoofComponent());
         eventManager.register(new BlinkComponent());
+        eventManager.register(new SpoofSlotUtils());
 
         startTime = (int) System.currentTimeMillis();
         startTimeLong = System.currentTimeMillis();
