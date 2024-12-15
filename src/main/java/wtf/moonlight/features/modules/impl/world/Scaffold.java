@@ -90,6 +90,7 @@ public class Scaffold extends Module {
     private final BoolValue boost = new BoolValue("Tower Move Boost", true, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
     private final SliderValue speedBoost = new SliderValue("Tower Move Speed Boost", 0.06f, 0.01f, 0.1f, 0.01f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla") && boost.get());
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
+    private final BoolValue sprintBoost = new BoolValue("Sprint Boost TEst", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     private final SliderValue straightSpeed = new SliderValue("Keep Y Straight Speed", 1, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
@@ -165,6 +166,9 @@ public class Scaffold extends Module {
         }
 
         setOffset = true;
+
+        if(rotations.is("Hypixel Test"))
+            rotation = new float[]{mc.thePlayer.rotationYaw + 180,85};
     }
 
     @Override
@@ -532,15 +536,21 @@ public class Scaffold extends Module {
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
             return;
 
-        if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
-            if (mc.thePlayer.onGround) {
-                event.setY(event.getY() + 1E-13);
-            }
+        if (wdSprint.canDisplay() && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
+            if (wdSprint.is("Offset")) {
+                if (mc.thePlayer.onGround) {
+                    event.setY(event.getY() + 1E-13);
+                }
 
-            if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
-                MovementUtils.stopXZ();
-                event.setY(event.getY() + 1E-13);
-                setOffset = true;
+                if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                    MovementUtils.stopXZ();
+                    event.setY(event.getY() + 1E-13);
+                    setOffset = true;
+                }
+            }
+            if (mc.thePlayer.onGround && sprintBoost.get()) {
+                mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
             }
         }
     }
