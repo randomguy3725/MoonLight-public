@@ -24,6 +24,8 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiDownloadTerrain;
+import wtf.moonlight.MoonLight;
+import wtf.moonlight.events.impl.player.TeleportEvent;
 import wtf.moonlight.gui.mainmenu.GuiMainMenu;
 import net.minecraft.client.gui.GuiMerchant;
 import net.minecraft.client.gui.GuiMultiplayer;
@@ -594,6 +596,21 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         double d2 = packetIn.getZ();
         float f = packetIn.getYaw();
         float f1 = packetIn.getPitch();
+
+        final TeleportEvent event = new TeleportEvent(
+                new C03PacketPlayer.C06PacketPlayerPosLook(entityplayer.posX, entityplayer.posY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false),
+                d0,
+                d1,
+                d2,
+                f,
+                f1
+        );
+
+        MoonLight.INSTANCE.getEventManager().call(event);
+
+        if (event.isCancelled()) {
+            return;
+        }
 
         if (packetIn.func_179834_f().contains(S08PacketPlayerPosLook.EnumFlags.X))
         {
