@@ -26,6 +26,6 @@ public class Fly extends Module {
         }
 
         if (MovementUtils.isMoving()) MovementUtils.strafe(0.85 * horizontalSpeed.get());
-        else MovementUtils.stop();
+        else MovementUtils.stopXZ();
     }
 }

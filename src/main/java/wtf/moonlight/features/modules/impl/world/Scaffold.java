@@ -316,7 +316,7 @@ public class Scaffold extends Module {
             }
 
             if (mc.gameSettings.keyBindJump.isPressed() && mc.thePlayer.onGround) {
-                MovementUtils.stop();
+                MovementUtils.stopXZ();
                 setOffset = false;
             }
         }
@@ -508,7 +508,7 @@ public class Scaffold extends Module {
             }
 
             if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
-                MovementUtils.stop();
+                MovementUtils.stopXZ();
                 event.setY(event.getY() + 1E-13);
                 setOffset = true;
             }
