@@ -606,4 +606,21 @@ public class RotationUtils implements InstanceAccess {
         xyz.zCoord = MathHelper.clamp_double(xyz.zCoord + MathUtils.randomSin(), minZ, maxZ);
         return xyz;
     }
+
+    public static float getEnumRotations(EnumFacing facing) {
+        float yaw = 0;
+        if (facing == EnumFacing.NORTH) {
+            yaw = 0;
+        }
+        if (facing == EnumFacing.EAST) {
+            yaw = 90;
+        }
+        if (facing == EnumFacing.WEST) {
+            yaw = -90;
+        }
+        if (facing == EnumFacing.SOUTH) {
+            yaw = 180;
+        }
+        return yaw;
+    }
 }

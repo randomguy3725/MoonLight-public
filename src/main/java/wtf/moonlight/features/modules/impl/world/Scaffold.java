@@ -1,5 +1,6 @@
 package wtf.moonlight.features.modules.impl.world;
 
+import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.blockconnections.BlockData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.block.*;
@@ -49,7 +50,7 @@ public class Scaffold extends Module {
     private final SliderValue fruitBTicks = new SliderValue("Fruit Bridge Ticks", 2, 1, 5, this, () -> mode.is("Fruit Bridge"));
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> mode.is("God Bridge"));
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
-    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "God Bridge", "Reverse", "Smart", "Custom", "Unfair Pitch","Test"}, "Normal", this);
+    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "God Bridge", "Reverse", "Smart", "Custom", "Unfair Pitch","Hypixel Test"}, "Normal", this);
     private final ModeValue godBridgePitch = new ModeValue("God Bridge Pitch Mode", new String[]{"Static", "In Range"}, "In Range", this, () -> rotations.is("God Bridge") && !mode.is("Grim 1.17"));
     private final SliderValue customYaw = new SliderValue("Custom Yaw", 180, 0, 180, 1, this, () -> rotations.is("Custom"));
     private final SliderValue pitch = new SliderValue("Static Pitch", 76, 50, 90, .1f, this, () -> godBridgePitch.canDisplay() && godBridgePitch.is("Static"));
@@ -153,6 +154,9 @@ public class Scaffold extends Module {
         previousRotation = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
 
         if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid) && !addons.isEnabled("Hover")) {
+            if (!mc.gameSettings.keyBindJump.isKeyDown()) {
+                MovementUtils.stop();
+            }
             if (mc.thePlayer.onGround) {
                 hoverState = HoverState.JUMP;
             } else {
@@ -403,7 +407,7 @@ public class Scaffold extends Module {
                     rotation = RotationUtils.getRotations(raycast[0].hitVec);
 
                     if (RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1).typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                        if (rayCasted[0] == null || raycast[0] != null &&  raycast[0].getBlockPos().equals(data.getPosition())) {
+                        if (rayCasted[0] == null || raycast[0] != null && raycast[0].getBlockPos().equals(data.getPosition())) {
                             rayCasted[0] = raycast[0];
                         }
                     }
@@ -428,6 +432,32 @@ public class Scaffold extends Module {
             break;
             case "Reverse": {
                 rotation = new float[]{MovementUtils.getRawDirection() + 180, getYawBasedPitch(data.getPosition(), data.getFacing(), mc.thePlayer.rotationYaw + 180, previousRotation[1], 85)};
+                raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
+                if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                    rayCasted[0] = raycast[0];
+                }
+            }
+            break;
+            case "Hypixel Test": {
+                float movingYaw = mc.thePlayer.rotationYaw + 180;
+                if (mc.thePlayer.onGround) {
+                    isOnRightSide = Math.floor(mc.thePlayer.posX + Math.cos(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posX) ||
+                            Math.floor(mc.thePlayer.posZ + Math.sin(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posZ);
+
+                    BlockPos posInDirection = mc.thePlayer.getPosition().offset(EnumFacing.fromAngle(movingYaw), 1);
+
+                    boolean isLeaningOffBlock = mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()) instanceof BlockAir;
+                    boolean nextBlockIsAir = mc.theWorld.getBlockState(posInDirection.down()).getBlock() instanceof BlockAir;
+
+                    if (isLeaningOffBlock && nextBlockIsAir) {
+                        isOnRightSide = !isOnRightSide;
+                    }
+                }
+
+                float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
+                float pitch = getYawBasedPitch(data.getPosition(), data.getFacing(), yaw, previousRotation[1], 85);
+
+                rotation = new float[]{yaw, pitch};
                 raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
                 if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     rayCasted[0] = raycast[0];
@@ -618,7 +648,7 @@ public class Scaffold extends Module {
                         }
                     }
                 }
-            } else ;
+            }
         }
     }
 
