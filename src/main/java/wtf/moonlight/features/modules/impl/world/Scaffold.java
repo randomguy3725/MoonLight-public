@@ -455,9 +455,9 @@ public class Scaffold extends Module {
                     }
                 }
 
-                //float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
+                float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
 
-                rotation = new float[]{(movingYaw + (isOnRightSide ? 89 : -89)), getYawBasedPitch(data.getPosition(), data.getFacing(), (movingYaw + (isOnRightSide ? 89 : -89)), previousRotation[1], 85)};
+                rotation = new float[]{yaw, getYawBasedPitch(data.getPosition(), data.getFacing(), yaw, previousRotation[1], 85)};
                 raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
                 if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     rayCasted[0] = raycast[0];

@@ -9,10 +9,7 @@ import wtf.moonlight.features.command.impl.ModuleCommand;
 import wtf.moonlight.features.modules.impl.combat.*;
 import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.exploit.Timer;
-import wtf.moonlight.features.modules.impl.misc.AutoAuthenticate;
-import wtf.moonlight.features.modules.impl.misc.AutoPlay;
-import wtf.moonlight.features.modules.impl.misc.HackerDetector;
-import wtf.moonlight.features.modules.impl.misc.KillSults;
+import wtf.moonlight.features.modules.impl.misc.*;
 import wtf.moonlight.features.modules.impl.movement.*;
 import wtf.moonlight.features.modules.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.*;
@@ -69,6 +66,7 @@ public class ModuleManager {
                 AutoAuthenticate.class,
                 AutoPlay.class,
                 HackerDetector.class,
+                ItemAlerts.class,
                 KillSults.class,
 
                 //movement
@@ -100,6 +98,7 @@ public class ModuleManager {
                 Animations.class,
                 AspectRatio.class,
                 AttackEffect.class,
+                BedPlates.class,
                 Camera.class,
                 Chams.class,
                 ClickGUI.class,
