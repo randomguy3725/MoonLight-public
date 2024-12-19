@@ -47,7 +47,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal"
     implementation "org.lwjgl:lwjgl-opengl"
 
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+    /*if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         implementation "org.lwjgl:lwjgl::natives-windows"
         implementation "org.lwjgl:lwjgl-glfw::natives-windows"
         implementation "org.lwjgl:lwjgl-nanovg::natives-windows"
@@ -80,7 +80,18 @@ dependencies {
         compileOnly "org.lwjgl:lwjgl-nanovg::natives-linux"
         compileOnly "org.lwjgl:lwjgl-openal::natives-linux"
         compileOnly "org.lwjgl:lwjgl-opengl::natives-linux"
-    }
+    }*/
+
+    implementation "org.lwjgl:lwjgl::natives-windows"
+    implementation "org.lwjgl:lwjgl-glfw::natives-windows"
+    implementation "org.lwjgl:lwjgl-nanovg::natives-windows"
+    implementation "org.lwjgl:lwjgl-openal::natives-windows"
+    implementation "org.lwjgl:lwjgl-opengl::natives-windows"
+    compileOnly "org.lwjgl:lwjgl::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-glfw::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-nanovg::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-openal::natives-windows"
+    compileOnly "org.lwjgl:lwjgl-opengl::natives-windows"
 
     compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
     compileOnly "org.lwjgl:lwjgl"

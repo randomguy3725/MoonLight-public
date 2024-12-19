@@ -48,21 +48,12 @@ public class MovementUtils implements InstanceAccess {
         return player != null && (player.moveForward != 0F || player.moveStrafing != 0F);
     }
 
-    public static double getHorizontalMotion() {
-        return Math.hypot(mc.thePlayer.motionX, mc.thePlayer.motionZ);
-    }
-
     public static double getSpeed(EntityPlayer player) {
         return Math.sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ);
     }
 
     public static double getSpeed() {
         return getSpeed(mc.thePlayer);
-    }
-    public static double getLastDistance() {
-        final double xDist = mc.thePlayer.posX - mc.thePlayer.prevPosX;
-        final double zDist = mc.thePlayer.posZ - mc.thePlayer.prevPosZ;
-        return Math.sqrt(xDist * xDist + zDist * zDist);
     }
 
     public static void strafe() {

@@ -50,7 +50,7 @@ public class Scaffold extends Module {
     private final SliderValue fruitBTicks = new SliderValue("Fruit Bridge Ticks", 2, 1, 5, this, () -> mode.is("Fruit Bridge"));
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> mode.is("God Bridge"));
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
-    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "God Bridge", "Reverse", "Smart", "Custom", "Unfair Pitch","Hypixel Test"}, "Normal", this);
+    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Center","Closest", "God Bridge", "Reverse", "Smart", "Custom", "Unfair Pitch","Hypixel Test"}, "Normal", this);
     private final ModeValue godBridgePitch = new ModeValue("God Bridge Pitch Mode", new String[]{"Static", "In Range"}, "In Range", this, () -> rotations.is("God Bridge") && !mode.is("Grim 1.17"));
     private final SliderValue customYaw = new SliderValue("Custom Yaw", 180, 0, 180, 1, this, () -> rotations.is("Custom"));
     private final SliderValue pitch = new SliderValue("Static Pitch", 76, 50, 90, .1f, this, () -> godBridgePitch.canDisplay() && godBridgePitch.is("Static"));
@@ -82,13 +82,8 @@ public class Scaffold extends Module {
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Watchdog", "Watchdog Test"}, "Jump", this, () -> mode.is("Watchdog"));
-    private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")));
-    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla"}, "Jump", this, () -> mode.is("Watchdog"));
-    private final BoolValue stop = new BoolValue("Stop", false, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
-    private final SliderValue towerSpeedWhenDiagonal = new SliderValue("Tower Move Diagonal Speed", 0.22f, 0.2f, 0.28f, 0.005f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
-    private final BoolValue boost = new BoolValue("Tower Move Boost", true, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla"));
-    private final SliderValue speedBoost = new SliderValue("Tower Move Speed Boost", 0.06f, 0.01f, 0.1f, 0.01f, this, () -> mode.is("Watchdog") && towerMove.is("Vanilla") && boost.get());
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla"}, "Jump", this);
+    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
@@ -105,8 +100,6 @@ public class Scaffold extends Module {
     private float[] previousRotation;
     private boolean targetCalculated;
     private boolean canJump;
-    private int towerMoveTicks;
-    private int tickCounter;
     private int blocksPlaced;
     private boolean placed;
     private boolean start;
@@ -143,15 +136,11 @@ public class Scaffold extends Module {
 
         onGroundY = mc.thePlayer.getEntityBoundingBox().minY;
         prevSlot = mc.thePlayer.inventory.currentItem;
-        tickCounter = 0;
         if (!sprint.get())
             mc.thePlayer.setSprinting(false);
 
         placing = false;
 
-        if (!mc.thePlayer.onGround) {
-            towerMoveTicks = 100;
-        }
         previousRotation = new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch};
 
         if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid) && !addons.isEnabled("Hover")) {
@@ -279,7 +268,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if (towering() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && !placing) {
+        if (towering() && tower.is("Watchdog Test") && !placing) {
             targetBlock = targetBlock.add(0, 0, 1);
         }
 
@@ -389,10 +378,17 @@ public class Scaffold extends Module {
                 }
             }
             break;
-
-            case "Normal": {
+            case "Center": {
                 rotation = RotationUtils.getRotations(getVec3(data));
-                raycast[0] = RotationUtils.rayTrace(RotationUtils.getRotations(getVec3(data)), mc.playerController.getBlockReachDistance(), 1);
+                raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
+                if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
+                    rayCasted[0] = raycast[0];
+                }
+            }
+            break;
+            case "Closest": {
+                rotation = RotationUtils.getRotations(getHitVecOptimized(data.position, data.facing));
+                raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
                 if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
                     rayCasted[0] = raycast[0];
                 }
@@ -487,6 +483,8 @@ public class Scaffold extends Module {
             RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF);
         }
 
+        placing = false;
+
         if (!addons.isEnabled("Ray Trace")) {
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), data.position, data.facing, getVec3(data))) {
                 if (swing.get()) {
@@ -556,7 +554,7 @@ public class Scaffold extends Module {
     }
 
     @EventTarget
-    public void onMove(MoveEvent event) {
+    public void onMoveMath(MoveMathEvent event) {
 
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir)) {
             return;
@@ -565,99 +563,60 @@ public class Scaffold extends Module {
         if (towerMove.canDisplay()) {
             switch (towerMove.get()) {
                 case "Vanilla":
-                    if (MovementUtils.isMoving() && MovementUtils.getHorizontalMotion() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-                        double towerSpeed = (MovementUtils.isGoingDiagonally(0.1) ? towerSpeedWhenDiagonal.get() : 0.29888888) + (boost.get() ? MovementUtils.getSpeedEffect() * speedBoost.get() : 0);
+                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
 
                         if (towerMoving()) {
-                            tickCounter++;
-
-                            if (tickCounter >= 23) {
-                                tickCounter = 1;
-                            }
-                        } else tickCounter = 0;
-
-                        if (tickCounter < 20 && stop.get() || !stop.get()) {
                             if (mc.thePlayer.onGround) {
-
                                 if (towerMoving()) {
-                                    towerMoveTicks = 0;
                                     mc.thePlayer.jumpTicks = 0;
-                                    if (event.getY() > 0) {
-                                        event.setY(mc.thePlayer.motionY = 0.41985F);
-                                        MovementUtils.strafe(event, towerSpeed - randomAmount());
-                                    }
+                                    mc.thePlayer.jump();
                                 }
-                            } else if (towerMoving()) {
-                                if (towerMoveTicks == 2) {
-                                    event.setY(Math.floor(mc.thePlayer.posY + 1) - mc.thePlayer.posY);
-                                } else if (towerMoveTicks == 3) {
-                                    if (towerMoving()) {
-                                        event.setY(mc.thePlayer.motionY = 0.41985F);
-
-                                        MovementUtils.strafe(event, towerSpeed - randomAmount());
-                                        towerMoveTicks = 0;
-                                    }
+                            } else {
+                                switch (mc.thePlayer.offGroundTicks % 3) {
+                                    case 0:
+                                        mc.thePlayer.motionY = 0.42F;
+                                        break;
+                                    case 1:
+                                        mc.thePlayer.motionY = 0.33;
+                                        break;
+                                    case 2:
+                                        mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                                        break;
                                 }
-                            }
-                        } else {
-                            if (mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.41985F;
-                            } else if (mc.thePlayer.offGroundTicks == 3) {
-                                mc.thePlayer.motionY = 0F;
                             }
                         }
-
-                        towerMoveTicks++;
                     }
                     break;
             }
         }
 
-        if (tower.canDisplay() && tower.is("Watchdog Test")) {
-            if (Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !MovementUtils.isMoving()) {
-                float targetZPos;
-                if (calcPos.get()) {
-                    if (!targetCalculated) {
-                        targetZPos = (float) Math.floor(mc.thePlayer.posZ);
-                        if (mc.thePlayer.onGround) {
-                            if (targetZPos > mc.thePlayer.posZ) {
-                                mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY, Math.min(mc.thePlayer.posZ + 0.2175, targetZPos + 0.29));
-                            } else {
-                                mc.thePlayer.setPosition(mc.thePlayer.posX, mc.thePlayer.posY, Math.max(mc.thePlayer.posZ - 0.2175, targetZPos - 0.29));
-                            }
-                            targetCalculated = true;
-                        }
-                    }
-                }
+        if (tower.canDisplay()) {
+            switch (tower.get()) {
+                case "Vanilla":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
 
-                if (targetCalculated && calcPos.get() || !calcPos.get()) {
-                    MovementUtils.stopXZ();
-
-                    if (mc.thePlayer.onGround) {
-                        mc.thePlayer.motionY = 0.41985F;
-                    }
-
-                    if (towering()) {
-                        if (mc.thePlayer.onGround) {
-                            if (towering()) {
-                                towerMoveTicks = 0;
-                                mc.thePlayer.jumpTicks = 0;
-                                if (event.getY() > 0) {
-                                    event.setY(mc.thePlayer.motionY = 0.41985F);
-                                }
-                            }
-                        } else if (towering()) {
-                            if (towerMoveTicks == 2) {
-                                event.setY(Math.floor(mc.thePlayer.posY + 1) - mc.thePlayer.posY);
-                            } else if (towerMoveTicks == 3) {
+                        if (towering()) {
+                            if (mc.thePlayer.onGround) {
                                 if (towering()) {
-                                    event.setY(mc.thePlayer.motionY = 0.41985F);
-                                    towerMoveTicks = 0;
+                                    mc.thePlayer.jumpTicks = 0;
+                                    mc.thePlayer.jump();
+                                }
+                            } else {
+                                switch (mc.thePlayer.offGroundTicks % 3) {
+                                    case 0:
+                                        mc.thePlayer.motionY = 0.42F;
+                                        break;
+                                    case 1:
+                                        mc.thePlayer.motionY = 0.33;
+                                        break;
+                                    case 2:
+                                        mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                                        break;
                                 }
                             }
                         }
                     }
-                }
+                    break;
             }
         }
     }
@@ -998,6 +957,11 @@ public class Scaffold extends Module {
         y += face.getFrontOffsetY() / 2.0D;
 
         return new Vec3(x, y, z);
+    }
+    public static Vec3 getHitVecOptimized(BlockPos blockPos, EnumFacing facing) {
+        Vec3 eyes = new Vec3(mc.thePlayer.posX, mc.thePlayer.posY + mc.thePlayer.getEyeHeight(), mc.thePlayer.posZ);
+
+        return MathUtils.closestPointOnFace(new AxisAlignedBB(blockPos, blockPos.add(1, 1, 1)), facing, eyes);
     }
 
     private double randomAmount() {
