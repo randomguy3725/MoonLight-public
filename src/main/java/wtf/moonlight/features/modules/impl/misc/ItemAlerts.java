@@ -48,6 +48,7 @@ public class ItemAlerts extends Module {
     private final Collection<EntityPlayer> fireball = new HashSet<>();
     private final Collection<EntityPlayer> enderPearl = new HashSet<>();
     private final Collection<EntityPlayer> obsidian = new HashSet<>();
+    private final Collection<EntityPlayer> enchantedSword = new HashSet<>();
     private boolean wasThePlayerInvis = false;
 
     @EventTarget
@@ -132,7 +133,12 @@ public class ItemAlerts extends Module {
 
                     if (enchant.get()) {
                         if (heldItem instanceof ItemSword && heldItem.getItemEnchantability() != 0) {
-                            DebugUtils.sendMessage("Player " + EnumChatFormatting.RED + entity.getGameProfile().getName() + EnumChatFormatting.WHITE + " has a " + EnumChatFormatting.YELLOW + "Sharpened Swords");
+                            if (!enchantedSword.contains(entity)) {
+                                enchantedSword.add(entity);
+                                DebugUtils.sendMessage("Player " + EnumChatFormatting.RED + entity.getGameProfile().getName() + EnumChatFormatting.WHITE + " has a " + EnumChatFormatting.YELLOW + "Sharpened Swords");
+                            }
+                        } else {
+                            enchantedSword.remove(entity);
                         }
                     }
 
