@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
@@ -7,7 +9,6 @@ group = 'net.example'
 version = '1.8.9'
 
 project.ext.lwjglVersion = "3.3.4"
-project.ext.lwjglNatives = "natives-windows"
 
 repositories {
     mavenCentral()
@@ -45,11 +46,41 @@ dependencies {
     implementation "org.lwjgl:lwjgl-nanovg"
     implementation "org.lwjgl:lwjgl-openal"
     implementation "org.lwjgl:lwjgl-opengl"
-    implementation "org.lwjgl:lwjgl::$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-glfw::$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-nanovg::$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-openal::$lwjglNatives"
-    implementation "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        implementation "org.lwjgl:lwjgl::natives-windows"
+        implementation "org.lwjgl:lwjgl-glfw::natives-windows"
+        implementation "org.lwjgl:lwjgl-nanovg::natives-windows"
+        implementation "org.lwjgl:lwjgl-openal::natives-windows"
+        implementation "org.lwjgl:lwjgl-opengl::natives-windows"
+        compileOnly "org.lwjgl:lwjgl::natives-windows"
+        compileOnly "org.lwjgl:lwjgl-glfw::natives-windows"
+        compileOnly "org.lwjgl:lwjgl-nanovg::natives-windows"
+        compileOnly "org.lwjgl:lwjgl-openal::natives-windows"
+        compileOnly "org.lwjgl:lwjgl-opengl::natives-windows"
+    } else if(Os.isFamily(Os.FAMILY_MAC)) {
+                implementation "org.lwjgl:lwjgl::natives-mac"
+        implementation "org.lwjgl:lwjgl-glfw::natives-mac"
+        implementation "org.lwjgl:lwjgl-nanovg::natives-mac"
+        implementation "org.lwjgl:lwjgl-openal::natives-mac"
+        implementation "org.lwjgl:lwjgl-opengl::natives-mac"
+        compileOnly "org.lwjgl:lwjgl::natives-mac"
+        compileOnly "org.lwjgl:lwjgl-glfw::natives-mac"
+        compileOnly "org.lwjgl:lwjgl-nanovg::natives-mac"
+        compileOnly "org.lwjgl:lwjgl-openal::natives-mac"
+        compileOnly "org.lwjgl:lwjgl-opengl::natives-mac"
+    } else {
+        implementation "org.lwjgl:lwjgl::natives-linux"
+        implementation "org.lwjgl:lwjgl-glfw::natives-linux"
+        implementation "org.lwjgl:lwjgl-nanovg::natives-linux"
+        implementation "org.lwjgl:lwjgl-openal::natives-linux"
+        implementation "org.lwjgl:lwjgl-opengl::natives-linux"
+        compileOnly "org.lwjgl:lwjgl::natives-linux"
+        compileOnly "org.lwjgl:lwjgl-glfw::natives-linux"
+        compileOnly "org.lwjgl:lwjgl-nanovg::natives-linux"
+        compileOnly "org.lwjgl:lwjgl-openal::natives-linux"
+        compileOnly "org.lwjgl:lwjgl-opengl::natives-linux"
+    }
 
     compileOnly platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
     compileOnly "org.lwjgl:lwjgl"
@@ -57,11 +88,7 @@ dependencies {
     compileOnly "org.lwjgl:lwjgl-nanovg"
     compileOnly "org.lwjgl:lwjgl-openal"
     compileOnly "org.lwjgl:lwjgl-opengl"
-    compileOnly "org.lwjgl:lwjgl::$lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-nanovg::$lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
-    compileOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
+
 
     implementation 'org.projectlombok:lombok:1.18.28'
     annotationProcessor 'org.projectlombok:lombok:1.18.28'

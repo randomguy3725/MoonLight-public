@@ -167,8 +167,9 @@ public class Scaffold extends Module {
 
         setOffset = true;
 
-        if(rotations.is("Hypixel Test"))
-            rotation = new float[]{mc.thePlayer.rotationYaw + 180,85};
+        rotation = new float[]{mc.thePlayer.rotationYaw + 180,85};
+
+        previousRotation = rotation;
     }
 
     @Override
@@ -185,7 +186,7 @@ public class Scaffold extends Module {
                 SpoofSlotUtils.stopSpoofing();
                 break;
         }
-        rotation = null;
+        previousRotation = rotation = null;
         start = false;
         targetBlock = null;
         canJump = false;
@@ -458,10 +459,9 @@ public class Scaffold extends Module {
                     }
                 }
 
-                float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
-                float pitch = getYawBasedPitch(data.getPosition(), data.getFacing(), yaw, previousRotation[1], 85);
+                //float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
 
-                rotation = new float[]{yaw, pitch};
+                rotation = new float[]{(movingYaw + (isOnRightSide ? 89 : -89)), getYawBasedPitch(data.getPosition(), data.getFacing(), (movingYaw + (isOnRightSide ? 89 : -89)), previousRotation[1], 85)};
                 raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
                 if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
                     rayCasted[0] = raycast[0];
