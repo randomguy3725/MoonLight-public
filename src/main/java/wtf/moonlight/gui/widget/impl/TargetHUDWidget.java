@@ -303,7 +303,7 @@ class TargetHUD implements InstanceAccess {
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
-                    RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 5, -1);
+                    RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 10, -1);
                     RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(),true));
 
                     RoundedUtils.drawRound(x + 40, y + 26.5f, (100 * space), 8, 8, new Color(0, 0, 0, 150));
