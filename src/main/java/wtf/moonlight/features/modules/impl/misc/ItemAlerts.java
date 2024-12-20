@@ -1,6 +1,7 @@
 package wtf.moonlight.features.modules.impl.misc;
 
 import net.minecraft.block.BlockObsidian;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.potion.Potion;
@@ -12,6 +13,7 @@ import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.utils.misc.DebugUtils;
+import wtf.moonlight.utils.player.InventoryUtils;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -48,6 +50,7 @@ public class ItemAlerts extends Module {
     private final Collection<EntityPlayer> fireball = new HashSet<>();
     private final Collection<EntityPlayer> enderPearl = new HashSet<>();
     private final Collection<EntityPlayer> obsidian = new HashSet<>();
+    private final Collection<EntityPlayer> enchantedArmor = new HashSet<>();
     private final Collection<EntityPlayer> enchantedSword = new HashSet<>();
     private boolean wasThePlayerInvis = false;
 
@@ -132,7 +135,15 @@ public class ItemAlerts extends Module {
 
 
                     if (enchant.get()) {
-                        if (heldItem instanceof ItemSword && heldItem.getItemEnchantability() != 0) {
+                        if (InventoryUtils.getEnchantment(entity.inventoryContainer.getSlot(6).getStack(), Enchantment.protection) != 0) {
+                            if (!enchantedArmor.contains(entity)) {
+                                enchantedArmor.add(entity);
+                                DebugUtils.sendMessage("Player " + EnumChatFormatting.RED + entity.getGameProfile().getName() + EnumChatFormatting.WHITE + " has a " + EnumChatFormatting.BLUE + "Reinforced Armor");
+                            }
+                        } else {
+                            enchantedArmor.remove(entity);
+                        }
+                        if (InventoryUtils.getEnchantment(entity.getHeldItem(), Enchantment.protection) != 0) {
                             if (!enchantedSword.contains(entity)) {
                                 enchantedSword.add(entity);
                                 DebugUtils.sendMessage("Player " + EnumChatFormatting.RED + entity.getGameProfile().getName() + EnumChatFormatting.WHITE + " has a " + EnumChatFormatting.YELLOW + "Sharpened Swords");
@@ -244,6 +255,8 @@ public class ItemAlerts extends Module {
                 enderPearl.clear();
                 fireball.clear();
                 obsidian.clear();
+                enchantedArmor.clear();
+                enchantedSword.clear();
             }
         }
     }
