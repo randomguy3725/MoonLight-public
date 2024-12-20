@@ -443,7 +443,7 @@ public class Scaffold extends Module {
             }
             break;
             case "Hypixel Test": {
-                float movingYaw = mc.thePlayer.rotationYaw + 180;
+                float movingYaw = MovementUtils.getRawDirection() + 180;
                 if (mc.thePlayer.onGround) {
                     isOnRightSide = Math.floor(mc.thePlayer.posX + Math.cos(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posX) ||
                             Math.floor(mc.thePlayer.posZ + Math.sin(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posZ);
@@ -458,7 +458,7 @@ public class Scaffold extends Module {
                     }
                 }
 
-                float yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 89 : -89)) : RotationUtils.getEnumRotations(data.getFacing());
+                float yaw = (movingYaw + (isOnRightSide ? 89 : -89));
 
                 rotation = new float[]{yaw, getYawBasedPitch(data.getPosition(), data.getFacing(), yaw, previousRotation[1], 85)};
                 raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
