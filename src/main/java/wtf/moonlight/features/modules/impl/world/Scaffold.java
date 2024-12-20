@@ -675,7 +675,7 @@ public class Scaffold extends Module {
         }
 
         if(addons.isEnabled("Block ESP"))
-            RenderUtils.renderBlock(data.position,getModule(Interface.class).color(0),true,true);
+            RenderUtils.renderBlock(data.position,getModule(Interface.class).color(0),true,false);
     }
 
     @EventTarget
