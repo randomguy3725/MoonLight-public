@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.*;
 import net.minecraft.util.AxisAlignedBB;
@@ -330,6 +331,10 @@ public class RenderUtils implements InstanceAccess {
 
     public static float animate(float end, float start, float multiple) {
         return (1 - MathHelper.clamp_float((float) (deltaTime() * multiple), 0, 1)) * end + MathHelper.clamp_float((float) (deltaTime() * multiple), 0, 1) * start;
+    }
+
+    public static boolean isBBInFrustum(EntityLivingBase entity) {
+        return isBBInFrustum(entity.getEntityBoundingBox());
     }
 
     public static boolean isBBInFrustum(AxisAlignedBB aabb) {
