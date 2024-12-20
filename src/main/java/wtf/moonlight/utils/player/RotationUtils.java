@@ -35,7 +35,7 @@ public class RotationUtils implements InstanceAccess {
     private static float hSpeed, vSpeed;
     private static boolean enabled;
     private static boolean smoothlyReset;
-    public static boolean fixSprint = true;
+    public static boolean fixSprint = false;
 
     public static boolean shouldRotate() {
         return currentRotation != null;
@@ -51,7 +51,6 @@ public class RotationUtils implements InstanceAccess {
         currentCorrection = correction;
         smoothlyReset = false;
         enabled = true;
-        fixSprint = true;
     }
 
     public static void setRotation(float[] rotation, final MovementCorrection correction, float hSpeed, float vSpeed, boolean smoothlyReset) {
@@ -62,7 +61,6 @@ public class RotationUtils implements InstanceAccess {
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
         enabled = true;
-        fixSprint = true;
     }
 
     public static void setRotation(float[] rotation, final MovementCorrection correction, float maxHAcceleration, float maxVAcceleration, float accelerationError, float constantError, boolean smoothlyReset) {
@@ -75,7 +73,6 @@ public class RotationUtils implements InstanceAccess {
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
         enabled = true;
-        fixSprint = true;
     }
 
     public static void setCurrentRotation(float[] value) {
@@ -86,8 +83,8 @@ public class RotationUtils implements InstanceAccess {
     @EventTarget
     @EventPriority(1000)
     public void onUpdate(UpdateEvent event) {
-        if (shouldRotate() && fixSprint) {
-            if (currentCorrection != MovementCorrection.OFF && Math.abs(currentRotation[0] % 360 - Math.toDegrees(MovementUtils.getDirection()) % 360) > 45) {
+        if (shouldRotate() && (fixSprint || currentCorrection != MovementCorrection.OFF)) {
+            if (Math.abs(currentRotation[0] % 360 - Math.toDegrees(MovementUtils.getDirection()) % 360) > 45) {
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindSprint.getKeyCode(), false);
                 mc.thePlayer.setSprinting(false);
             }

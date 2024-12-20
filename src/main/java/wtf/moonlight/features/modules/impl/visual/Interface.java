@@ -35,6 +35,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
+import wtf.moonlight.features.modules.impl.player.Stealer;
 import wtf.moonlight.features.values.impl.*;
 import wtf.moonlight.gui.font.FontRenderer;
 import wtf.moonlight.gui.font.Fonts;
@@ -567,7 +568,7 @@ public class Interface extends Module {
     @EventTarget
     public void onRenderGui(RenderGuiEvent event){
         if(elements.isEnabled("Health")) {
-            if (mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiChest || mc.currentScreen instanceof GuiContainerCreative) {
+            if (mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiChest && !getModule(Stealer.class).isStealing || mc.currentScreen instanceof GuiContainerCreative) {
                 renderHealth();
             }
         }

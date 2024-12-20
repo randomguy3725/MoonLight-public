@@ -22,12 +22,14 @@ import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.*;
+import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.modules.impl.exploit.Disabler;
 import wtf.moonlight.features.modules.impl.movement.Speed;
+import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
@@ -35,6 +37,7 @@ import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.*;
+import wtf.moonlight.utils.render.RenderUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,14 +78,17 @@ public class Scaffold extends Module {
             new BoolValue("Keep Y", false),
             new BoolValue("Speed Keep Y", false),
             new BoolValue("Safe Walk", false),
+            new BoolValue("Safe Walk When No Data", false),
             new BoolValue("AD Strafe", false),
             new BoolValue("Hover", false),
-            new BoolValue("Sneak", false)
+            new BoolValue("Sneak", false),
+            new BoolValue("Block ESP", false)
     ), this);
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
     private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
+    public final BoolValue tellyWhenDiagonal = new BoolValue("Telly When Diagonal",true,this,() -> mode.is("Watchdog") && sprint.get());
     private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && tower.is("Watchdog Test"));
     private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
@@ -237,7 +243,7 @@ public class Scaffold extends Module {
                 break;
         }
 
-        double posY = (addons.isEnabled("Keep Y") || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class) || hoverState != HoverState.DONE) && !towering() && !towerMoving() ? mode.is("Watchdog") && wdKeepY.canDisplay() ? getWatchdogY() : onGroundY : mc.thePlayer.getEntityBoundingBox().minY;
+        double posY = (addons.isEnabled("Keep Y") || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class) || hoverState != HoverState.DONE || mode.is("Watchdog") && tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get() && !MovementUtils.isMovingStraight() && !mc.gameSettings.keyBindJump.isKeyDown()) && !towering() && !towerMoving() ? mode.is("Watchdog") && wdKeepY.canDisplay() ? getWatchdogKeepY() : onGroundY : mc.thePlayer.getEntityBoundingBox().minY;
 
         targetBlock = new BlockPos(mc.thePlayer.posX, posY - 1, mc.thePlayer.posZ);
 
@@ -279,7 +285,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if ((mode.is("Normal") || mode.is("Telly") && mc.thePlayer.offGroundTicks >= tellyTicks || mode.is("Watchdog") || mode.is("God Bridge") || mode.is("Grim 1.17") || mode.is("Fruit Bridge")))
+        if ((mode.is("Normal") || mode.is("Telly") && mc.thePlayer.offGroundTicks >= tellyTicks || mode.is("God Bridge") || mode.is("Grim 1.17") || mode.is("Fruit Bridge") || mode.is("Watchdog")))
             data = getBlockData(targetBlock);
 
         final MovingObjectPosition[] rayCasted = {null};
@@ -470,6 +476,21 @@ public class Scaffold extends Module {
             break;
         }
 
+        if(mode.is("Watchdog") && tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get() && !MovementUtils.isMovingStraight() && !mc.gameSettings.keyBindJump.isKeyDown()){
+            if(mc.thePlayer.offGroundTicks >= 3) {
+                if(!isEnabled(Speed.class))
+                    RotationUtils.fixSprint = true;
+                rotation = RotationUtils.getRotations(getVec3(data));
+                raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
+                if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
+                    rayCasted[0] = raycast[0];
+                }
+            } else {
+                rotation = null;
+                RotationUtils.fixSprint = false;
+            }
+        }
+
         if (unPatch.canDisplay() && unPatch.get() && mc.thePlayer.onGround && (wdKeepY.is("Opal") && start || !wdKeepY.is("Opal") && !towering() && !towerMoving())) {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
@@ -481,6 +502,8 @@ public class Scaffold extends Module {
                 rayCasted[0] = raycast[0];
             }
         }
+
+        placing = false;
 
         if (customRotationSetting.get()) {
             switch (calcRotSpeedMode.get()) {
@@ -495,38 +518,42 @@ public class Scaffold extends Module {
             RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF);
         }
 
-        placing = false;
+        if(mode.is("Fruit Bridge") && mc.thePlayer.offGroundTicks >= fruitBTicks.get() ||
+                mode.is("Watchdog") &&
+                        (tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get() && mc.thePlayer.offGroundTicks >= 2 && !MovementUtils.isMovingStraight() || !tellyWhenDiagonal.get())
+                || !mode.is("Fruit Bridge")) {
 
-        if (!addons.isEnabled("Ray Trace")) {
-            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), data.position, data.facing, getVec3(data))) {
-                if (swing.get()) {
-                    mc.thePlayer.swingItem();
-                    mc.getItemRenderer().resetEquippedProgress();
-                } else
-                    mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                placing = true;
-                blocksPlaced += 1;
-                previousRotation = rotation;
-                if (data.facing == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
-                    start = true;
+            if (!addons.isEnabled("Ray Trace")) {
+                if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), data.position, data.facing, getVec3(data))) {
+                    if (swing.get()) {
+                        mc.thePlayer.swingItem();
+                        mc.getItemRenderer().resetEquippedProgress();
+                    } else
+                        mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
+                    placing = true;
+                    blocksPlaced += 1;
+                    previousRotation = rotation;
+                    if (data.facing == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
+                        start = true;
+                    }
+                    placed = true;
                 }
-                placed = true;
-            }
-        } else {
-            MovingObjectPosition placeBlock = rayCasted[0];
-            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), placeBlock.getBlockPos(), placeBlock.sideHit, placeBlock.hitVec)) {
-                if (swing.get()) {
-                    mc.thePlayer.swingItem();
-                    mc.getItemRenderer().resetEquippedProgress();
-                } else
-                    mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                placing = true;
-                blocksPlaced += 1;
-                previousRotation = rotation;
-                if (placeBlock.sideHit == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
-                    start = true;
+            } else {
+                MovingObjectPosition placeBlock = rayCasted[0];
+                if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.inventory.getCurrentItem(), placeBlock.getBlockPos(), placeBlock.sideHit, placeBlock.hitVec)) {
+                    if (swing.get()) {
+                        mc.thePlayer.swingItem();
+                        mc.getItemRenderer().resetEquippedProgress();
+                    } else
+                        mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
+                    placing = true;
+                    blocksPlaced += 1;
+                    previousRotation = rotation;
+                    if (placeBlock.sideHit == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
+                        start = true;
+                    }
+                    placed = true;
                 }
-                placed = true;
             }
         }
     }
@@ -635,6 +662,16 @@ public class Scaffold extends Module {
     }
 
     @EventTarget
+    public void onRender3D(Render3DEvent event){
+        if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir)) {
+            return;
+        }
+
+        if(addons.isEnabled("Block ESP"))
+        RenderUtils.renderBlock(data.position,getModule(Interface.class).color(0),true,true);
+    }
+
+    @EventTarget
     public void onStrafe(StrafeEvent event) {
 
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir)) {
@@ -682,7 +719,7 @@ public class Scaffold extends Module {
         }
 
         if (mc.thePlayer.onGround) {
-            if ((addons.isEnabled("Keep Y") && !isEnabled(Speed.class) && (mode.is("Telly") || wdKeepY.canDisplay() && !towering() && !towerMoving() && wdKeepY.is("Opal") && start || placed && !start) || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class)) && MovementUtils.isMoving() && !mc.gameSettings.keyBindJump.isKeyDown()) {
+            if ((addons.isEnabled("Keep Y") && !isEnabled(Speed.class) && (mode.is("Telly") || wdKeepY.canDisplay() && !towering() && !towerMoving() && wdKeepY.is("Opal") && start || placed && !start) || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class) || mode.is("Watchdog") && tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get() && !MovementUtils.isMovingStraight()) && MovementUtils.isMoving() && !mc.gameSettings.keyBindJump.isKeyDown()) {
                 mc.thePlayer.jump();
                 jumpCount += 1;
             } else {
@@ -818,7 +855,7 @@ public class Scaffold extends Module {
 
     @EventTarget
     public void onSafeWalk(SafeWalkEvent event) {
-        if (addons.isEnabled("Safe Walk") && mc.thePlayer.onGround) {
+        if (addons.isEnabled("Safe Walk") && mc.thePlayer.onGround || addons.isEnabled("Safe Walk When No Data") && data == null) {
             event.setCancelled(true);
         }
     }
@@ -836,7 +873,7 @@ public class Scaffold extends Module {
         return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtils.isMoving();
     }
 
-    private double getWatchdogY() {
+    private double getWatchdogKeepY() {
         if (towering() || towerMoving()) {
             return mc.thePlayer.getEntityBoundingBox().minY;
         }

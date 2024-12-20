@@ -1,11 +1,14 @@
 package net.minecraft.client.gui.inventory;
 
 import com.google.common.collect.Sets;
+
+import java.awt.*;
 import java.io.IOException;
 import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -23,6 +26,8 @@ import wtf.moonlight.MoonLight;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.modules.impl.player.InvManager;
 import wtf.moonlight.features.modules.impl.player.Stealer;
+import wtf.moonlight.gui.font.Fonts;
+import wtf.moonlight.utils.render.RoundedUtils;
 
 public abstract class GuiContainer extends GuiScreen
 {
@@ -75,12 +80,29 @@ public abstract class GuiContainer extends GuiScreen
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Stealer.class).isStealing) {
-            if (MoonLight.INSTANCE.getModuleManager().getModule(Stealer.class).silent.get()) {
-                mc.inGameHasFocus = true;
-                mc.mouseHelper.grabMouseCursor();
-                mc.currentScreen = null;
-                return;
+        Stealer stealer = MoonLight.INSTANCE.getModuleManager().getModule(Stealer.class);
+        if (stealer.isStealing) {
+            if (stealer.silent.get()) {
+                Minecraft mc = Minecraft.getMinecraft();
+                GuiScreen guiScreen = mc.currentScreen;
+                String text = "Stealing";
+
+                if (guiScreen instanceof GuiChest chest) {
+                    if (chest.lowerChestInventory != null) {
+                        mc.setIngameFocus();
+                        mc.currentScreen = guiScreen;
+                        Fonts.interSemiBold.get(15).drawString(text, (float) this.width / 2.0F - Fonts.interSemiBold.get(15).getStringWidth(text) / 2.0F, (float) this.height / 2.0F + 40.0F, -1, false);
+                        
+                        return;
+                    }
+                }
+
+                if (guiScreen instanceof GuiFurnace || guiScreen instanceof GuiBrewingStand) {
+                    mc.setIngameFocus();
+                    mc.currentScreen = guiScreen;
+                    Fonts.interSemiBold.get(15).drawString(text, (float) this.width / 2.0F - Fonts.interSemiBold.get(15).getStringWidth(text) / 2.0F, (float) this.height / 2.0F + 40.0F, -1, false);
+                    return;
+                }
             }
         }
         this.drawDefaultBackground();
@@ -103,7 +125,6 @@ public abstract class GuiContainer extends GuiScreen
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) k, (float) l);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        Stealer stealer = MoonLight.INSTANCE.getModuleManager().getModule(Stealer.class);
         InvManager invManager = MoonLight.INSTANCE.getModuleManager().getModule(InvManager.class);
 
         for (int i1 = 0; i1 < this.inventorySlots.inventorySlots.size(); ++i1)

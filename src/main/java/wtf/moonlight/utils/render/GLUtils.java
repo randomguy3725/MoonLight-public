@@ -85,8 +85,7 @@ public class GLUtils {
         GL11.glGetFloatv(GL11.GL_PROJECTION_MATRIX, projectionMatrix);
         GL11.glGetIntegerv(GL11.GL_VIEWPORT, viewport);
 
-        if (GLU.gluProject(x, y, z,
-                modelMatrix, projectionMatrix, viewport, windowPosition)) {
+        if (GLU.gluProject(x, y, z, modelMatrix, projectionMatrix, viewport, windowPosition)) {
             BUFFER[0] = windowPosition.get(0) / scaleFactor;
             BUFFER[1] = (Display.getHeight() - windowPosition.get(1)) / scaleFactor;
             BUFFER[2] = windowPosition.get(2);

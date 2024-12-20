@@ -51,6 +51,7 @@ public class Speed extends Module {
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
     private final BoolValue liquidCheck = new BoolValue("Liquid Check", true, this);
+    private final BoolValue guiCheck = new BoolValue("Gui Check", true, this);
     private final BoolValue debug = new BoolValue("Debug", true, this);
     private final BoolValue printOffGroundTicks = new BoolValue("Print Off Ground Ticks", true, this);
     private boolean disable;
@@ -99,7 +100,7 @@ public class Speed extends Module {
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
         ticksSinceTeleport++;
-        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
             return;
 
         if (printOffGroundTicks.get())
@@ -278,7 +279,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMotion(MotionEvent event) {
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
             return;
 
         if (isEnabled(Scaffold.class) && (getModule(Scaffold.class).towering() || getModule(Scaffold.class).towerMoving()))
@@ -424,7 +425,7 @@ public class Speed extends Module {
     @EventTarget
     public void onStrafe(StrafeEvent event) {
 
-        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
             return;
 
         if (mode.get().equals("Watchdog") && wdMode.get().equals("Full Strafe") && (mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava())) {
@@ -673,7 +674,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMove(MoveEvent event){
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
             return;
 
     }

@@ -489,7 +489,7 @@ public abstract class Entity implements ICommandSender
             SafeWalkEvent safeWalkEvent = new SafeWalkEvent();
             if (this instanceof EntityPlayerSP)
                 MoonLight.INSTANCE.getEventManager().call(safeWalkEvent);
-            boolean flag = this.onGround && (this.isSneaking() || safeWalkEvent.isCancelled()) && this instanceof EntityPlayer;
+            boolean flag = (this.onGround && this.isSneaking() || safeWalkEvent.isCancelled()) && this instanceof EntityPlayer;
 
             if (flag)
             {
