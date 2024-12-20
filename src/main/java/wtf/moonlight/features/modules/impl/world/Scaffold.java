@@ -87,10 +87,10 @@ public class Scaffold extends Module {
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
     public final BoolValue tellyWhenDiagonal = new BoolValue("Telly When Diagonal",true,this,() -> mode.is("Watchdog") && sprint.get());
     private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && tower.is("Watchdog Test"));
-    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
+    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
@@ -277,7 +277,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if (towering() && tower.is("Watchdog Test") && !placing) {
+        if (towering() && (tower.is("Watchdog Test") || tower.is("Watchdog Test2")) && !placing) {
             if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
                 targetBlock = targetBlock.add(0,0,Math.max(-1, Math.min(1, Math.round(mc.thePlayer.posZ)- mc.thePlayer.posZ)));
             } else {
@@ -319,8 +319,6 @@ public class Scaffold extends Module {
         if (wdSprint.canDisplay() && wdSprint.is("Offset") && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
             if (mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown()) {
                 MovementUtils.preventDiagonalSpeed();
-                mc.thePlayer.motionZ *= .998;
-                mc.thePlayer.motionX *= .998;
             }
 
             if (mc.gameSettings.keyBindJump.isPressed() && mc.thePlayer.onGround) {
@@ -476,17 +474,21 @@ public class Scaffold extends Module {
             break;
         }
 
-        if(mode.is("Watchdog") && tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get() && !MovementUtils.isMovingStraight() && !mc.gameSettings.keyBindJump.isKeyDown()){
-            if(mc.thePlayer.offGroundTicks >= 3) {
-                if(!isEnabled(Speed.class))
-                    RotationUtils.fixSprint = true;
-                rotation = RotationUtils.getRotations(getVec3(data));
-                raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
-                if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
-                    rayCasted[0] = raycast[0];
+        if(mode.is("Watchdog") && tellyWhenDiagonal.canDisplay() && tellyWhenDiagonal.get()) {
+            if (!MovementUtils.isMovingStraight() && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                if (mc.thePlayer.offGroundTicks >= 3) {
+                    if (!isEnabled(Speed.class))
+                        RotationUtils.fixSprint = true;
+                    rotation = RotationUtils.getRotations(getVec3(data));
+                    raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
+                    if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
+                        rayCasted[0] = raycast[0];
+                    }
+                } else {
+                    rotation = null;
+                    RotationUtils.fixSprint = false;
                 }
             } else {
-                rotation = null;
                 RotationUtils.fixSprint = false;
             }
         }
@@ -495,7 +497,7 @@ public class Scaffold extends Module {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
 
-        if(tower.is("Watchdog Test") && towering()){
+        if((tower.is("Watchdog Test") || tower.is("Watchdog Test2")) && towering()){
             rotation = RotationUtils.getRotations(getVec3(data));
             raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
             if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
@@ -597,14 +599,25 @@ public class Scaffold extends Module {
                             } else if (valY > 7000) {
                                 mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
                             }
+                        }
+                    }
 
-                            if(calcPos.get()){
-                                MovementUtils.stopXZ();
-                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
-                                    mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
-                                } else {
-                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ)- mc.thePlayer.posZ));
-                                }
+                    break;
+
+                case "Watchdog Test2":
+                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+
+                        if (towerMoving()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    mc.thePlayer.motionY = 0.41985 + (Math.random() * 0.000095);
+                                    break;
+                                case 2:
+                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
+                                    break;
                             }
                         }
                     }
@@ -628,12 +641,40 @@ public class Scaffold extends Module {
                                 mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
                             }
 
-                            if(calcPos.get()){
+                            if (calcPos.get()) {
                                 MovementUtils.stopXZ();
                                 if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
                                     mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
                                 } else {
-                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ)- mc.thePlayer.posZ));
+                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ));
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+
+                case "Watchdog Test2":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towering()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    mc.thePlayer.motionY = 0.41985 + (Math.random() * 0.000095);
+                                    break;
+                                case 2:
+                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
+                                    break;
+                            }
+
+                            if (calcPos.get()) {
+                                MovementUtils.stopXZ();
+                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
+                                    mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
+                                } else {
+                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ));
                                 }
                             }
                         }
@@ -668,7 +709,7 @@ public class Scaffold extends Module {
         }
 
         if(addons.isEnabled("Block ESP"))
-        RenderUtils.renderBlock(data.position,getModule(Interface.class).color(0),true,true);
+            RenderUtils.renderBlock(data.position,getModule(Interface.class).color(0),true,true);
     }
 
     @EventTarget
