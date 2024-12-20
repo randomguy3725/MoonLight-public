@@ -89,7 +89,7 @@ public class Scaffold extends Module {
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
     private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
     public final BoolValue tellyWhenDiagonal = new BoolValue("Telly When Diagonal",true,this,() -> mode.is("Watchdog") && sprint.get());
-    private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && tower.is("Watchdog Test"));
+    private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && (tower.is("Watchdog Test") || tower.is("Watchdog Test2")));
     private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
@@ -169,6 +169,10 @@ public class Scaffold extends Module {
         previousRotation = rotation;
 
         towerTick = 0;
+
+        if(!addons.isEnabled("Movement Fix")){
+            RotationUtils.fixSprint = false;
+        }
     }
 
     @Override
@@ -561,6 +565,73 @@ public class Scaffold extends Module {
     }
 
     @EventTarget
+    public void onMove(MoveEvent event){
+
+        if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
+            return;
+
+        if (towerMove.canDisplay()) {
+            switch (towerMove.get()) {
+                case "Watchdog Test2":
+                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+
+                        if (towerMoving()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    event.setY(mc.thePlayer.motionY = 0.4198499917984009);
+                                    MovementUtils.strafe((float) 0.29 - randomAmount() + MovementUtils.getSpeedEffect() * 0.03);
+
+                                    break;
+                                case 2:
+                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+
+        if (tower.canDisplay()) {
+            switch (tower.get()) {
+
+                case "Watchdog Test2":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towering()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    mc.thePlayer.motionY = 0.4198499917984009;
+                                    break;
+                                case 2:
+                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
+                                    break;
+                            }
+
+                            if (calcPos.get()) {
+                                event.setX(0);
+                                event.setZ(0);
+                                MovementUtils.stopXZ();
+                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
+                                    event.setX(mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX)));
+                                } else {
+                                    event.setZ(mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ)));
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    @EventTarget
     public void onMotion(MotionEvent event) {
 
         if (mode.is("Grim 1.17")) {
@@ -580,7 +651,6 @@ public class Scaffold extends Module {
             switch (towerMove.get()) {
                 case "Vanilla":
                     if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-
                         if (towerMoving()) {
                             mc.thePlayer.motionY = 0.42f;
                         }
@@ -603,31 +673,18 @@ public class Scaffold extends Module {
                     }
 
                     break;
-
-                case "Watchdog Test2":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-
-                        if (towerMoving()) {
-                            if (mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.42f;
-                            }
-                            switch (mc.thePlayer.offGroundTicks % 3) {
-                                case 0:
-                                    mc.thePlayer.motionY = 0.41985 + (Math.random() * 0.000095);
-                                    break;
-                                case 2:
-                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
-                                    break;
-                            }
-                        }
-                    }
-                    break;
             }
         }
 
         if (tower.canDisplay()) {
             switch (tower.get()) {
                 case "Vanilla":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towering()) {
+                            mc.thePlayer.motionY = 0.42f;
+                        }
+                    }
+                    break;
                 case "Watchdog Test":
                     if (!mc.thePlayer.isPotionActive(Potion.jump)) {
 
@@ -652,34 +709,6 @@ public class Scaffold extends Module {
                         }
                     }
                     break;
-
-
-                case "Watchdog Test2":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towering()) {
-                            if (mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.42f;
-                            }
-                            switch (mc.thePlayer.offGroundTicks % 3) {
-                                case 0:
-                                    mc.thePlayer.motionY = 0.41985 + (Math.random() * 0.000095);
-                                    break;
-                                case 2:
-                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
-                                    break;
-                            }
-
-                            if (calcPos.get()) {
-                                MovementUtils.stopXZ();
-                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
-                                    mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
-                                } else {
-                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ));
-                                }
-                            }
-                        }
-                    }
-                    break;
             }
         }
 
@@ -689,11 +718,11 @@ public class Scaffold extends Module {
                     event.setY(event.getY() + 1E-13);
                 }
 
-                if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
+                /*if (mc.thePlayer.onGround && !setOffset && !mc.gameSettings.keyBindJump.isKeyDown()) {
                     MovementUtils.stopXZ();
                     event.setY(event.getY() + 1E-13);
                     setOffset = true;
-                }
+                }*/
             }
             if (mc.thePlayer.onGround && sprintBoost.get()) {
                 mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
