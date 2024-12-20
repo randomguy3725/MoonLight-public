@@ -1,6 +1,7 @@
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.BlockAir;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
@@ -100,7 +101,7 @@ public class Speed extends Module {
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
         ticksSinceTeleport++;
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (printOffGroundTicks.get())
@@ -279,7 +280,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMotion(MotionEvent event) {
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (isEnabled(Scaffold.class) && (getModule(Scaffold.class).towering() || getModule(Scaffold.class).towerMoving()))
@@ -425,7 +426,7 @@ public class Speed extends Module {
     @EventTarget
     public void onStrafe(StrafeEvent event) {
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (mode.get().equals("Watchdog") && wdMode.get().equals("Full Strafe") && (mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava())) {
@@ -674,7 +675,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMove(MoveEvent event){
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen != null)
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
     }
