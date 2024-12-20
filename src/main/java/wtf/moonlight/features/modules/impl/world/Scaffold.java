@@ -82,7 +82,7 @@ public class Scaffold extends Module {
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla"}, "Jump", this);
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
     private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
@@ -98,7 +98,8 @@ public class Scaffold extends Module {
     private double onGroundY = 0;
     private float[] rotation;
     private float[] previousRotation;
-    private boolean targetCalculated;
+    private int towerTick;
+    private int towerMoveTick;
     private boolean canJump;
     private int blocksPlaced;
     private boolean placed;
@@ -159,6 +160,8 @@ public class Scaffold extends Module {
         rotation = new float[]{mc.thePlayer.rotationYaw + 180,85};
 
         previousRotation = rotation;
+
+        towerTick = 0;
     }
 
     @Override
@@ -182,7 +185,6 @@ public class Scaffold extends Module {
         blocksPlaced = 0;
         placed = false;
         tellyTicks = 0;
-        targetCalculated = false;
 
         if (wdSprint.canDisplay() && wdSprint.is("Offset")) {
             mc.thePlayer.motionX *= .8;
@@ -269,7 +271,11 @@ public class Scaffold extends Module {
         }
 
         if (towering() && tower.is("Watchdog Test") && !placing) {
-            targetBlock = targetBlock.add(0, 0, 1);
+            if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
+                targetBlock = targetBlock.add(0,0,Math.max(-1, Math.min(1, Math.round(mc.thePlayer.posZ)- mc.thePlayer.posZ)));
+            } else {
+                targetBlock = targetBlock.add(Math.max(-1, Math.min(1, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX)),0,0);
+            }
         }
 
         if ((mode.is("Normal") || mode.is("Telly") && mc.thePlayer.offGroundTicks >= tellyTicks || mode.is("Watchdog") || mode.is("God Bridge") || mode.is("Grim 1.17") || mode.is("Fruit Bridge")))
@@ -284,9 +290,6 @@ public class Scaffold extends Module {
         if (mode.is("Telly") && mc.thePlayer.onGround) {
             tellyTicks = MathUtils.randomizeInt((int) minTellyTicks.get(), (int) maxTellyTicks.get());
         }
-
-        if (!towering())
-            targetCalculated = false;
 
         switch (switchBlock.get()) {
             case "Silent":
@@ -470,6 +473,14 @@ public class Scaffold extends Module {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
 
+        if(tower.is("Watchdog Test") && towering()){
+            rotation = RotationUtils.getRotations(getVec3(data));
+            raycast[0] = RotationUtils.rayTrace(rotation, mc.playerController.getBlockReachDistance(), 1);
+            if (rayCasted[0] == null || raycast[0] != null && raycast[0].typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK && raycast[0].getBlockPos().equals(data.getPosition())) {
+                rayCasted[0] = raycast[0];
+            }
+        }
+
         if (customRotationSetting.get()) {
             switch (calcRotSpeedMode.get()) {
                 case "Linear":
@@ -564,15 +575,14 @@ public class Scaffold extends Module {
             switch (towerMove.get()) {
                 case "Vanilla":
                     if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+                        towerMoveTick = 0;
 
                         if (towerMoving()) {
                             if (mc.thePlayer.onGround) {
-                                if (towerMoving()) {
-                                    mc.thePlayer.jumpTicks = 0;
-                                    mc.thePlayer.jump();
-                                }
+                                towerMoveTick = 0;
+                                mc.thePlayer.jump();
                             } else {
-                                switch (mc.thePlayer.offGroundTicks % 3) {
+                                switch (towerMoveTick) {
                                     case 0:
                                         mc.thePlayer.motionY = 0.42F;
                                         break;
@@ -581,9 +591,14 @@ public class Scaffold extends Module {
                                         break;
                                     case 2:
                                         mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                                        towerMoveTick = 0;
                                         break;
                                 }
+                                towerMoveTick++;
                             }
+
+                        } else {
+                            towerMoveTick = 0;
                         }
                     }
                     break;
@@ -593,16 +608,16 @@ public class Scaffold extends Module {
         if (tower.canDisplay()) {
             switch (tower.get()) {
                 case "Vanilla":
+                case "Watchdog Test":
+                    towerTick = 0;
                     if (!mc.thePlayer.isPotionActive(Potion.jump)) {
 
                         if (towering()) {
                             if (mc.thePlayer.onGround) {
-                                if (towering()) {
-                                    mc.thePlayer.jumpTicks = 0;
-                                    mc.thePlayer.jump();
-                                }
+                                towerTick = 0;
+                                mc.thePlayer.jump();
                             } else {
-                                switch (mc.thePlayer.offGroundTicks % 3) {
+                                switch (towerTick) {
                                     case 0:
                                         mc.thePlayer.motionY = 0.42F;
                                         break;
@@ -611,9 +626,22 @@ public class Scaffold extends Module {
                                         break;
                                     case 2:
                                         mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
+                                        towerTick = 0;
                                         break;
                                 }
+                                towerTick++;
                             }
+
+                            if(tower.is("Watchdog Test")){
+                                MovementUtils.stopXZ();
+                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
+                                    mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
+                                } else {
+                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ)- mc.thePlayer.posZ));
+                                }
+                            }
+                        } else {
+                            towerTick = 0;
                         }
                     }
                     break;
