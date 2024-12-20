@@ -115,7 +115,6 @@ public class Scaffold extends Module {
     private boolean isOnRightSide;
     private int jumpCount;
     private int tellyTicks;
-    private boolean setOffset = false;
     private HoverState hoverState = HoverState.DONE;
     private final List<Block> blacklistedBlocks = Arrays.asList(Blocks.air, Blocks.water, Blocks.flowing_water, Blocks.lava, Blocks.wooden_slab, Blocks.chest, Blocks.flowing_lava,
             Blocks.enchanting_table, Blocks.carpet, Blocks.glass_pane, Blocks.skull, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice, Blocks.packed_ice,
@@ -161,8 +160,6 @@ public class Scaffold extends Module {
                 hoverState = HoverState.DONE;
             }
         }
-
-        setOffset = true;
 
         rotation = new float[]{mc.thePlayer.rotationYaw + 180,85};
 
@@ -327,7 +324,6 @@ public class Scaffold extends Module {
 
             if (mc.gameSettings.keyBindJump.isPressed() && mc.thePlayer.onGround) {
                 MovementUtils.stopXZ();
-                setOffset = false;
             }
         }
 
@@ -730,27 +726,29 @@ public class Scaffold extends Module {
         }
         
         if(towerMove.is("Low")){
-            if (mc.thePlayer.offGroundTicks == 1) {
-                mc.thePlayer.motionY += 0.057f;
+            if(towerMoving()) {
+                if (mc.thePlayer.offGroundTicks == 1) {
+                    mc.thePlayer.motionY += 0.057f;
 
 
-                if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && !(getModule(Scaffold.class).isEnabled() && mc.gameSettings.keyBindJump.isKeyDown()) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) {
-                    MovementUtils.strafe(0.48);
-                } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) {
-                    MovementUtils.strafe(0.4);
-                } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1) {
-                    MovementUtils.strafe(0.405);
-                } else {
-                    MovementUtils.strafe(0.33);
+                    if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && !(getModule(Scaffold.class).isEnabled() && mc.gameSettings.keyBindJump.isKeyDown()) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) {
+                        MovementUtils.strafe(0.48);
+                    } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) {
+                        MovementUtils.strafe(0.4);
+                    } else if (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1) {
+                        MovementUtils.strafe(0.405);
+                    } else {
+                        MovementUtils.strafe(0.33);
+                    }
                 }
-            }
 
-            if (mc.thePlayer.offGroundTicks == 3) {
-                mc.thePlayer.motionY -= 0.1309f;
-            }
+                if (mc.thePlayer.offGroundTicks == 3) {
+                    mc.thePlayer.motionY -= 0.1309f;
+                }
 
-            if (mc.thePlayer.offGroundTicks == 4) {
-                mc.thePlayer.motionY -= 0.2;
+                if (mc.thePlayer.offGroundTicks == 4) {
+                    mc.thePlayer.motionY -= 0.2;
+                }
             }
         }
 
