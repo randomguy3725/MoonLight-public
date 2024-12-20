@@ -493,7 +493,7 @@ public class Scaffold extends Module {
             }
         }
 
-        if (unPatch.canDisplay() && unPatch.get() && mc.thePlayer.onGround && (wdKeepY.is("Opal") && start || !wdKeepY.is("Opal") && !towering() && !towerMoving())) {
+        if (unPatch.canDisplay() && unPatch.get() && mc.thePlayer.onGround && !towering() && !towerMoving()) {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
 

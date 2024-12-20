@@ -14,7 +14,6 @@ import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
-import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
@@ -33,7 +32,6 @@ public class GlowESP extends Module {
 
     private final SliderValue exposure = new SliderValue("Exposure", 2.2f, .5f, 3.5f, .1f,this);
     public SliderValue radius = new SliderValue("Radius", 4, 2, 30, 1,this);
-    private final BoolValue seperate = new BoolValue("Seperate Texure", false,this);
     private final ShaderUtils outlineShader = new ShaderUtils("outline");
     private final ShaderUtils glowShader = new ShaderUtils("glow");
 
@@ -102,10 +100,6 @@ public class GlowESP extends Module {
             mc.getFramebuffer().bindFramebuffer(true);
             glowShader.init();
             setupGlowUniforms(0, 1);
-            if (seperate.get()) {
-                GL13.glActiveTexture(GL13.GL_TEXTURE16);
-                RenderUtils.bindTexture(framebuffer.framebufferTexture);
-            }
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
             RenderUtils.bindTexture(glowFrameBuffer.framebufferTexture);
             ShaderUtils.drawQuads();
@@ -117,15 +111,12 @@ public class GlowESP extends Module {
     public void setupGlowUniforms(float dir1, float dir2) {
         Color color = getColor();
         glowShader.setUniformi("texture", 0);
-        if (seperate.get()) {
-            glowShader.setUniformi("textureToCheck", 16);
-        }
         glowShader.setUniformf("radius", radius.get());
         glowShader.setUniformf("texelSize", 1.0f / mc.displayWidth, 1.0f / mc.displayHeight);
         glowShader.setUniformf("direction", dir1, dir2);
         glowShader.setUniformf("color", color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f);
         glowShader.setUniformf("exposure", exposure.get());
-        glowShader.setUniformi("avoidTexture", seperate.get() ? 1 : 0);
+        glowShader.setUniformi("avoidTexture", 0);
 
         final FloatBuffer buffer = BufferUtils.createFloatBuffer(256);
         for (int i = 1; i <= radius.get(); i++) {
