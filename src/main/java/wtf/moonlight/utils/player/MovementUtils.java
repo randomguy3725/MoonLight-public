@@ -184,10 +184,14 @@ public class MovementUtils implements InstanceAccess {
     }
 
     public static double getBPS() {
-        if (mc.thePlayer == null || mc.thePlayer.ticksExisted < 1) {
+        return getBPS(mc.thePlayer);
+    }
+
+    public static double getBPS(EntityPlayer player) {
+        if (player == null || player.ticksExisted < 1) {
             return 0.0;
         }
-        return getDistance(mc.thePlayer.lastTickPosX, mc.thePlayer.lastTickPosZ) * (20.0f * mc.timer.timerSpeed);
+        return getDistance(player.lastTickPosX, player.lastTickPosZ) * (20.0f * mc.timer.timerSpeed);
     }
 
     public static double getDistance(final double x, final double z) {

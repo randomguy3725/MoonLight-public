@@ -27,15 +27,15 @@ public class DropdownGUI extends GuiScreen {
 
     public DropdownGUI() {
         openingAnimation.setDirection(Direction.BACKWARDS);
-        ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
         for (ModuleCategory category : ModuleCategory.values()) {
             if (category == ModuleCategory.Search)
                 continue;
             panels.add(new CategoryPanel(category));
+            float width = 0;
             for (CategoryPanel panel : panels) {
-                float width = panel.getCategory().ordinal() * (panel.getWidth() + panel.getWidth() / 10);
-                panel.setX(((float) sr.getScaledWidth() / 2) + width);
-                panel.setY((float) sr.getScaledHeight() / 2 - (panel.getHeight() + panel.getHeight() / 10));
+                panel.setX(50 + width);
+                panel.setY(20);
+                width += panel.getWidth() + 10;
             }
         }
     }
