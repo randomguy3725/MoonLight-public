@@ -19,7 +19,9 @@ public enum Fonts {
     Tahoma("others/Exhi"),
     skeet("others/skeet"),
     noti("others/noti"),
-    noti2("others/noti2");
+    noti2("others/noti2"),
+    session("others/session"),
+    session2("others/session2");
     private final String file;
     private final Float2ObjectMap<FontRenderer> fontMap = new Float2ObjectArrayMap<>();
 

@@ -318,14 +318,6 @@ public class GuiIngame extends Gui
             this.renderScoreboard(scoreobjective1, scaledresolution);
         }
 
-        MoonLight.INSTANCE.getModuleManager().getModule(Shaders.class).renderShaders();
-
-        MoonLight.INSTANCE.getEventManager().call(new Render2DEvent(partialTicks,scaledresolution));
-
-        if(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled()&& MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")){
-            MoonLight.INSTANCE.getNotificationManager().publish(scaledresolution,false);
-        }
-
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         GlStateManager.disableAlpha();
@@ -345,6 +337,14 @@ public class GuiIngame extends Gui
         else
         {
             this.overlayPlayerList.updatePlayerList(false);
+        }
+
+        MoonLight.INSTANCE.getModuleManager().getModule(Shaders.class).renderShaders();
+
+        MoonLight.INSTANCE.getEventManager().call(new Render2DEvent(partialTicks,scaledresolution));
+
+        if(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled()&& MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")){
+            MoonLight.INSTANCE.getNotificationManager().publish(scaledresolution,false);
         }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
