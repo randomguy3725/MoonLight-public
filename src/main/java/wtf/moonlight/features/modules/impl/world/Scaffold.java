@@ -87,10 +87,10 @@ public class Scaffold extends Module {
     // private final BoolValue intaveSussy = new BoolValue("Intave Sussy", false, this);
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
-    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
+    private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
     public final BoolValue tellyWhenDiagonal = new BoolValue("Telly When Diagonal",true,this,() -> mode.is("Watchdog") && sprint.get());
     private final BoolValue calcPos = new BoolValue("Calculate Position", true, this, () -> tower.canDisplay() && (tower.is("Watchdog Test") || tower.is("Watchdog Test2")));
-    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test","Watchdog Test2"}, "Jump", this);
+    private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog Test"}, "Jump", this);
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && sprint.get() && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
@@ -570,65 +570,6 @@ public class Scaffold extends Module {
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
             return;
 
-        if (towerMove.canDisplay()) {
-            switch (towerMove.get()) {
-                case "Watchdog Test2":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-
-                        if (towerMoving()) {
-                            if (mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.42f;
-                            }
-                            switch (mc.thePlayer.offGroundTicks % 3) {
-                                case 0:
-                                    event.setY(mc.thePlayer.motionY = 0.4198499917984009);
-                                    MovementUtils.strafe((float) 0.29 - randomAmount() + MovementUtils.getSpeedEffect() * 0.03);
-
-                                    break;
-                                case 2:
-                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
-                                    break;
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
-
-
-        if (tower.canDisplay()) {
-            switch (tower.get()) {
-
-                case "Watchdog Test2":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towering()) {
-                            if (mc.thePlayer.onGround) {
-                                mc.thePlayer.motionY = 0.42f;
-                            }
-                            switch (mc.thePlayer.offGroundTicks % 3) {
-                                case 0:
-                                    mc.thePlayer.motionY = 0.4198499917984009;
-                                    break;
-                                case 2:
-                                    mc.thePlayer.motionY = (Math.ceil(mc.thePlayer.posY) - mc.thePlayer.posY);
-                                    break;
-                            }
-
-                            if (calcPos.get()) {
-                                event.setX(0);
-                                event.setZ(0);
-                                MovementUtils.stopXZ();
-                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
-                                    event.setX(mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX)));
-                                } else {
-                                    event.setZ(mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ)));
-                                }
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
     }
 
     @EventTarget

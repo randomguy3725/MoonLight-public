@@ -22,7 +22,7 @@ import wtf.moonlight.utils.player.PlayerUtils;
 @ModuleInfo(name = "Step", category = ModuleCategory.Movement)
 public class Step extends Module {
 
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Test"}, "Watchdog Test", this);
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"NCP"}, "NCP", this);
     public final SliderValue timer = new SliderValue("Timer", 1, 0.05f, 1, 0.05f, this);
     public final SliderValue delay = new SliderValue("Delay", 1000, 0, 2500, 1, this);
     public final DoubleList MOTION = DoubleList.of(.42, .75, 1);
@@ -38,7 +38,7 @@ public class Step extends Module {
     @EventTarget
     public void onPostStep(PostStepEvent event) {
         switch (mode.get()) {
-            case "Watchdog Test":
+            case "NCP":
                 if (event.getHeight() == 1 && mc.thePlayer.onGround && !PlayerUtils.inLiquid()) {
                     Block block = PlayerUtils.getBlock(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ);
                     if (block instanceof BlockStairs || block instanceof BlockSlab) return;

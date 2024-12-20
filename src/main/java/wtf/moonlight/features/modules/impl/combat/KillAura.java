@@ -96,7 +96,7 @@ public class KillAura extends Module {
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
-    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog","Watchdog 2", "Release","Interact"}, "Fake", this);
+    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog", "Release","Interact"}, "Fake", this);
     public final BoolValue interact = new BoolValue("Interact", false, this, () -> !autoBlock.is("None"));
     public final BoolValue via = new BoolValue("Via", false, this, () -> !autoBlock.is("None"));
     public final BoolValue slow = new BoolValue("Slowdown", false, this, () -> !autoBlock.is("None"));
@@ -407,15 +407,6 @@ public class KillAura extends Module {
                     return true;
                 }
                 break;
-            case "Watchdog 2":
-                if (lag) {
-                    if (!BlinkComponent.blinking)
-                        BlinkComponent.blinking = true;
-                    blinked = true;
-                    unblock();
-                    lag = false;
-                }
-                break;
         }
         return false;
     }
@@ -427,14 +418,6 @@ public class KillAura extends Module {
                 break;
             case "Interact":
                 block(true);
-                break;
-            case "Watchdog 2":
-                if(!lag) {
-                    BlinkComponent.dispatch();
-                    blinked = false;
-                    block();
-                    lag = true;
-                }
                 break;
         }
     }
