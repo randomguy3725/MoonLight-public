@@ -33,6 +33,12 @@ public class Shaders extends Module {
     public void renderShaders() {
         if (!this.isEnabled()) return;
 
+        if (this.blur.get()) {
+            Blur.startBlur();
+            INSTANCE.getEventManager().call(new Shader2DEvent(Shader2DEvent.ShaderType.BLUR));
+            Blur.endBlur(blurRadius.get(), (int) blurCompression.get());
+        }
+
         if (bloom.get()) {
             stencilFramebuffer = RenderUtils.createFrameBuffer(stencilFramebuffer);
             stencilFramebuffer.framebufferClear();
@@ -42,12 +48,6 @@ public class Shaders extends Module {
             stencilFramebuffer.unbindFramebuffer();
 
             Bloom.renderBlur(stencilFramebuffer.framebufferTexture, (int) glowRadius.get(), (int) glowOffset.get());
-        }
-
-        if (this.blur.get()) {
-            Blur.startBlur();
-            INSTANCE.getEventManager().call(new Shader2DEvent(Shader2DEvent.ShaderType.BLUR));
-            Blur.endBlur(blurRadius.get(), (int) blurCompression.get());
         }
 
         if (shadow.get()) {

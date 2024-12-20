@@ -22,7 +22,41 @@ public class PointerWidget extends Widget {
 
     @Override
     public void onShader(Shader2DEvent event) {
+        GlStateManager.pushMatrix();
 
+        float pitch = Math.abs(90f / clamp2(mc.thePlayer.rotationPitch, 42, 90f));
+        RenderUtils.drawEllipsCompass(-(int) mc.thePlayer.rotationYaw, renderX, renderY, pitch, 1f, 68 - 2, setting.color(), false);
+        RenderUtils.drawEllipsCompass(-(int) mc.thePlayer.rotationYaw, renderX, renderY, pitch, 1f, 68 - 2.5f, setting.color(), false);
+
+        RenderUtils.drawEllipsCompass(-(int) mc.thePlayer.rotationYaw, renderX, renderY, pitch, 1f, 68, Color.WHITE.getRGB(), true);
+
+        GlStateManager.popMatrix();
+
+        float tracerRadius = renderX;
+        float yOffset = renderY;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(renderX, renderY, 0);
+        GL11.glRotatef(90f / Math.abs(90f / clamp2(mc.thePlayer.rotationPitch, 42, 90f)) - 90 - 12 ,1.0f, 0.0f, 0.0f);
+        GlStateManager.translate(-renderX, -renderY, 0);
+
+        for (EntityPlayer e : mc.theWorld.playerEntities) {
+            if (e != mc.thePlayer) {
+                GL11.glPushMatrix();
+                float yaw = getRotations(e) - mc.thePlayer.rotationYaw;
+                GL11.glTranslatef(tracerRadius, yOffset, 0.0F);
+                GL11.glRotatef(yaw, 0.0F, 0.0F, 1.0F);
+                GL11.glTranslatef(-tracerRadius, -yOffset, 0.0F);
+                RenderUtils.drawTracerPointer(tracerRadius, yOffset - 68, 2.28f * 5,0.44F,-1);
+                GL11.glTranslatef(tracerRadius, yOffset, 0.0F);
+                GL11.glRotatef(-yaw, 0.0F, 0.0F, 1.0F);
+                GL11.glTranslatef(-tracerRadius, -yOffset, 0.0F);
+                GL11.glColor4f(1F, 1F, 1F, 1F);
+                GL11.glPopMatrix();
+            }
+        }
+        GL11.glColor4f(1F, 1F, 1F, 1F);
+        GlStateManager.popMatrix();
     }
 
     @Override

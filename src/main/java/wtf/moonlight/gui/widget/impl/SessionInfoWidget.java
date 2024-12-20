@@ -32,10 +32,8 @@ public class SessionInfoWidget extends Widget {
             case "Moon":
                 if (event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                     RoundedUtils.drawRound(renderX + 9, renderY, width, height, 8f, new Color(setting.color(0)));
-                }
-                if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR) {
-                    RoundedUtils.drawRound(renderX + 9, renderY, width, height, 8f, new Color(0, 0, 0,0));
-                }
+                } else RoundedUtils.drawRound(renderX + 9, renderY, width, height, 8f, new Color(0, 0, 0,255));
+
                 break;
         }
     }
@@ -115,7 +113,7 @@ public class SessionInfoWidget extends Widget {
 
                 if (!srv.equals("Singleplayer")) {
                     mc.getTextureManager().bindTexture(new ResourceLocation(("servers/" + srv + "/icon")));
-                    RoundedUtils.drawRoundTextured(x + 18, y + 25, 20, 20, 5f, 1f);
+                    RoundedUtils.drawRoundTextured(renderX + 18, renderY + 25, 20, 20, 5f, 1f);
                 }
 
                 break;

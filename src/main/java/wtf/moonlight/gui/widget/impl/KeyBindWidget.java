@@ -22,6 +22,9 @@ public class KeyBindWidget extends Widget {
     @Override
     public void onShader(Shader2DEvent event) {
 
+        if(setting.keyBindMode.is("Type 1")) {
+            RoundedUtils.drawRound(renderX, renderY, width, height, 4, new Color(setting.bgColor(),true));
+        }
     }
 
     @Override

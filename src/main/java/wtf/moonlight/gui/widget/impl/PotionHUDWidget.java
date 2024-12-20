@@ -55,6 +55,10 @@ public class PotionHUDWidget extends Widget {
 
             heightAnimation.animate(20 + potions.size() * 10,20);
         }
+
+        if(setting.potionHudMode.is("Type 1")){
+            RoundedUtils.drawRound(renderX, renderY, width, height, 4,new Color(setting.bgColor(),true));
+        }
     }
     @Override
     public void render() {
