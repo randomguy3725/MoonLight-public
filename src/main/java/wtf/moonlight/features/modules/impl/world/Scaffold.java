@@ -628,7 +628,7 @@ public class Scaffold extends Module {
                             }
                             switch (mc.thePlayer.offGroundTicks % 3) {
                                 case 0:
-                                    event.setY(mc.thePlayer.motionY = 0.4198499917984009);
+                                    event.setY(mc.thePlayer.motionY = 0.41985F);
                                     MovementUtils.strafe((float) 0.26 - randomAmount() + MovementUtils.getSpeedEffect() * 0.03);
                                     break;
                                 case 2:
