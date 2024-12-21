@@ -172,6 +172,7 @@ public class Scaffold extends Module {
         if(!addons.isEnabled("Movement Fix")){
             RotationUtils.fixSprint = false;
         }
+        previousBlock = null;
     }
 
     @Override
@@ -541,6 +542,7 @@ public class Scaffold extends Module {
                         start = true;
                     }
                     placed = true;
+                    previousBlock = data.position;
                 }
             } else {
                 MovingObjectPosition placeBlock = rayCasted[0];
@@ -557,6 +559,7 @@ public class Scaffold extends Module {
                         start = true;
                     }
                     placed = true;
+                    previousBlock = data.position;
                 }
             }
         }
