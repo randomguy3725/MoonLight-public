@@ -30,7 +30,9 @@ import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.World)
 public class Scaffold extends Module {
@@ -100,6 +102,7 @@ public class Scaffold extends Module {
     private boolean placed;
     private boolean isOnRightSide;
     private HoverState hoverState = HoverState.DONE;
+    private Map<BlockPos, Timer> highlight = new HashMap<>();
     private final List<Block> blacklistedBlocks = Arrays.asList(Blocks.air, Blocks.water, Blocks.flowing_water, Blocks.lava, Blocks.wooden_slab, Blocks.chest, Blocks.flowing_lava,
             Blocks.enchanting_table, Blocks.carpet, Blocks.glass_pane, Blocks.skull, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice, Blocks.packed_ice,
             Blocks.coal_ore, Blocks.diamond_ore, Blocks.emerald_ore, Blocks.trapped_chest, Blocks.torch, Blocks.anvil,
