@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.impl.visual.ClickGUI;
@@ -35,7 +35,7 @@ public class CategoryPanel implements IComponent {
         this.category = category;
         this.openAnimation.setDirection(Direction.BACKWARDS);
 
-        for (Module module : MoonLight.INSTANCE.getModuleManager().getModulesByCategory(category)) {
+        for (Module module : Moonlight.INSTANCE.getModuleManager().getModulesByCategory(category)) {
             moduleComponents.add(new ModuleComponent(module));
         }
     }

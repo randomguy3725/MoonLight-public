@@ -1,6 +1,5 @@
 package wtf.moonlight.features.modules.impl.world;
 
-import com.viaversion.viaversion.protocols.protocol1_13to1_12_2.blockconnections.BlockData;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.minecraft.block.*;
@@ -99,12 +98,15 @@ public class Scaffold extends Module {
     private final SliderValue diagonalSpeed = new SliderValue("Keep Y Diagonal Speed", 0.95f, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     public final ModeValue lowMode = new ModeValue("Low Hop", new String[]{"None", "1", "2", "3"}, "1", this, () -> mode.is("Watchdog") && sprint.get() && addons.isEnabled("Keep Y"));
     public final ModeValue counter = new ModeValue("Counter", new String[]{"None", "Simple", "Normal", "Exhibition"}, "Normal", this);
+    private final EnumFacing[] facings = {EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP};
+    private final BlockPos[] offsets = {new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 0, 1), new BlockPos(0, 0, -1), new BlockPos(0, -1, 0)};
     public BlockData data;
     public BlockPos targetBlock;
     private int prevSlot = -1;
     private double onGroundY = 0;
     private float[] rotation;
     private float[] previousRotation;
+    private BlockPos previousBlock;
     private int towerTick;
     private int towerMoveTick;
     private boolean canJump;
@@ -566,6 +568,75 @@ public class Scaffold extends Module {
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
             return;
 
+        if (tower.canDisplay()) {
+            switch (tower.get()) {
+                case "Vanilla":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towering()) {
+                            mc.thePlayer.motionY = 0.42f;
+                        }
+                    }
+                    break;
+                case "Watchdog Test":
+                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+
+                        if (towering()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    event.setY(mc.thePlayer.motionY = 0.4198499917984009);
+                                    MovementUtils.strafe((float) 0.26 - randomAmount() + MovementUtils.getSpeedEffect() * 0.03);
+                                    break;
+                                case 2:
+                                    event.setY(Math.floor(mc.thePlayer.posY + 1) - mc.thePlayer.posY);
+                                    break;
+                            }
+
+                            if (calcPos.get()) {
+                                MovementUtils.stopXZ();
+                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
+                                    event.setX(mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX)));
+                                } else {
+                                    event.setZ(mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ)));
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        if (towerMove.canDisplay()) {
+            switch (towerMove.get()) {
+                case "Vanilla":
+                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towerMoving()) {
+                            mc.thePlayer.motionY = 0.42f;
+                        }
+                    }
+                    break;
+                case "Watchdog Test":
+                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+                        if (towerMoving()) {
+                            if (mc.thePlayer.onGround) {
+                                mc.thePlayer.motionY = 0.42f;
+                            }
+                            switch (mc.thePlayer.offGroundTicks % 3) {
+                                case 0:
+                                    event.setY(mc.thePlayer.motionY = 0.4198499917984009);
+                                    MovementUtils.strafe((float) 0.26 - randomAmount() + MovementUtils.getSpeedEffect() * 0.03);
+                                    break;
+                                case 2:
+                                    event.setY(Math.floor(mc.thePlayer.posY + 1) - mc.thePlayer.posY);
+                                    break;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
     @EventTarget
@@ -582,72 +653,6 @@ public class Scaffold extends Module {
 
         if (data == null || data.getPosition() == null || data.getFacing() == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
             return;
-
-
-        if (towerMove.canDisplay()) {
-            switch (towerMove.get()) {
-                case "Vanilla":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towerMoving()) {
-                            mc.thePlayer.motionY = 0.42f;
-                        }
-                    }
-                    break;
-                    
-                case "Watchdog Test":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-
-                        if (towerMoving()) {
-                            int valY = (int) Math.round((event.y % 1) * 10000);
-                            if (valY == 0) {
-                                mc.thePlayer.motionY = 0.42F;
-                            } else if (valY > 4000 && valY < 4300) {
-                                mc.thePlayer.motionY = 0.33;
-                            } else if (valY > 7000) {
-                                mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            }
-                        }
-                    }
-
-                    break;
-            }
-        }
-
-        if (tower.canDisplay()) {
-            switch (tower.get()) {
-                case "Vanilla":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towering()) {
-                            mc.thePlayer.motionY = 0.42f;
-                        }
-                    }
-                    break;
-                case "Watchdog Test":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
-
-                        if (towering()) {
-                            int valY = (int) Math.round((event.y % 1) * 10000);
-                            if (valY == 0) {
-                                mc.thePlayer.motionY = 0.42F;
-                            } else if (valY > 4000 && valY < 4300) {
-                                mc.thePlayer.motionY = 0.33;
-                            } else if (valY > 7000) {
-                                mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            }
-
-                            if (calcPos.get()) {
-                                MovementUtils.stopXZ();
-                                if (mc.thePlayer.getHorizontalFacing() == EnumFacing.EAST || mc.thePlayer.getHorizontalFacing() == EnumFacing.WEST) {
-                                    mc.thePlayer.motionX = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posX) - mc.thePlayer.posX));
-                                } else {
-                                    mc.thePlayer.motionZ = Math.max(-0.2, Math.min(0.2, Math.round(mc.thePlayer.posZ) - mc.thePlayer.posZ));
-                                }
-                            }
-                        }
-                    }
-                    break;
-            }
-        }
 
         if (wdSprint.canDisplay() && !(PlayerUtils.getBlock(mc.thePlayer.getPosition()) instanceof BlockLiquid)) {
             if (wdSprint.is("Offset")) {
@@ -980,38 +985,81 @@ public class Scaffold extends Module {
         return blockCount;
     }
 
-    private BlockData getBlockData(BlockPos pos) {
-
-        for (EnumFacing face : EnumFacing.values()) {
-            if (face == EnumFacing.UP) {
-                continue;
-            }
-            BlockPos offset = pos.offset(face);
-            if (!PlayerUtils.isAir(offset)) {
-                return new BlockData(offset, face.getOpposite());
+    public BlockData getBlockData(BlockPos pos) {
+        if (previousBlock != null && previousBlock.getY() > mc.thePlayer.posY) {
+            previousBlock = null;
+        }
+        for (int lastCheck = 0; lastCheck < 2; lastCheck++) {
+            for (int i = 0; i < offsets.length; i++) {
+                BlockPos newPos = pos.add(offsets[i]);
+                Block block = PlayerUtils.getBlock(newPos);
+                if (newPos.equals(previousBlock)) {
+                    return new BlockData(newPos, facings[i]);
+                }
+                if (lastCheck == 0) {
+                    continue;
+                }
+                if (!block.getMaterial().isReplaceable() && !isInteractable(block)) {
+                    return new BlockData(newPos, facings[i]);
+                }
             }
         }
-
-        for (EnumFacing face : EnumFacing.values()) {
-            if (face == EnumFacing.UP) {
-                continue;
-            }
-            BlockPos offset = pos.offset(face);
-            if (PlayerUtils.isAir(offset)) {
-                for (EnumFacing face2 : EnumFacing.values()) {
-                    if (face2 == EnumFacing.UP) {
+        BlockPos[] additionalOffsets = {
+                pos.add(-1, 0, 0),
+                pos.add(1, 0, 0),
+                pos.add(0, 0, 1),
+                pos.add(0, 0, -1),
+                pos.add(0, -1, 0),
+        };
+        for (int lastCheck = 0; lastCheck < 2; lastCheck++) {
+            for (BlockPos additionalPos : additionalOffsets) {
+                for (int i = 0; i < offsets.length; i++) {
+                    BlockPos newPos = additionalPos.add(offsets[i]);
+                    Block block = PlayerUtils.getBlock(newPos);
+                    if (newPos.equals(previousBlock)) {
+                        return new BlockData(newPos, facings[i]);
+                    }
+                    if (lastCheck == 0) {
                         continue;
                     }
-                    BlockPos offset2 = offset.offset(face2);
-                    if (!PlayerUtils.isAir(offset2)) {
-                        return new BlockData(offset2, face2.getOpposite());
+                    if (!block.getMaterial().isReplaceable() && !isInteractable(block)) {
+                        return new BlockData(newPos, facings[i]);
                     }
                 }
             }
         }
-
+        BlockPos[] additionalOffsets2 = {
+                new BlockPos(-1, 0, 0),
+                new BlockPos(1, 0, 0),
+                new BlockPos(0, 0, 1),
+                new BlockPos(0, 0, -1),
+                new BlockPos(0, -1, 0),
+        };
+        for (int lastCheck = 0; lastCheck < 2; lastCheck++) {
+            for (BlockPos additionalPos2 : additionalOffsets2) {
+                for (BlockPos additionalPos : additionalOffsets) {
+                    for (int i = 0; i < offsets.length; i++) {
+                        BlockPos newPos = additionalPos2.add(additionalPos.add(offsets[i]));
+                        Block block = PlayerUtils.getBlock(newPos);
+                        if (newPos.equals(previousBlock)) {
+                            return new BlockData(newPos, facings[i]);
+                        }
+                        if (lastCheck == 0) {
+                            continue;
+                        }
+                        if (!block.getMaterial().isReplaceable() && !isInteractable(block)) {
+                            return new BlockData(newPos, facings[i]);
+                        }
+                    }
+                }
+            }
+        }
         return null;
     }
+    public static boolean isInteractable(Block block) {
+        return block instanceof BlockFurnace || block instanceof BlockTrapDoor || block instanceof BlockDoor || block instanceof BlockJukebox || block instanceof BlockFenceGate || block instanceof BlockChest || block instanceof BlockEnderChest || block instanceof BlockEnchantmentTable || block instanceof BlockBrewingStand || block instanceof BlockBed || block instanceof BlockDispenser || block instanceof BlockHopper || block instanceof BlockAnvil || block instanceof BlockNote || block instanceof BlockWorkbench;
+    }
+
 
     public float getYawBasedPitch(BlockPos blockPos, EnumFacing facing, float currentYaw, float lastPitch, int maxPitch) {
         float increment = (float) (Math.random() / 20.0) + 0.05F;

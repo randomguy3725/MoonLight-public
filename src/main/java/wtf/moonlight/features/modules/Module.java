@@ -5,7 +5,7 @@ import lombok.Setter;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.network.Packet;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.Value;
 import wtf.moonlight.gui.notification.NotificationManager;
@@ -79,7 +79,7 @@ public class Module implements InstanceAccess {
     }
 
     public boolean isEnabled(Class module) {
-        return MoonLight.INSTANCE.getModuleManager().getModule(module).isEnabled();
+        return Moonlight.INSTANCE.getModuleManager().getModule(module).isEnabled();
     }
 
     public void toggle() {
@@ -97,27 +97,27 @@ public class Module implements InstanceAccess {
     }
 
     public final void enable() {
-        MoonLight.INSTANCE.getEventManager().register(this);
+        Moonlight.INSTANCE.getEventManager().register(this);
         try {
             onEnable();
         } catch (Exception exception) {
             if (mc.thePlayer != null)
                 exception.printStackTrace();
         }
-        MoonLight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Module", getName() + " enabled");
+        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Module", getName() + " enabled");
         if (mc.thePlayer != null)
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("random.click"), 1F));
     }
 
     public final void disable() {
-        MoonLight.INSTANCE.getEventManager().unregister(this);
+        Moonlight.INSTANCE.getEventManager().unregister(this);
         try {
             onDisable();
         } catch (Exception exception) {
             if (mc.thePlayer != null)
                 exception.printStackTrace();
         }
-        MoonLight.INSTANCE.getNotificationManager().post(NotificationType.WARNING, "Module", getName() + " disabled");
+        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.WARNING, "Module", getName() + " disabled");
         if (mc.thePlayer != null)
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("random.click"), 0.8F));
     }

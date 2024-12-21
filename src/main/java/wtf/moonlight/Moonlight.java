@@ -32,11 +32,11 @@ import java.io.File;
 import java.util.Objects;
 
 @Getter
-public class MoonLight {
-    public final String clientName = "MoonLight";
+public class Moonlight {
+    public final String clientName = "Moonlight";
     public final String version = "Alpha";
     public final String clientCloud = "https://randomguy3725.github.io/MoonLightCloud/";
-    public static MoonLight INSTANCE = new MoonLight();
+    public static Moonlight INSTANCE = new Moonlight();
     private final File mainDir = new File(Minecraft.getMinecraft().mcDataDir, clientName);
     private EventManager eventManager;
     private NotificationManager notificationManager;

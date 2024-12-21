@@ -25,7 +25,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.combat.AntiBot;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.utils.InstanceAccess;
@@ -186,7 +186,7 @@ public class PlayerUtils implements InstanceAccess {
             if (isInTeam(entity))
                 continue;
 
-            if (MoonLight.INSTANCE.getModuleManager().getModule(AntiBot.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(AntiBot.class).bots.contains(entity))
+            if (Moonlight.INSTANCE.getModuleManager().getModule(AntiBot.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(AntiBot.class).bots.contains(entity))
                 continue;
 
             float tempDistance = mc.thePlayer.getDistanceToEntity(entity);

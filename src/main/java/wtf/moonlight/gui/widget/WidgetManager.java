@@ -2,7 +2,7 @@ package wtf.moonlight.gui.widget;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.render.ChatGUIEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;

@@ -3,7 +3,7 @@ package net.minecraft.client.model;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.ESP;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 
@@ -113,7 +113,7 @@ public class ModelPlayer extends ModelBiped
 
     public void renderCape(float p_178728_1_)
     {
-        Interface cape = MoonLight.INSTANCE.getModuleManager().getModule(Interface.class);
+        Interface cape = Moonlight.INSTANCE.getModuleManager().getModule(Interface.class);
         if(cape.wavey.get())
             return;
 
@@ -128,10 +128,10 @@ public class ModelPlayer extends ModelBiped
         copyModelAngles(this.bipedLeftArm, this.bipedLeftArmwear);
         copyModelAngles(this.bipedRightArm, this.bipedRightArmwear);
         copyModelAngles(this.bipedBody, this.bipedBodyWear);
-        if (MoonLight.INSTANCE.getModuleManager().getModule(ESP.class).shouldDrawSkeletons() && MoonLight.INSTANCE.getModuleManager().getModule(ESP.class).isValid(entityIn))
-            MoonLight.INSTANCE.getModuleManager().getModule(ESP.class).addEntity((EntityPlayer) entityIn, this);
-        else if(MoonLight.INSTANCE.getModuleManager().getModule(ESP.class).playerRotationMap.containsKey(entityIn))
-            MoonLight.INSTANCE.getModuleManager().getModule(ESP.class).playerRotationMap.remove(entityIn,this);
+        if (Moonlight.INSTANCE.getModuleManager().getModule(ESP.class).shouldDrawSkeletons() && Moonlight.INSTANCE.getModuleManager().getModule(ESP.class).isValid(entityIn))
+            Moonlight.INSTANCE.getModuleManager().getModule(ESP.class).addEntity((EntityPlayer) entityIn, this);
+        else if(Moonlight.INSTANCE.getModuleManager().getModule(ESP.class).playerRotationMap.containsKey(entityIn))
+            Moonlight.INSTANCE.getModuleManager().getModule(ESP.class).playerRotationMap.remove(entityIn,this);
     }
 
     public void renderRightArm()

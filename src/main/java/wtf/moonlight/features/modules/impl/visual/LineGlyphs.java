@@ -8,7 +8,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.Vec3i;
 import org.lwjgl.opengl.GL11;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
@@ -281,7 +281,7 @@ public class LineGlyphs extends Module {
             int index = 0;
             for (Vec3 vec3d : gliphVecGen.getPosVectors(pTicks)) {
                 aPC = alphaPC * (0.25f + (float) index / (float) gliphVecGen.vecGens.size() / 1.75f);
-                tessellator.getWorldRenderer().pos(vec3d).color(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
+                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
                 colorIndex += 180;
                 ++index;
             }
@@ -292,7 +292,7 @@ public class LineGlyphs extends Module {
             index = 0;
             for (Vec3 vec3d : gliphVecGen.getPosVectors(pTicks)) {
                 aPC = alphaPC * (0.25f + (float) index / (float) gliphVecGen.vecGens.size() / 1.75f);
-                tessellator.getWorldRenderer().pos(vec3d).color(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
+                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
                 colorIndex += 180;
                 ++index;
             }

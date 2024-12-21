@@ -99,7 +99,7 @@ public class DiscordInfo implements InstanceAccess {
     }
 
     public void update(String line1, String line2, Boolean smallImage) {
-        DiscordRichPresence.Builder rpc = new DiscordRichPresence.Builder(line2).setDetails(line1).setBigImage("logo", "MoonLight [#" + INSTANCE.version + "]");
+        DiscordRichPresence.Builder rpc = new DiscordRichPresence.Builder(line2).setDetails(line1).setBigImage("logo", "Moonlight [#" + INSTANCE.version + "]");
         if (smallImage) {
             rpc.setSmallImage("closer", smallImageText);
         }

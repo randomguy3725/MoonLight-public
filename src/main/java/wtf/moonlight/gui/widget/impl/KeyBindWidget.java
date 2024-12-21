@@ -1,7 +1,7 @@
 package wtf.moonlight.gui.widget.impl;
 
 import org.lwjglx.input.Keyboard;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.Shader2DEvent;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.gui.widget.Widget;
@@ -54,7 +54,7 @@ public class KeyBindWidget extends Widget {
             RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(ColorUtils.darker(setting.color(),0.4f)));
             posY += 3f;
 
-            for (Module module : MoonLight.INSTANCE.getModuleManager().getModules()) {
+            for (Module module : Moonlight.INSTANCE.getModuleManager().getModules()) {
                 if (!(module.getAnimation().getOutput() > 0) || module.getKeyBind() == 0) continue;
                 String nameText = module.getName();
                 float nameWidth = Fonts.interMedium.get(fontSize).getStringWidth(nameText);

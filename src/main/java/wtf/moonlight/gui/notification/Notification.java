@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
@@ -30,7 +30,7 @@ public class Notification implements InstanceAccess {
     private final Translate translate;
 
     public Notification(NotificationType type, String title, String description) {
-        this(type, title, description, MoonLight.INSTANCE.getNotificationManager().getToggleTime());
+        this(type, title, description, Moonlight.INSTANCE.getNotificationManager().getToggleTime());
     }
 
     public Notification(NotificationType type, String title, String description, float time) {

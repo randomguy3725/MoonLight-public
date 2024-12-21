@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.ChatGUIEvent;
 
 import java.io.IOException;
@@ -270,7 +270,7 @@ public class GuiChat extends GuiScreen
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        MoonLight.INSTANCE.getEventManager().call(new ChatGUIEvent(mouseX, mouseY));
+        Moonlight.INSTANCE.getEventManager().call(new ChatGUIEvent(mouseX, mouseY));
     }
 
     public void onAutocompleteResponse(String[] p_146406_1_)

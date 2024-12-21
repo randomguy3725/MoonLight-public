@@ -26,7 +26,7 @@
          "url" : "https://launcher.mojang.com/v1/objects/5143618265b8a2d1d28bcadf206b7327738c2670/windows_server.exe"
       }
    },
-   "id" : "MoonLight",
+   "id" : "Moonlight",
    "javaVersion" : {
       "component" : "jre-legacy",
       "majorVersion" : 8

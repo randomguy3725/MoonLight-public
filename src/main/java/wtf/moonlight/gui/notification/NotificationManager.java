@@ -5,7 +5,7 @@ import lombok.Setter;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;

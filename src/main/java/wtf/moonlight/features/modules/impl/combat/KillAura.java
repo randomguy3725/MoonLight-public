@@ -21,7 +21,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.NotNull;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
@@ -496,7 +496,7 @@ public class KillAura extends Module {
         if (entity instanceof EntityLivingBase && (targetOption.isEnabled("Dead") || entity.isEntityAlive()) && entity != mc.thePlayer) {
             if (targetOption.isEnabled("Invisible") || !entity.isInvisible()) {
                 if (targetOption.isEnabled("Players") && entity instanceof EntityPlayer) {
-                    if (filter.isEnabled("Friends") && MoonLight.INSTANCE.getFriendManager().isFriend((EntityPlayer) entity))
+                    if (filter.isEnabled("Friends") && Moonlight.INSTANCE.getFriendManager().isFriend((EntityPlayer) entity))
                         return false;
                     return !isEnabled(AntiBot.class) || !getModule(AntiBot.class).bots.contains(entity);
                 }

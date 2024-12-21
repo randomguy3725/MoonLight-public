@@ -2,7 +2,7 @@ package wtf.moonlight.utils.waveycapes.renderlayers;
 
 import net.minecraft.util.ResourceLocation;
 import org.lwjglx.opengl.Display;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.utils.render.shader.ShaderUtils;
 import wtf.moonlight.utils.waveycapes.CapeMovement;
@@ -45,15 +45,15 @@ public class CustomCapeRenderLayer implements LayerRenderer<AbstractClientPlayer
     @Override
     public void doRenderLayer(AbstractClientPlayer abstractClientPlayer, float paramFloat1, float paramFloat2, float deltaTick,
             float animationTick, float paramFloat5, float paramFloat6, float paramFloat7) {
-        if (!MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).wavey.get())
+        if (!Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).wavey.get())
             return;
 
-        if (!abstractClientPlayer.isInvisible() && (abstractClientPlayer.hasPlayerInfo() && abstractClientPlayer.isWearing(EnumPlayerModelParts.CAPE) && abstractClientPlayer.getLocationCape() != null || abstractClientPlayer.getName().equals(Minecraft.getMinecraft().getSession().getUsername()) && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get())) {
+        if (!abstractClientPlayer.isInvisible() && (abstractClientPlayer.hasPlayerInfo() && abstractClientPlayer.isWearing(EnumPlayerModelParts.CAPE) && abstractClientPlayer.getLocationCape() != null || abstractClientPlayer.getName().equals(Minecraft.getMinecraft().getSession().getUsername()) && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get())) {
             if (Config.capeMovement == CapeMovement.BASIC_SIMULATION) {
                 abstractClientPlayer.updateSimulation(abstractClientPlayer, partCount);
             }
 
-            if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get()) {
+            if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get()) {
                 this.playerRenderer.bindTexture(new ResourceLocation("moonlight/texture/cape/overlay.png"));
             } else {
                 this.playerRenderer.bindTexture(abstractClientPlayer.getLocationCape());
@@ -61,7 +61,7 @@ public class CustomCapeRenderLayer implements LayerRenderer<AbstractClientPlayer
 
             if (Config.capeStyle == CapeStyle.SMOOTH) {
                 if (abstractClientPlayer == Minecraft.getMinecraft().thePlayer) {
-                    if (MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get()) {
+                    if (Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).cape.get()) {
                             smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);
                     } else {
                         smoothCapeRenderer.renderSmoothCape(this, abstractClientPlayer, deltaTick);

@@ -56,7 +56,7 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.MapStorage;
 import net.minecraft.world.storage.WorldInfo;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.DashTrail;
 
 public abstract class World implements IBlockAccess
@@ -1701,7 +1701,7 @@ public abstract class World implements IBlockAccess
                     entityIn.onUpdate();
                     if (entityIn instanceof EntityPlayerSP base) {
                         if (prevPosX != entityIn.posX || prevPosY != entityIn.posY || prevPosZ != entityIn.posZ) {
-                            MoonLight.INSTANCE.getModuleManager().getModule(DashTrail.class).onEntityMove(base, new Vec3(prevPosX, prevPosY, prevPosZ));
+                            Moonlight.INSTANCE.getModuleManager().getModule(DashTrail.class).onEntityMove(base, new Vec3(prevPosX, prevPosY, prevPosZ));
                         }
                     }
                 }

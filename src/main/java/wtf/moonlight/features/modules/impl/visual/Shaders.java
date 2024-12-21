@@ -2,7 +2,7 @@ package wtf.moonlight.features.modules.impl.visual;
 
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.shader.Framebuffer;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.Shader2DEvent;
 import wtf.moonlight.events.impl.render.Shader3DEvent;
 import wtf.moonlight.features.modules.Module;
@@ -94,8 +94,8 @@ public class Shaders extends Module {
     }
 
     public void stuffToBlur() {
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")) {
-            MoonLight.INSTANCE.getNotificationManager().publish(new ScaledResolution(mc),false);
+        if (Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")) {
+            Moonlight.INSTANCE.getNotificationManager().publish(new ScaledResolution(mc),false);
         }
     }
 }

@@ -17,7 +17,7 @@ import net.minecraft.scoreboard.Score;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Camera;
 import wtf.moonlight.utils.waveycapes.renderlayers.CustomCapeRenderLayer;
 
@@ -55,7 +55,7 @@ public class RenderPlayer extends RendererLivingEntity<AbstractClientPlayer>
         {
             double d0 = y;
 
-            if(MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).setting.isEnabled("Bright Players"))
+            if(Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).setting.isEnabled("Bright Players"))
                 GlStateManager.disableLighting();
 
             if (entity.isSneaking() && !(entity instanceof EntityPlayerSP))

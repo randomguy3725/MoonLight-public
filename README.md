@@ -1,6 +1,6 @@
-# MoonLight-public
+# Moonlight-public
 
-Welcome to the **MoonLight-public** repository, a fully structured client project.
+Welcome to the **Moonlight-public** repository, a fully structured client project.
 
 ## Contact Info
 - **Discord Server** https://discord.gg/BrXGxGeY8r
@@ -45,4 +45,4 @@ This project may include heavily referenced or derivative works. Use it responsi
 
 ---
 
-Enjoy exploring MoonLight-public! Feel free to contribute or provide feedback.
+Enjoy exploring Moonlight-public! Feel free to contribute or provide feedback.

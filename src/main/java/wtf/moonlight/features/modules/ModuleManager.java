@@ -1,7 +1,7 @@
 package wtf.moonlight.features.modules;
 
 import lombok.Getter;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.features.command.CommandManager;
@@ -132,7 +132,7 @@ public class ModuleManager {
 
         modules.sort(Comparator.comparing(Module::getName));
 
-        MoonLight.INSTANCE.getEventManager().register(this);
+        Moonlight.INSTANCE.getEventManager().register(this);
     }
 
     @SafeVarargs

@@ -11,7 +11,7 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.player.TeleportEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
@@ -76,7 +76,7 @@ public class BedNuker extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event){
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Scaffold.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Scaffold.class).data == null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
+        if (Moonlight.INSTANCE.getModuleManager().getModule(Scaffold.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Scaffold.class).data == null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
             reset(true);
             return;
         }

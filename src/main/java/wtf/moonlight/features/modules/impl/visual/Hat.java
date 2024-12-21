@@ -4,7 +4,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import org.lwjgl.opengl.GL11;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.friend.Friend;
@@ -66,8 +66,8 @@ public class Hat extends Module {
 
         drawHat(event, mc.thePlayer);
 
-        if (!MoonLight.INSTANCE.getFriendManager().getFriends().isEmpty())
-            for (Friend friend : MoonLight.INSTANCE.getFriendManager().getFriends()) {
+        if (!Moonlight.INSTANCE.getFriendManager().getFriends().isEmpty())
+            for (Friend friend : Moonlight.INSTANCE.getFriendManager().getFriends()) {
                 drawHat(event, mc.theWorld.getPlayerEntityByName(friend.getUsername()));
             }
 

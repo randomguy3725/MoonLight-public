@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.gui.click.menu.panel.Panel;
 import wtf.moonlight.gui.font.Fonts;
@@ -55,8 +55,8 @@ public class MenuGUI extends GuiScreen {
         RoundedUtils.drawRound(posX, posY, width, height, 6, new Color(20, 20, 20, 255));
 
         RenderUtils.drawImage(new ResourceLocation("moonlight/img/logo.png"), posX + 10, posY + 5, 45, 45);
-        Fonts.interSemiBold.get(22).drawString("MoonLight", posX + 65, posY + 25, -1);
-        Fonts.interSemiBold.get(20).drawString("Welcome back," + MoonLight.INSTANCE.getDiscordRP().getName(), posX + width - Fonts.interSemiBold.get(24).getStringWidth("Welcome back," + MoonLight.INSTANCE.getDiscordRP().getName()) - 10, posY + 25, -1);
+        Fonts.interSemiBold.get(22).drawString("Moonlight", posX + 65, posY + 25, -1);
+        Fonts.interSemiBold.get(20).drawString("Welcome back," + Moonlight.INSTANCE.getDiscordRP().getName(), posX + width - Fonts.interSemiBold.get(24).getStringWidth("Welcome back," + Moonlight.INSTANCE.getDiscordRP().getName()) - 10, posY + 25, -1);
 
         if (getSelected() == null) {
             if (!panels.isEmpty()) {

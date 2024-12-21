@@ -22,7 +22,7 @@ import net.minecraft.world.WorldSettings;
 import net.optifine.player.CapeUtils;
 import net.optifine.player.PlayerConfigurations;
 import net.optifine.reflect.Reflector;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.player.LookEvent;
 
 public abstract class AbstractClientPlayer extends EntityPlayer
@@ -215,7 +215,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
         float pitch = this.rotationPitch;
 
         LookEvent lookEvent = new LookEvent(new float[]{yaw, pitch});
-        MoonLight.INSTANCE.getEventManager().call(lookEvent);
+        Moonlight.INSTANCE.getEventManager().call(lookEvent);
         yaw = lookEvent.rotation[0];
         pitch = lookEvent.rotation[1];
 

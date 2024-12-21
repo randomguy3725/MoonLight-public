@@ -23,7 +23,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.TickEvent;
 import wtf.moonlight.events.impl.misc.WorldEvent;
@@ -58,7 +58,7 @@ import java.util.*;
 
 @ModuleInfo(name = "Interface", category = ModuleCategory.Visual)
 public class Interface extends Module {
-    public final TextValue cao = new TextValue("Client Name", "MoonLight", this);
+    public final TextValue cao = new TextValue("Client Name", "Moonlight", this);
 
     public final MultiBoolValue elements = new MultiBoolValue("Elements", Arrays.asList(
             new BoolValue("Watermark",true),
@@ -127,7 +127,7 @@ public class Interface extends Module {
                     DateFormat dateFormat = new SimpleDateFormat("hh:mm");
                     String dateString = dateFormat.format(new Date());
 
-                    String name = " | " + MoonLight.INSTANCE.getVersion() +
+                    String name = " | " + Moonlight.INSTANCE.getVersion() +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + dateString +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.thePlayer.getName() +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.getCurrentServerData().serverIP;
@@ -165,7 +165,7 @@ public class Interface extends Module {
                     float fontSize = 15f;
                     float iconSize = 5.0F;
                     float rectWidth = 10.0F;
-                    String title = "MoonLight";
+                    String title = "Moonlight";
                     float titleWidth = Fonts.interMedium.get(fontSize).getStringWidth(title);
 
                     RoundedUtils.drawRound(posX, posY, rectWidth + iconSize * 2.5F + titleWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
@@ -420,7 +420,7 @@ public class Interface extends Module {
                 DateFormat dateFormat = new SimpleDateFormat("hh:mm");
                 String dateString = dateFormat.format(new Date());
 
-                String name = " | " + MoonLight.INSTANCE.getVersion() +
+                String name = " | " + Moonlight.INSTANCE.getVersion() +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + dateString +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.thePlayer.getName() +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.getCurrentServerData().serverIP;

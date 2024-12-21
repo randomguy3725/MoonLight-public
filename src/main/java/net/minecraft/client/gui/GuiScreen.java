@@ -42,7 +42,7 @@ import org.apache.logging.log4j.Logger;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
 import tv.twitch.chat.ChatUserInfo;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.RenderGuiEvent;
 
 public abstract class GuiScreen extends Gui implements GuiYesNoCallback
@@ -66,7 +66,7 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        MoonLight.INSTANCE.getEventManager().call(new RenderGuiEvent());
+        Moonlight.INSTANCE.getEventManager().call(new RenderGuiEvent());
         for (int i = 0; i < this.buttonList.size(); ++i)
         {
             this.buttonList.get(i).drawButton(this.mc, mouseX, mouseY);

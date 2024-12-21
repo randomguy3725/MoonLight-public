@@ -24,7 +24,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiDownloadTerrain;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.player.TeleportEvent;
 import wtf.moonlight.gui.mainmenu.GuiMainMenu;
 import net.minecraft.client.gui.GuiMerchant;
@@ -606,7 +606,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
                 f1
         );
 
-        MoonLight.INSTANCE.getEventManager().call(event);
+        Moonlight.INSTANCE.getEventManager().call(event);
 
         if (event.isCancelled()) {
             return;
