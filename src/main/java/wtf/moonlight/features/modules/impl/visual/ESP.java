@@ -323,6 +323,7 @@ public class ESP extends Module {
 
         for (final EntityPlayer player : mc.theWorld.playerEntities) {
             if (project2D) {
+
                 final double posX = (MathUtils.interpolate(player.prevPosX, player.posX, partialTicks) -
                         mc.getRenderManager().viewerPosX);
                 final double posY = (MathUtils.interpolate(player.prevPosY, player.posY, partialTicks) -

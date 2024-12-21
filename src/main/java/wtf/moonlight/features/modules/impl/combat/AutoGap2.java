@@ -6,7 +6,7 @@ import net.minecraft.init.Items;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.*;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.TickEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
@@ -58,7 +58,7 @@ public class AutoGap2 extends Module {
             return;
         }
         if (this.gappleSlot == -1) {
-            MoonLight.INSTANCE.getNotificationManager().post(NotificationType.WARNING,"Auto Gapple Disabled","Because u dont have any gapple.");
+            Moonlight.INSTANCE.getNotificationManager().post(NotificationType.WARNING,"Auto Gapple Disabled","Because u dont have any gapple.");
             toggle();
             return;
         }
@@ -78,7 +78,7 @@ public class AutoGap2 extends Module {
             sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
             sending = false;
             toggle();
-            MoonLight.INSTANCE.getNotificationManager().post(NotificationType.OKAY,"Gapple","Eaten");
+            Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY,"Gapple","Eaten");
             if (auto.get()){
                 setEnabled(true);
             }

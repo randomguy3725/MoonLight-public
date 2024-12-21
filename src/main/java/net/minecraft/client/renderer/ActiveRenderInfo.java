@@ -16,10 +16,10 @@ import org.lwjglx.util.glu.GLU;
 
 public class ActiveRenderInfo
 {
-    private static final IntBuffer VIEWPORT = GLAllocation.createDirectIntBuffer(16);
-    private static final FloatBuffer MODELVIEW = GLAllocation.createDirectFloatBuffer(16);
-    private static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
-    private static final FloatBuffer OBJECTCOORDS = GLAllocation.createDirectFloatBuffer(3);
+    public static final IntBuffer VIEWPORT = GLAllocation.createDirectIntBuffer(16);
+    public static final FloatBuffer MODELVIEW = GLAllocation.createDirectFloatBuffer(16);
+    public static final FloatBuffer PROJECTION = GLAllocation.createDirectFloatBuffer(16);
+    public static final FloatBuffer OBJECTCOORDS = GLAllocation.createDirectFloatBuffer(3);
     private static Vec3 position = new Vec3(0.0D, 0.0D, 0.0D);
     private static float rotationX;
     private static float rotationXZ;

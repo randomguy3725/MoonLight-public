@@ -2,6 +2,7 @@ package wtf.moonlight.gui.widget.impl;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -72,6 +73,9 @@ public class TargetHUDWidget extends Widget {
             case "Type 2" -> Math.max(100, mc.fontRendererObj.getStringWidth(entity.getDisplayName().getFormattedText())) + 11;
             case "Exhi" -> Math.max(124.0f, Fonts.interBold.get(17).getStringWidth(entity.getName()) + 54.0f);
             case "Adjust" -> 130;
+            case "Moon" -> 35 + Fonts.interSemiBold.get(18).getStringWidth(entity.getName()) + 33;
+            case "Novo 1", "Novo 2" -> 35 + mc.fontRendererObj.getStringWidth(entity.getName()) + 33;
+            case "Novo 3" -> 35 + mc.fontRendererObj.getStringWidth(entity.getName()) + 34;
             default -> 0;
         };
         return width;
@@ -84,6 +88,9 @@ public class TargetHUDWidget extends Widget {
             case "Type 2" -> 38.0F;
             case "Exhi" -> 38;
             case "Adjust" -> 35;
+            case "Moon" -> 40.5f;
+            case "Novo 1" -> 37.5f;
+            case "Novo 2", "Novo 3" -> 36f;
             default -> 0;
         };
         return height;
@@ -165,7 +172,7 @@ class TargetHUD implements InstanceAccess {
             case "Type 2": {
                 if (!shader) {
                     target.healthAnimation.animate((width - (5 * 4 + 26.5f)) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
-                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor()));
+                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor(),true));
                     RenderUtils.renderPlayer2D(target, x + 5, y + 6.8, 26.5, 2, -1);
 
                     RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(30, 30, 30));
@@ -195,7 +202,7 @@ class TargetHUD implements InstanceAccess {
                     }
 
                 } else {
-                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.bgColor()));
+                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.bgColor(),true));
                 }
             }
             break;
@@ -249,40 +256,130 @@ class TargetHUD implements InstanceAccess {
             break;
 
             case "Adjust": {
-                RenderUtils.drawRect(x, y, width, height, new Color(0, 0, 0, 100).getRGB());
 
                 float padding = 2;
                 float healthX = x + padding;
                 float healthPercentage = target.getHealth() / target.getMaxHealth();
                 float healthWidth = (width - padding * 2) * healthPercentage;
-                target.healthAnimation.animate(healthWidth,25);
-                RenderUtils.drawRect(healthX,y + height - 5,width - padding * 2 ,4,ColorUtils.darker(setting.color(0),0.3f));
-                RenderUtils.drawRect(healthX,y + height - 5,target.healthAnimation.getOutput(),4,setting.color(0));
-                RenderUtils.renderPlayer2D(target,x + padding,y + padding,28 - padding,0,-1);
+                target.healthAnimation.animate(healthWidth, 25);
 
                 String sheesh = decimalFormat.format(Math.abs(mc.thePlayer.getHealth() - target.getHealth()));
                 String healthDiff = mc.thePlayer.getHealth() < target.getHealth() ? "-" + sheesh : "+" + sheesh;
 
-                Fonts.interRegular.get(15).drawString(target.getName(),x + padding + 30,y + 3 + padding,-1);
-                Fonts.interRegular.get(15).drawString(healthDiff,x + width - padding - Fonts.interRegular.get(15).getStringWidth(healthDiff),y + height - 5 * 2 - padding,-1);
+                if (!shader) {
+                    RenderUtils.drawRect(x, y, width, height, new Color(0, 0, 0, 100).getRGB());
+                    RenderUtils.drawRect(healthX, y + height - 5, width - padding * 2, 4, ColorUtils.darker(setting.color(0), 0.3f));
+                    RenderUtils.drawRect(healthX, y + height - 5, target.healthAnimation.getOutput(), 4, setting.color(0));
+                    RenderUtils.renderPlayer2D(target, x + padding, y + padding, 28 - padding, 0, -1);
 
-                List<ItemStack> items = new ArrayList<>();
-                if (target.getHeldItem() != null) {
-                    items.add(target.getHeldItem());
-                }
-                for (int index = 3; index >= 0; index--) {
-                    ItemStack stack = target.inventory.armorInventory[index];
-                    if (stack != null) {
-                        items.add(stack);
+                    Fonts.interRegular.get(15).drawString(target.getName(), x + padding + 30, y + 3 + padding, -1);
+                    Fonts.interRegular.get(15).drawString(healthDiff, x + width - padding - Fonts.interRegular.get(15).getStringWidth(healthDiff), y + height - 5 * 2 - padding, -1);
+
+                    List<ItemStack> items = new ArrayList<>();
+                    if (target.getHeldItem() != null) {
+                        items.add(target.getHeldItem());
+                    }
+                    for (int index = 3; index >= 0; index--) {
+                        ItemStack stack = target.inventory.armorInventory[index];
+                        if (stack != null) {
+                            items.add(stack);
+                        }
+                    }
+                    float i = x + 30 + padding;
+
+                    for (ItemStack stack : items) {
+                        RenderUtils.renderItemStack(stack, i, y + 10 + padding, 1, true, 0.5f);
+                        i += 16;
                     }
                 }
-                float i = x + 30 + padding;
+            }
+            break;
 
-                for (ItemStack stack : items) {
-                    RenderUtils.renderItemStack(stack, i, y + 10 + padding, 1, true, 0.5f);
-                    i += 16;
+            case "Moon": {
+
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float space = (width - 50) / 100;
+
+                target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
+
+                if (!shader) {
+                    RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 10, -1);
+                    RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(),true));
+
+                    RoundedUtils.drawRound(x + 40, y + 26.5f, (100 * space), 8, 4, new Color(0, 0, 0, 150));
+                    String text = String.format("%.1f", target.getHealth());
+
+                    RoundedUtils.drawRound(x + 40, y + 26.5f, target.healthAnimation.getOutput(), 8.5f, 4, new Color(setting.color(0)));
+                    Fonts.interSemiBold.get(13).drawStringWithShadow(text + "HP", x + 40, y + 17, -1);
+                    Fonts.interSemiBold.get(18).drawStringWithShadow(target.getName(), x + 40, y + 6, -1);
+                } else {
+                    RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.color()));
                 }
             }
+            break;
+
+            case "Novo 1": {
+
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float space = (width - 50) / 100;
+
+                target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
+
+                if (!shader) {
+                    RenderUtils.drawEntityOnScreen(x + 18, y + 32, 15, target);
+                    RenderUtils.drawBorderedRect(x, y, width, height, (float) 1, new Color(0, 0, 0, 50).getRGB(), new Color(40, 40, 40, 178).getRGB());
+                    RenderUtils.drawRect(x, y, width, height, new Color(40, 40, 40, 178).getRGB());
+                    RenderUtils.drawRect(x + 40, y + 14, 100 * space, 10, new Color(30, 30, 30, 203).getRGB());
+                    RenderUtils.drawRect(x + 40, y + 15.5f, target.healthAnimation.getOutput(), 8.5f, new Color(0, 255, 0, 255).getRGB());
+                    String text = String.format("%.1f", target.getHealth() / 2);
+                    mc.fontRendererObj.drawStringWithShadow(text, x + 40, y + 27, -1);
+                    mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 40, y + 4, -1);
+                    mc.fontRendererObj.drawStringWithShadow("❤", x + 40 + 23, y + 27, new Color(255, 100, 100).getRGB());
+                }
+            }
+            break;
+
+            case "Novo 2": {
+
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float space = (width - 50) / 100;
+
+                target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
+
+                if (!shader) {
+                    RenderUtils.renderPlayer2D(target, (x + 1.5 + 1), (float) (y + 0.4), 35, 0, -1);
+
+                    RenderUtils.drawBorderedRect(x, y, width, height, 1f, new Color(0, 0, 0, 50).getRGB(), new Color(40, 40, 40, 180).getRGB());
+                    RenderUtils.drawRect(x, y, width, height, new Color(40, 40, 40, 180).getRGB());
+                    String text = String.format("%.1f", target.getHealth());
+                    mc.fontRendererObj.drawStringWithShadow("❤", x + 62 + 1, y + 26.6f, setting.color(0));
+                    RenderUtils.drawRect(x + 40 + 1, y + 16.5f, target.healthAnimation.getOutput(), 8.8f, setting.color(0));
+                    mc.fontRendererObj.drawStringWithShadow(text, x + 40 + 1, y + 28f, -1);
+                    mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 40f, y + 4, -1);
+                }
+            }
+            break;
+
+            case "Novo 3": {
+
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float space = (width - 50) / 100;
+
+                target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
+
+                if (!shader) {
+                    RenderUtils.renderPlayer2D(target, (x + 1.5 + 1), (float) (y + 0.4), 35, 0, -1);
+
+                    RenderUtils.drawBorderedRect(x, y, width, height, 1f, new Color(0, 0, 0, 50).getRGB(), new Color(29, 29, 29, 130).getRGB());
+                    RenderUtils.drawRect(x, y, width, height, new Color(40, 40, 40, 130).getRGB());
+                    RenderUtils.drawRect(x + 40 + 1, y + 16.5f, 100 * space + 1, 10.8f, new Color(0, 0, 0, 50).getRGB());
+                    RenderUtils.drawRect(x + 40 + 1, y + 16.5f, target.healthAnimation.getOutput(), 10.8f, setting.color());
+                    String text = String.format("%.1f", healthPercentage * 100) + "%";
+                    mc.fontRendererObj.drawStringWithShadow(text, x + 1 + 40 + 50 * space - mc.fontRendererObj.getStringWidth(text) / 2f, y + 18f, -1);
+                    mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 1 + 40, y + 4, -1);
+                }
+            }
+
             break;
         }
         GlStateManager.popMatrix();

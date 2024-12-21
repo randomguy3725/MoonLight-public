@@ -33,7 +33,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.misc.BlockAABBEvent;
 
 public class Block
@@ -410,7 +410,7 @@ public class Block
 
         if (collidingEntity == Minecraft.getMinecraft().thePlayer) {
             final BlockAABBEvent event = new BlockAABBEvent(worldIn, this, pos, axisalignedbb, mask);
-            MoonLight.INSTANCE.getEventManager().call(event);
+            Moonlight.INSTANCE.getEventManager().call(event);
 
             if (event.isCancelled()) return;
 

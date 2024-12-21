@@ -1,6 +1,6 @@
 package wtf.moonlight.features.command.impl;
 
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.command.Command;
 import wtf.moonlight.features.command.CommandExecutionException;
 import wtf.moonlight.utils.misc.DebugUtils;
@@ -24,12 +24,12 @@ public class FriendCommand extends Command {
             switch (lowerCase) {
                 case "clear": {
                     DebugUtils.sendMessage("Cleared all friended players");
-                    MoonLight.INSTANCE.getFriendManager().getFriends().clear();
+                    Moonlight.INSTANCE.getFriendManager().getFriends().clear();
                     break;
                 }
                 case "list": {
-                    if (!MoonLight.INSTANCE.getFriendManager().getFriends().isEmpty()) {
-                        DebugUtils.sendMessage("Friend§7[§f" + MoonLight.INSTANCE.getFriendManager().getFriends().size() + "§7]§f : §a" + MoonLight.INSTANCE.getFriendManager().getFriendsName());
+                    if (!Moonlight.INSTANCE.getFriendManager().getFriends().isEmpty()) {
+                        DebugUtils.sendMessage("Friend§7[§f" + Moonlight.INSTANCE.getFriendManager().getFriends().size() + "§7]§f : §a" + Moonlight.INSTANCE.getFriendManager().getFriendsName());
                         break;
                     }
                     DebugUtils.sendMessage("The friend list is empty");
@@ -48,12 +48,12 @@ public class FriendCommand extends Command {
             switch (lowerCase2) {
                 case "add": {
                     DebugUtils.sendMessage("§b" + arguments[2] + " §7has been §2friended");
-                    MoonLight.INSTANCE.getFriendManager().add(arguments[2]);
+                    Moonlight.INSTANCE.getFriendManager().add(arguments[2]);
                     break;
                 }
                 case "remove": {
                     DebugUtils.sendMessage("§b" + arguments[2] + " §7has been §2unfriended");
-                    MoonLight.INSTANCE.getFriendManager().remove(arguments[2]);
+                    Moonlight.INSTANCE.getFriendManager().remove(arguments[2]);
                     break;
                 }
             }

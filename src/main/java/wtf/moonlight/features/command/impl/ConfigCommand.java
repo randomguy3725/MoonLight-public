@@ -1,6 +1,6 @@
 package wtf.moonlight.features.command.impl;
 
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.command.Command;
 import wtf.moonlight.features.config.Config;
 import wtf.moonlight.features.config.impl.ModuleConfig;
@@ -33,7 +33,7 @@ public class ConfigCommand extends Command {
         }
         List<String> fileList = new ArrayList<>();
 
-        File directory = MoonLight.INSTANCE.getMainDir();
+        File directory = Moonlight.INSTANCE.getMainDir();
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -51,14 +51,14 @@ public class ConfigCommand extends Command {
 
         switch (args[1]) {
             case "load":
-                if (MoonLight.INSTANCE.getConfigManager().loadConfig(cfg)) {
+                if (Moonlight.INSTANCE.getConfigManager().loadConfig(cfg)) {
                     DebugUtils.sendMessage("Loaded config: " + args[2]);
                 } else {
                     DebugUtils.sendMessage("Invalid config: " + args[2]);
                 }
                 break;
             case "save":
-                if (MoonLight.INSTANCE.getConfigManager().saveConfig(cfg)) {
+                if (Moonlight.INSTANCE.getConfigManager().saveConfig(cfg)) {
                     DebugUtils.sendMessage("Saved config: " + args[2]);
                 } else {
                     DebugUtils.sendMessage("Invalid config: " + args[2]);

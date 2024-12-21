@@ -12,6 +12,7 @@ import wtf.moonlight.events.impl.render.Shader2DEvent;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.gui.widget.Widget;
 import wtf.moonlight.utils.animations.ContinualAnimation;
+import wtf.moonlight.utils.render.ColorUtils;
 import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
@@ -50,9 +51,13 @@ public class PotionHUDWidget extends Widget {
             width = 92;
             height = heightAnimation.getOutput();
 
-            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor()));
+            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor(),true));
 
             heightAnimation.animate(20 + potions.size() * 10,20);
+        }
+
+        if(setting.potionHudMode.is("Type 1")){
+            RoundedUtils.drawRound(renderX, renderY, width, height, 4,new Color(setting.bgColor(),true));
         }
     }
     @Override
@@ -101,7 +106,7 @@ public class PotionHUDWidget extends Widget {
             float posX = renderX;
             float posY = renderY;
 
-            RoundedUtils.drawRound(posX + 1.3F, posY + 4.5F, widthAnimation.getOutput(), 13F, 2.5F,new Color(setting.bgColor(0)));
+            RoundedUtils.drawRound(posX + 1.3F, posY + 4.5F, widthAnimation.getOutput(), 13F, 2.5F,new Color(setting.bgColor(),true));
             RenderUtils.drawRect(posX + 16F, 5.5F + 1f, 0.7F, 9.0F, new Color(75, 75, 75).getRGB());
 
             Fonts.nursultan.get(16).drawString("E", posX + 5F, posY + 10F, Color.WHITE.getRGB());
@@ -122,7 +127,7 @@ public class PotionHUDWidget extends Widget {
                 float height = 9F;
                 float radius = 2.5F;
 
-                RoundedUtils.drawRound(xPos, yPos, width + 5, height, radius,new Color(setting.bgColor(0)));
+                RoundedUtils.drawRound(xPos, yPos, width + 5, height, radius,new Color(setting.bgColor(),true));
 
                 float nameX = posX + 5.5f;
                 float nameY = posY + 23.5f + itemOffset;
@@ -164,7 +169,7 @@ public class PotionHUDWidget extends Widget {
             width = 92;
             height = heightAnimation.getOutput();
             
-            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor()));
+            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor(),true));
             
             Fonts.interSemiBold.get(13).drawString("Potions", renderX + 8, renderY + 7 + 2, -1);
 
@@ -195,7 +200,7 @@ public class PotionHUDWidget extends Widget {
 
             String name = "Potions";
 
-            RoundedUtils.drawRound(posX, posY, width, height, 4,new Color(setting.bgColor()));
+            RoundedUtils.drawRound(posX, posY, width, height, 4,new Color(setting.bgColor(),true));
             Fonts.interMedium.get(fontSize).drawCenteredString(name, posX - 22 + width / 2, posY + padding + 0.5f + 2, -1);
 
             float imagePosX = posX + width - iconSizeX - padding;
@@ -206,7 +211,7 @@ public class PotionHUDWidget extends Widget {
             float maxWidth = Fonts.interMedium.get(fontSize).getStringWidth(name) + padding * 2;
             float localHeight = Fonts.interMedium.get(fontSize).getHeight() + padding * 2;
 
-            RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(30, 30, 30));
+            RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(ColorUtils.darker(setting.color(),0.4f)));
             posY += 3f;
 
             for (PotionEffect effect : potions) {

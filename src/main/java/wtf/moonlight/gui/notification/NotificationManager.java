@@ -5,7 +5,7 @@ import lombok.Setter;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
@@ -22,11 +22,10 @@ import java.math.RoundingMode;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@Getter
 public class NotificationManager implements InstanceAccess {
-    @Getter
     private final CopyOnWriteArrayList<Notification> notifications = new CopyOnWriteArrayList<>();
 
-    @Getter
     @Setter
     private float toggleTime = 2;
 
@@ -71,12 +70,12 @@ public class NotificationManager implements InstanceAccess {
 
                         yVal = (y + height) - height;
                         if (!shader) {
-                            RoundedUtils.drawRound(x, yVal, width + 2, height, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()), (float) notification.getAnimation().getOutput()));
+                            RoundedUtils.drawRound(x, yVal, width + 2, height, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true), (float) notification.getAnimation().getOutput()));
 
                             Fonts.interMedium.get(15).drawCenteredString(notification.getDescription(), x + width / 2f,
                                     yVal + Fonts.interMedium.get(15).getMiddleOfBox(height) + 2, ColorUtils.applyOpacity(-1, (float) notification.getAnimation().getOutput()));
                         } else {
-                            RoundedUtils.drawRound(x, yVal, width + 2, height, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()), (float) notification.getAnimation().getOutput()));
+                            RoundedUtils.drawRound(x, yVal, width + 2, height, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true), (float) notification.getAnimation().getOutput()));
                         }
                         yOffset += (height + actualOffset) * (float) notification.getAnimation().getOutput();
                         break;
@@ -90,11 +89,11 @@ public class NotificationManager implements InstanceAccess {
                         float heightVal = (float) (height * notification.getAnimation().getOutput());
                         yVal = (y + height) - heightVal;
                         if (!shader) {
-                            RoundedUtils.drawRound(x, yVal, width, heightVal, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()), (float) notification.getAnimation().getOutput()));
+                            RoundedUtils.drawRound(x, yVal, width, heightVal, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true), (float) notification.getAnimation().getOutput()));
                             Fonts.interSemiBold.get(15).drawCenteredString(notification.getTitle(), x + width / 2f, yVal + 2, ColorUtils.applyOpacity(Color.WHITE.getRGB(), (float) notification.getAnimation().getOutput()));
                             Fonts.interSemiBold.get(15).drawCenteredString(notification.getDescription(), x + width / 2f, yVal + 2 + Fonts.interSemiBold.get(15).getHeight(), ColorUtils.applyOpacity(Color.WHITE.getRGB(), (float) notification.getAnimation().getOutput()));
                         } else {
-                            RoundedUtils.drawRound(x, yVal, width, heightVal, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()), (float) notification.getAnimation().getOutput()));
+                            RoundedUtils.drawRound(x, yVal, width, heightVal, 4, ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true), (float) notification.getAnimation().getOutput()));
                         }
                         yOffset += (height + actualOffset) * (float) notification.getAnimation().getOutput();
                         break;
@@ -154,7 +153,7 @@ public class NotificationManager implements InstanceAccess {
                         x = (float) (sr.getScaledWidth() - (width + 5) * animation.getOutput());
                         y = sr.getScaledHeight() - 43 - height - yOffset;
 
-                        RoundedUtils.drawRound(x,y,width,height,4,new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()));
+                        RoundedUtils.drawRound(x,y,width,height,4,new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true));
                         RenderUtils.drawCircle(x + 16f,y + 15f, 0, 360,13f,.1f,true,-1);
                         RenderUtils.drawGradientCircle(x + 16f, y + 15f, 0, 360,13f,INSTANCE.getModuleManager().getModule(Interface.class).color(0),INSTANCE.getModuleManager().getModule(Interface.class).color(90));
                         if (notification.getNotificationType() == NotificationType.INFO) {

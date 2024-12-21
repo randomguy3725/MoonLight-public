@@ -6,6 +6,6 @@ import net.minecraft.util.EnumChatFormatting;
 
 public class DebugUtils {
     public static void sendMessage(String message) {
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(EnumChatFormatting.LIGHT_PURPLE + "MoonLight" + EnumChatFormatting.WHITE + EnumChatFormatting.GRAY + ">> " + EnumChatFormatting.WHITE + message));
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(new ChatComponentText(EnumChatFormatting.LIGHT_PURPLE + "Moonlight" + EnumChatFormatting.WHITE + EnumChatFormatting.GRAY + ">> " + EnumChatFormatting.WHITE + message));
     }
 }

@@ -33,6 +33,7 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
     protected float shadowOpaque = 1.0F;
     private Class entityClass = null;
     private ResourceLocation locationTextureCustom = null;
+    public boolean shouldRenderNameTags = true;
 
     protected Render(RenderManager renderManager)
     {
@@ -53,7 +54,9 @@ public abstract class Render<T extends Entity> implements IEntityRenderer
 
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        this.renderName(entity, x, y, z);
+        if(shouldRenderNameTags) {
+            this.renderName(entity, x, y, z);
+        }
     }
 
     protected void renderName(T entity, double x, double y, double z)

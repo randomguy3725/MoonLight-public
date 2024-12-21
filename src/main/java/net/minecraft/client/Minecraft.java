@@ -184,7 +184,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjglx.opengl.GLContext;
 import org.lwjglx.opengl.PixelFormat;
 import org.lwjglx.util.glu.GLU;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.events.impl.misc.TickEvent;
 
@@ -489,7 +489,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         this.checkGLError("Post startup");
         this.ingameGUI = new GuiIngame(this);
 
-        MoonLight.INSTANCE.init();
+        Moonlight.INSTANCE.init();
 
         if (this.serverName != null)
         {
@@ -671,7 +671,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         File file2 = new File(file1, "crash-" + (new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss")).format(new Date()) + "-client.txt");
         Bootstrap.printToSYSOUT(crashReportIn.getCompleteReport());
 
-        MoonLight.INSTANCE.onStop();
+        Moonlight.INSTANCE.onStop();
 
         if (crashReportIn.getFile() != null)
         {
@@ -936,7 +936,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             this.stream.shutdownStream();
             logger.info("Stopping!");
 
-            MoonLight.INSTANCE.onStop();
+            Moonlight.INSTANCE.onStop();
 
             try
             {
@@ -1584,7 +1584,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     public void runTick() throws IOException
     {
         TickEvent tickEvent = new TickEvent();
-        MoonLight.INSTANCE.getEventManager().call(tickEvent);
+        Moonlight.INSTANCE.getEventManager().call(tickEvent);
 
         if(tickEvent.isCancelled())
             return;
@@ -1792,7 +1792,7 @@ public class Minecraft implements IThreadListener, IPlayerUsage
                     }
                     else
                     {
-                        MoonLight.INSTANCE.getEventManager().call(new KeyPressEvent(k));
+                        Moonlight.INSTANCE.getEventManager().call(new KeyPressEvent(k));
                         if (k == 1)
                         {
                             this.displayInGameMenu();

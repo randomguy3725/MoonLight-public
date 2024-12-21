@@ -7,6 +7,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.monster.EntityGolem;
@@ -24,12 +25,15 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.combat.AntiBot;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.utils.InstanceAccess;
+import com.google.common.base.Predicate;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class PlayerUtils implements InstanceAccess {
     private static final HashMap<Integer, Integer> GOOD_POTIONS = new HashMap<>() {{
@@ -182,7 +186,7 @@ public class PlayerUtils implements InstanceAccess {
             if (isInTeam(entity))
                 continue;
 
-            if (MoonLight.INSTANCE.getModuleManager().getModule(AntiBot.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(AntiBot.class).bots.contains(entity))
+            if (Moonlight.INSTANCE.getModuleManager().getModule(AntiBot.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(AntiBot.class).bots.contains(entity))
                 continue;
 
             float tempDistance = mc.thePlayer.getDistanceToEntity(entity);
@@ -324,5 +328,16 @@ public class PlayerUtils implements InstanceAccess {
                 || entity instanceof EntitySquid
                 || entity instanceof EntityGolem
                 || entity instanceof EntityBat;
+    }
+    public static List<EntityPlayer> getLivingEntities(Predicate<EntityPlayer> validator) {
+        List<EntityPlayer> entities = new ArrayList<>();
+        if(mc.theWorld == null) return entities;
+        for (Entity entity : mc.theWorld.playerEntities) {
+            if (entity instanceof EntityPlayer player) {
+                if (validator.apply(player))
+                    entities.add(player);
+            }
+        }
+        return entities;
     }
 }

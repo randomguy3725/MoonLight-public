@@ -2,7 +2,7 @@ package wtf.moonlight.features.modules.impl.visual;
 
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.shader.Framebuffer;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.Shader2DEvent;
 import wtf.moonlight.events.impl.render.Shader3DEvent;
 import wtf.moonlight.features.modules.Module;
@@ -33,6 +33,12 @@ public class Shaders extends Module {
     public void renderShaders() {
         if (!this.isEnabled()) return;
 
+        if (this.blur.get()) {
+            Blur.startBlur();
+            INSTANCE.getEventManager().call(new Shader2DEvent(Shader2DEvent.ShaderType.BLUR));
+            Blur.endBlur(blurRadius.get(), (int) blurCompression.get());
+        }
+
         if (bloom.get()) {
             stencilFramebuffer = RenderUtils.createFrameBuffer(stencilFramebuffer);
             stencilFramebuffer.framebufferClear();
@@ -42,12 +48,6 @@ public class Shaders extends Module {
             stencilFramebuffer.unbindFramebuffer();
 
             Bloom.renderBlur(stencilFramebuffer.framebufferTexture, (int) glowRadius.get(), (int) glowOffset.get());
-        }
-
-        if (this.blur.get()) {
-            Blur.startBlur();
-            INSTANCE.getEventManager().call(new Shader2DEvent(Shader2DEvent.ShaderType.BLUR));
-            Blur.endBlur(blurRadius.get(), (int) blurCompression.get());
         }
 
         if (shadow.get()) {
@@ -94,8 +94,8 @@ public class Shaders extends Module {
     }
 
     public void stuffToBlur() {
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")) {
-            MoonLight.INSTANCE.getNotificationManager().publish(new ScaledResolution(mc),false);
+        if (Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")) {
+            Moonlight.INSTANCE.getNotificationManager().publish(new ScaledResolution(mc),false);
         }
     }
 }

@@ -1,7 +1,7 @@
 package net.minecraft.util;
 
 import net.minecraft.client.settings.GameSettings;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.player.MoveInputEvent;
 
 public class MovementInputFromOptions extends MovementInput
@@ -38,7 +38,7 @@ public class MovementInputFromOptions extends MovementInput
 
         MoveInputEvent event = new MoveInputEvent(moveForward,moveStrafe, jump, sneak);
 
-        MoonLight.INSTANCE.getEventManager().call(event);
+        Moonlight.INSTANCE.getEventManager().call(event);
 
         this.moveForward = event.getForward();
         this.moveStrafe = event.getStrafe();

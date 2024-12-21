@@ -134,7 +134,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(s, (c), -c);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
+                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
@@ -147,7 +147,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-s, s, -c);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
+                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
@@ -160,7 +160,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-(s), -(s), (c));
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (float) alphaAnim.getOutput());
+                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);

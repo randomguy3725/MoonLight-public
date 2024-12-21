@@ -135,29 +135,22 @@ public class MathUtils {
         double closestX, closestY, closestZ;
 
         switch (face) {
-            case DOWN:
-            case UP:
+            case DOWN, UP -> {
                 closestX = Math.max(aabb.minX, Math.min(x, aabb.maxX));
                 closestY = face == EnumFacing.DOWN ? aabb.minY : aabb.maxY;
                 closestZ = Math.max(aabb.minZ, Math.min(z, aabb.maxZ));
-                break;
-
-            case NORTH:
-            case SOUTH:
+            }
+            case NORTH, SOUTH -> {
                 closestX = Math.max(aabb.minX, Math.min(x, aabb.maxX));
                 closestY = Math.max(aabb.minY, Math.min(y, aabb.maxY));
                 closestZ = face == EnumFacing.NORTH ? aabb.minZ : aabb.maxZ;
-                break;
-
-            case WEST:
-            case EAST:
+            }
+            case WEST, EAST -> {
                 closestX = face == EnumFacing.WEST ? aabb.minX : aabb.maxX;
                 closestY = Math.max(aabb.minY, Math.min(y, aabb.maxY));
                 closestZ = Math.max(aabb.minZ, Math.min(z, aabb.maxZ));
-                break;
-
-            default:
-                throw new IllegalArgumentException("Invalid face: " + face);
+            }
+            default -> throw new IllegalArgumentException("Invalid face: " + face);
         }
 
         return new Vec3(closestX, closestY, closestZ);
@@ -166,6 +159,7 @@ public class MathUtils {
     public static Vec3 closestPointOnFace(AxisAlignedBB aabb, EnumFacing face, Vec3 vec) {
         return closestPointOnFace(aabb, face, vec.xCoord, vec.yCoord, vec.zCoord);
     }
+
     public static double randomSin() {
         return Math.sin(nextDouble(0.0, Math.PI * 2));
     }

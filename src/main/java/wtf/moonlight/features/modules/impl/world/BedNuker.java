@@ -11,8 +11,9 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
+import wtf.moonlight.events.impl.player.TeleportEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
@@ -39,10 +40,12 @@ public class BedNuker extends Module {
     public final BoolValue autoToolOnPacket = new BoolValue("Auto Tool On Packet", true, this);
     public final BoolValue progressText = new BoolValue("Progress Text", true, this);
     public final BoolValue progressBar = new BoolValue("Progress Bar", false, this);
+    public final BoolValue whitelistOwnBed = new BoolValue("Whitelist Own Bed", true, this);
     public BlockPos bedPos;
     public boolean rotate = false;
     private int breakTicks;
     private int delayTicks;
+    private Vec3 home;
     public ContinualAnimation barAnim = new ContinualAnimation();
 
     @Override
@@ -61,8 +64,19 @@ public class BedNuker extends Module {
     }
 
     @EventTarget
+    public void onTeleport(TeleportEvent event){
+        if(whitelistOwnBed.get()){
+            final double distance = mc.thePlayer.getDistance(event.getPosX(), event.getPosY(), event.getPosZ());
+
+            if (distance > 40) {
+                home = new Vec3(event.getPosX(), event.getPosY(), event.getPosZ());
+            }
+        }
+    }
+
+    @EventTarget
     public void onUpdate(UpdateEvent event){
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Scaffold.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Scaffold.class).data == null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
+        if (Moonlight.INSTANCE.getModuleManager().getModule(Scaffold.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Scaffold.class).data == null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlock) {
             reset(true);
             return;
         }
@@ -110,7 +124,8 @@ public class BedNuker extends Module {
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
-        if (progressBar.get() && bedPos != null) {
+        if (
+                progressBar.get() && bedPos != null) {
 
             if (breakTicks == 0.0f)
                 return;
@@ -128,6 +143,9 @@ public class BedNuker extends Module {
 
 
     private void getBedPos() {
+        if (home != null && mc.thePlayer.getDistanceSq(home.xCoord, home.yCoord, home.zCoord) < 35 * 35 && whitelistOwnBed.get()) {
+            return;
+        }
         bedPos = null;
         double range = breakRange.get();
         for (double x = mc.thePlayer.posX - range; x <= mc.thePlayer.posX + range; x++) {

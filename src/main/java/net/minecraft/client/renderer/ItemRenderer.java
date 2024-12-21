@@ -28,7 +28,7 @@ import net.optifine.DynamicLights;
 import net.optifine.reflect.Reflector;
 import net.optifine.shaders.Shaders;
 import org.lwjgl.opengl.GL11;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.modules.impl.visual.Animations;
 import wtf.moonlight.features.modules.impl.visual.Camera;
@@ -70,7 +70,7 @@ public class ItemRenderer
                     GlStateManager.depthMask(false);
                 }
             } else {
-                Animations animations = MoonLight.INSTANCE.getModuleManager().getModule(Animations.class);
+                Animations animations = Moonlight.INSTANCE.getModuleManager().getModule(Animations.class);
                 if (animations.isEnabled()) {
                     double factor = 1 - animations.getDownscaleFactor().get();
                     GlStateManager.scale(factor, factor, factor);
@@ -320,7 +320,7 @@ public class ItemRenderer
     {
         if (!Config.isShaders() || !Shaders.isSkipRenderHand())
         {
-            Animations animations = MoonLight.INSTANCE.getModuleManager().getModule(Animations.class);
+            Animations animations = Moonlight.INSTANCE.getModuleManager().getModule(Animations.class);
             float f = 1.0F - (this.prevEquippedProgress + (this.equippedProgress - this.prevEquippedProgress) * partialTicks);
             AbstractClientPlayer abstractclientplayer = this.mc.thePlayer;
             float f1 = abstractclientplayer.getSwingProgress(partialTicks);
@@ -332,7 +332,7 @@ public class ItemRenderer
             this.rotateWithPlayerRotations((EntityPlayerSP)abstractclientplayer, partialTicks);
             GlStateManager.enableRescaleNormal();
             GlStateManager.pushMatrix();
-            KillAura aura = MoonLight.INSTANCE.getModuleManager()
+            KillAura aura = Moonlight.INSTANCE.getModuleManager()
                     .getModule(KillAura.class);
             i++;
             if (animations.isEnabled()){
@@ -681,7 +681,7 @@ public class ItemRenderer
 
     private void renderFireInFirstPerson(float partialTicks)
     {
-        if(MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Camera.class).setting.isEnabled("No Fire"))
+        if(Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).setting.isEnabled("No Fire"))
             return;
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();

@@ -49,7 +49,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.border.WorldBorder;
 import net.optifine.CustomColors;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.modules.impl.visual.Shaders;
@@ -318,14 +318,6 @@ public class GuiIngame extends Gui
             this.renderScoreboard(scoreobjective1, scaledresolution);
         }
 
-        MoonLight.INSTANCE.getModuleManager().getModule(Shaders.class).renderShaders();
-
-        MoonLight.INSTANCE.getEventManager().call(new Render2DEvent(partialTicks,scaledresolution));
-
-        if(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled()&& MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")){
-            MoonLight.INSTANCE.getNotificationManager().publish(scaledresolution,false);
-        }
-
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         GlStateManager.disableAlpha();
@@ -345,6 +337,14 @@ public class GuiIngame extends Gui
         else
         {
             this.overlayPlayerList.updatePlayerList(false);
+        }
+
+        Moonlight.INSTANCE.getModuleManager().getModule(Shaders.class).renderShaders();
+
+        Moonlight.INSTANCE.getEventManager().call(new Render2DEvent(partialTicks,scaledresolution));
+
+        if(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled()&& Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).elements.isEnabled("Notification")){
+            Moonlight.INSTANCE.getNotificationManager().publish(scaledresolution,false);
         }
 
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -591,13 +591,13 @@ public class GuiIngame extends Gui
             drawRect(l1 - 2, k, l, k + this.getFontRenderer().FONT_HEIGHT, 1342177280);
 
             final Matcher linkMatcher = LINK_PATTERN.matcher(s1);
-            if(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && linkMatcher.find()) {
-                s1 = "MoonLight.wtf";
-                this.getFontRenderer().drawGradientWithShadow(s1, l1, k,(index) -> new Color(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).color(index)));
+            if(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && linkMatcher.find()) {
+                s1 = "Moonlight.wtf";
+                this.getFontRenderer().drawGradientWithShadow(s1, l1, k,(index) -> new Color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(index)));
             } else {
                 this.getFontRenderer().drawString(s1, l1, k, 553648127, true);
             }
-            if(!(MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Interface.class).hideScoreRed.get()))
+            if(!(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).hideScoreRed.get()))
                 this.getFontRenderer().drawString(s2, l - this.getFontRenderer().getStringWidth(s2), k, 553648127);
 
             if (j == collection.size())

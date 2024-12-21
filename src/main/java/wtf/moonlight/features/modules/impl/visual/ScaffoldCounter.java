@@ -48,7 +48,7 @@ public class ScaffoldCounter implements InstanceAccess {
                 GL11.glPushMatrix();
                 RenderUtils.scissor(x - 1.5, y - 1.5, totalWidth + 3, height + 3);
                 GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                RoundedUtils.drawRound(x, y, totalWidth, height, 5, new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()));
+                RoundedUtils.drawRound(x, y, totalWidth, height, 5, new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true));
 
                 Fonts.interBold.get(18).drawString(text, x + 3 + blockWH + spacing, y + height / 2F - Fonts.interBold.get(18).getHeight() / 2F + 2.5f, -1);
 
@@ -117,7 +117,7 @@ public class ScaffoldCounter implements InstanceAccess {
                 GL11.glPushMatrix();
                 RenderUtils.scissor(x - 1.5, y - 1.5, totalWidth + 3, height + 3);
                 GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                RoundedUtils.drawRound(x, y, totalWidth, height, 5, new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor()));
+                RoundedUtils.drawRound(x, y, totalWidth, height, 5, new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true));
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
                 GL11.glPopMatrix();
                 break;

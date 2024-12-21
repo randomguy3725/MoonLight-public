@@ -1,6 +1,6 @@
 package wtf.moonlight.features.command;
 
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.SendMessageEvent;
 import wtf.moonlight.features.command.impl.*;
@@ -17,12 +17,12 @@ public final class CommandManager {
     public CommandManager() {
         addCommands(new HelpCommand(), new ToggleCommand(), new BindCommand(), new HideCommand(), new FriendCommand(), new ConfigCommand(),new OnlineConfigCommand());
 
-        MoonLight.INSTANCE.getModuleManager().getModules().forEach(module -> {
+        Moonlight.INSTANCE.getModuleManager().getModules().forEach(module -> {
             if(!module.getValues().isEmpty())
                 cmd.add(new ModuleCommand(module,module.getValues()));
         });
 
-        MoonLight.INSTANCE.getEventManager().register(this);
+        Moonlight.INSTANCE.getEventManager().register(this);
     }
 
     @EventTarget

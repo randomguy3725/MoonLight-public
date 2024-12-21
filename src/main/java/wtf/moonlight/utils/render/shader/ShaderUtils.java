@@ -56,8 +56,11 @@ public class ShaderUtils implements InstanceAccess {
                 case "cape":
                     fragmentShaderID = createShader(new ByteArrayInputStream(cape.getBytes()), GL_FRAGMENT_SHADER);
                     break;
-                case "esp":
-                    fragmentShaderID = createShader(new ByteArrayInputStream(esp.getBytes()), GL_FRAGMENT_SHADER);
+                case "outline":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(outline.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
+                case "glow":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(glow.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 default:
                     fragmentShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream(), GL_FRAGMENT_SHADER);
@@ -667,38 +670,57 @@ public class ShaderUtils implements InstanceAccess {
                 gl_FragColor = vec4(     ( 1. -exp( -vec3(t)  * vec3(0.13*(sin(time)+12.0), p.y*0.7, 3.0) )) , 1.0);
             }""";
 
-    private final String esp = "#version 120\n" +
-            "uniform sampler2D texture;\n" +
-            "uniform sampler2D texture2;\n" +
-            "uniform vec2 texelSize;\n" +
-            "uniform vec2 direction;\n" +
-            "uniform float alpha;\n" +
-            "uniform vec3 color;\n" +
-            "uniform int radius;\n" +
-            "\n" +
-            "float gaussian(float x, float sigma) {\n" +
-            "    float power_2 = x / sigma;\n" +
-            "    return (1.0 / (sigma * 2.50662827463)) * exp(-0.5 * (power_2 * power_2));\n" +
-            "}\n" +
-            "\n" +
-            "void main() {\n" +
-            "    vec2 texCoord = gl_TexCoord[0].st;\n" +
-            "\n" +
-            "    if (direction.y == 1)\n" +
-            "        if (texture2D(texture2, texCoord).a != 0.0) return;\n" +
-            "\n" +
-            "    vec4 blurred_color = vec4(0.0);\n" +
-            "\n" +
-            "    for (float r = -radius; r <= radius; r++) {\n" +
-            "        blurred_color += texture2D(texture, texCoord + r * texelSize * direction) * gaussian(r, radius / 2);\n" +
-            "    }\n" +
-            "\n" +
-            "    if (blurred_color.a > 0) {\n" +
-            "        if (direction.x == 0) {\n" +
-            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a * alpha);\n" +
-            "        } else {\n" +
-            "            gl_FragColor = vec4(color.rgb / 255.0, blurred_color.a);\n" +
-            "        }\n" +
-            "    }\n" +
-            "}";
+    private final String glow = """
+            #version 120
+            
+            uniform sampler2D textureIn, textureToCheck;
+            uniform vec2 texelSize, direction;
+            uniform vec3 color;
+            uniform bool avoidTexture;
+            uniform float exposure, radius;
+            uniform float weights[256];
+            
+            #define offset direction * texelSize
+            
+            void main() {
+                if (direction.y == 1 && avoidTexture) {
+                    if (texture2D(textureToCheck, gl_TexCoord[0].st).a != 0.0) discard;
+                }
+            
+                float innerAlpha = texture2D(textureIn, gl_TexCoord[0].st).a * weights[0];
+            
+                for (float r = 1.0; r <= radius; r ++) {
+                    innerAlpha += texture2D(textureIn, gl_TexCoord[0].st + offset * r).a * weights[int(r)];
+                    innerAlpha += texture2D(textureIn, gl_TexCoord[0].st - offset * r).a * weights[int(r)];
+                }
+            
+                gl_FragColor = vec4(color, mix(innerAlpha, 1.0 - exp(-innerAlpha * exposure), step(0.0, direction.y)));
+            }
+            """;
+
+    private final String outline = """
+            #version 120
+            
+            uniform vec2 texelSize, direction;
+            uniform sampler2D texture;
+            uniform float radius;
+            uniform vec3 color;
+            
+            #define offset direction * texelSize
+            
+            void main() {
+                float centerAlpha = texture2D(texture, gl_TexCoord[0].xy).a;
+                float innerAlpha = centerAlpha;
+                for (float r = 1.0; r <= radius; r++) {
+                    float alphaCurrent1 = texture2D(texture, gl_TexCoord[0].xy + offset * r).a;
+                    float alphaCurrent2 = texture2D(texture, gl_TexCoord[0].xy - offset * r).a;
+            
+                    innerAlpha += alphaCurrent1 + alphaCurrent2;
+                }
+            
+                gl_FragColor = vec4(color, innerAlpha) * step(0.0, -centerAlpha);
+            }
+            
+            
+            """;
 }

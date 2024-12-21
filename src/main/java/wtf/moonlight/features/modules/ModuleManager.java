@@ -1,7 +1,7 @@
 package wtf.moonlight.features.modules;
 
 import lombok.Getter;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.features.command.CommandManager;
@@ -9,10 +9,7 @@ import wtf.moonlight.features.command.impl.ModuleCommand;
 import wtf.moonlight.features.modules.impl.combat.*;
 import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.exploit.Timer;
-import wtf.moonlight.features.modules.impl.misc.AutoAuthenticate;
-import wtf.moonlight.features.modules.impl.misc.AutoPlay;
-import wtf.moonlight.features.modules.impl.misc.HackerDetector;
-import wtf.moonlight.features.modules.impl.misc.KillSults;
+import wtf.moonlight.features.modules.impl.misc.*;
 import wtf.moonlight.features.modules.impl.movement.*;
 import wtf.moonlight.features.modules.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.*;
@@ -70,6 +67,7 @@ public class ModuleManager {
                 AutoAuthenticate.class,
                 AutoPlay.class,
                 HackerDetector.class,
+                ItemAlerts.class,
                 KillSults.class,
 
                 //movement
@@ -101,8 +99,11 @@ public class ModuleManager {
                 Animations.class,
                 AspectRatio.class,
                 AttackEffect.class,
+                BedPlates.class,
+                BlockOverlay.class,
                 Camera.class,
                 Chams.class,
+                ChestESP.class,
                 ClickGUI.class,
                 DashTrail.class,
                 DeadEffect.class,
@@ -133,7 +134,7 @@ public class ModuleManager {
 
         modules.sort(Comparator.comparing(Module::getName));
 
-        MoonLight.INSTANCE.getEventManager().register(this);
+        Moonlight.INSTANCE.getEventManager().register(this);
     }
 
     @SafeVarargs

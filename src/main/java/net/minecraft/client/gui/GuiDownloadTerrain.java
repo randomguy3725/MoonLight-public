@@ -6,7 +6,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.network.play.client.C00PacketKeepAlive;
 import net.optifine.CustomLoadingScreen;
 import net.optifine.CustomLoadingScreens;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 
 public class GuiDownloadTerrain extends GuiScreen

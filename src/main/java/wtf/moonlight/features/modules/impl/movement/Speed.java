@@ -1,7 +1,7 @@
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.BlockAir;
-import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
@@ -24,7 +24,6 @@ import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.misc.DebugUtils;
-import wtf.moonlight.utils.player.FallDistanceComponent;
 import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
@@ -53,6 +52,7 @@ public class Speed extends Module {
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
     private final BoolValue liquidCheck = new BoolValue("Liquid Check", true, this);
+    private final BoolValue guiCheck = new BoolValue("Gui Check", true, this);
     private final BoolValue debug = new BoolValue("Debug", true, this);
     private final BoolValue printOffGroundTicks = new BoolValue("Print Off Ground Ticks", true, this);
     private boolean disable;
@@ -101,7 +101,7 @@ public class Speed extends Module {
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
         ticksSinceTeleport++;
-        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (printOffGroundTicks.get())
@@ -280,7 +280,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMotion(MotionEvent event) {
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (isEnabled(Scaffold.class) && (getModule(Scaffold.class).towering() || getModule(Scaffold.class).towerMoving()))
@@ -426,7 +426,7 @@ public class Speed extends Module {
     @EventTarget
     public void onStrafe(StrafeEvent event) {
 
-        if (liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
         if (mode.get().equals("Watchdog") && wdMode.get().equals("Full Strafe") && (mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava())) {
@@ -675,7 +675,7 @@ public class Speed extends Module {
     @EventTarget
     public void onMove(MoveEvent event){
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()))
+        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
             return;
 
     }
@@ -692,8 +692,9 @@ public class Speed extends Module {
 
     @EventTarget
     public void onMoveInput(MoveInputEvent event){
-        if(mc.thePlayer.onGround)
-            event.setJumping(false);
+        if(!mode.is("EntityCollide"))
+            if(mc.thePlayer.onGround)
+                event.setJumping(false);
     }
 
     private boolean canCauseSpeed(Entity entity) {

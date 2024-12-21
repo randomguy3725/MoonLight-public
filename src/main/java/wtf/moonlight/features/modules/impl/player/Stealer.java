@@ -2,10 +2,16 @@ package wtf.moonlight.features.modules.impl.player;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.inventory.ContainerBrewingStand;
-import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.ContainerFurnace;
+import net.minecraft.block.BlockContainer;
+import net.minecraft.client.renderer.ActiveRenderInfo;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.entity.RenderItem;
+import net.minecraft.inventory.*;
+import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.server.S2DPacketOpenWindow;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBrewingStand;
@@ -15,11 +21,14 @@ import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.Vec3;
 import org.lwjglx.input.Keyboard;
+import org.lwjglx.opengl.Display;
+import org.lwjglx.util.glu.GLU;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
+import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
@@ -33,8 +42,11 @@ import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.InventoryUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
 import wtf.moonlight.utils.player.RotationUtils;
+import wtf.moonlight.utils.render.GLUtils;
 import wtf.moonlight.utils.render.RenderUtils;
+import wtf.moonlight.utils.render.RoundedUtils;
 
+import java.awt.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,6 +58,7 @@ public final class Stealer extends Module {
     private final SliderValue delay = new SliderValue("Delay", 1, 0, 5, 1, this);
     public final BoolValue menuCheck = new BoolValue("Menu Check", true, this);
     public final BoolValue silent = new BoolValue("Silent", false, this);
+    public final BoolValue silentChestView = new BoolValue("Silent View", true, this);
     public final BoolValue aura = new BoolValue("Aura", false, this);
     private final BoolValue startDelay = new BoolValue("Start Delay", true, this);
 
@@ -62,6 +75,7 @@ public final class Stealer extends Module {
     private int chestIndex;
     public static float[] rotation;
     public int slot;
+    private BlockPos currentContainerPos;
     private final String[] list = new String[]{"mode", "delivery", "menu", "selector", "game", "gui", "server", "inventory", "play", "teleporter", //
             "shop", "melee", "armor", "block", "castle", "mini", "warp", "teleport", "user", "team", "tool", "sure", "trade", "cancel", "accept",  //
             "soul", "book", "recipe", "profile", "tele", "port", "map", "kit", "select", "lobby", "vault", "lock", "anticheat", "travel", "settings", //
@@ -146,6 +160,82 @@ public final class Stealer extends Module {
                 RenderUtils.renderBlock(blockPos, getModule(Interface.class).color(), true, true);
             });
         }
+    }
+
+    @EventTarget
+    public void onRender2D(Render2DEvent event) {
+        if (silentChestView.get()) {
+            if (mc.thePlayer.openContainer == null || mc.currentScreen == null || !isStealing) return;
+            Container container = mc.thePlayer.openContainer;
+            int slots = container.inventorySlots.size();
+
+            int scaleFactor = event.getScaledResolution().getScaleFactor();
+
+            if (slots > 0) {
+                float[] projection = calculate(currentContainerPos, scaleFactor);
+                if (projection == null) return;
+
+                float roundX = projection[0] - (164 / 2F);
+                float roundY = projection[1] / 1.5F;
+
+                GlStateManager.pushMatrix();
+                GlStateManager.translate(roundX + 82, roundY + 30, 0);
+                GlStateManager.translate(-(roundX + 82), -(roundY + 30), 0);
+
+                RoundedUtils.drawRound(roundX, roundY, 164, 60, 3, new Color(0, 0, 0, 120));
+
+                double startX = roundX + 5;
+                double startY = roundY + 5;
+
+                RenderItem itemRender = mc.getRenderItem();
+
+                GlStateManager.pushMatrix();
+                RenderHelper.enableGUIStandardItemLighting();
+                itemRender.zLevel = 200.0F;
+
+                for (Slot slot : container.inventorySlots) {
+                    if (!slot.inventory.equals(mc.thePlayer.inventory)) {
+                        int x = (int) (startX + (slot.slotNumber % 9) * 18);
+                        int y = (int) (startY + ((double) slot.slotNumber / 9) * 18);
+
+                        itemRender.renderItemAndEffectIntoGUI(slot.getStack(), x, y);
+                    }
+                }
+
+                GlStateManager.popMatrix();
+
+                itemRender.zLevel = 0.0F;
+                GlStateManager.popMatrix();
+                GlStateManager.disableLighting();
+            }
+        }
+    }
+
+    public float[] calculate(BlockPos blockPos, int factor) {
+        try {
+            float renderX = (float) mc.getRenderManager().renderPosX;
+            float renderY = (float) mc.getRenderManager().renderPosY;
+            float renderZ = (float) mc.getRenderManager().renderPosZ;
+
+            float x = blockPos.getX() + 0.5f - renderX;
+            float y = blockPos.getY() + 0.5f - renderY;
+            float z = blockPos.getZ() + 0.5f - renderZ;
+
+            float[] projectedCenter = project(x, y, z, factor);
+            if (projectedCenter != null && projectedCenter[2] >= 0.0D && projectedCenter[2] < 1.0D) {
+                return new float[]{projectedCenter[0],projectedCenter[1],projectedCenter[0],projectedCenter[1]};
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static float[] project(double x, double y, double z, int factor) {
+        if (GLU.gluProject((float) x, (float) y, (float) z, ActiveRenderInfo.MODELVIEW, ActiveRenderInfo.PROJECTION, ActiveRenderInfo.VIEWPORT, ActiveRenderInfo.OBJECTCOORDS)) {
+            return new float[]{(ActiveRenderInfo.OBJECTCOORDS.get(0) / factor), ((Display.getHeight() - ActiveRenderInfo.OBJECTCOORDS.get(1)) / factor), ActiveRenderInfo.OBJECTCOORDS.get(2)};
+        }
+        return null;
     }
 
     private List<TileEntity> tileEntityList() {
@@ -235,6 +325,18 @@ public final class Stealer extends Module {
             //bug
             //|| brewingStand.get() && packetOpenWindow.getGuiId().equals("minecraft:brewing_stand")
             ;
+        }
+
+        if (silentChestView.get()) {
+            Packet<?> packet = event.getPacket();
+            if (packet instanceof C08PacketPlayerBlockPlacement wrapper) {
+                if (wrapper.getPosition() != null) {
+                    Block block = mc.theWorld.getBlockState(wrapper.getPosition()).getBlock();
+                    if (block instanceof BlockContainer) {
+                        currentContainerPos = wrapper.getPosition();
+                    }
+                }
+            }
         }
     }
 

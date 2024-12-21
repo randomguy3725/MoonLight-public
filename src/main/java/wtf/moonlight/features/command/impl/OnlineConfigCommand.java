@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.SneakyThrows;
 import net.optifine.http.HttpUtils;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.command.Command;
 import wtf.moonlight.features.config.impl.ModuleConfig;
 import wtf.moonlight.utils.misc.DebugUtils;
@@ -36,7 +36,7 @@ public class OnlineConfigCommand extends Command {
             return;
         }
 
-        String url = MoonLight.INSTANCE.getClientCloud();
+        String url = Moonlight.INSTANCE.getClientCloud();
 
         switch (args[1]) {
             case "load":
@@ -48,7 +48,7 @@ public class OnlineConfigCommand extends Command {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                if (MoonLight.INSTANCE.getConfigManager().loadOnlineConfig(MoonLight.INSTANCE.getConfigManager().setting,config)) {
+                if (Moonlight.INSTANCE.getConfigManager().loadOnlineConfig(Moonlight.INSTANCE.getConfigManager().setting,config)) {
                     DebugUtils.sendMessage("Loaded config: " + args[2]);
                 } else {
                     DebugUtils.sendMessage("Invalid config: " + args[2]);

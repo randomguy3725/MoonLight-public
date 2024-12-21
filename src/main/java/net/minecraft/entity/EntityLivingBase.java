@@ -54,7 +54,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.player.JumpEvent;
 import wtf.moonlight.events.impl.player.MoveEvent;
 import wtf.moonlight.events.impl.player.MoveMathEvent;
@@ -1150,8 +1150,8 @@ public abstract class EntityLivingBase extends Entity
     }
 
     private int getArmSwingAnimationEnd() {
-        if (MoonLight.INSTANCE.getModuleManager().getModule(Animations.class).isEnabled() && this == Minecraft.getMinecraft().thePlayer) {
-            return (int) (6 + MoonLight.INSTANCE.getModuleManager().getModule(Animations.class).getSlowdown().get());
+        if (Moonlight.INSTANCE.getModuleManager().getModule(Animations.class).isEnabled() && this == Minecraft.getMinecraft().thePlayer) {
+            return (int) (6 + Moonlight.INSTANCE.getModuleManager().getModule(Animations.class).getSlowdown().get());
         } else {
             return this.isPotionActive(digSpeed) ? 6 - (1 + this.getActivePotionEffect(digSpeed).getAmplifier()) : this.isPotionActive(digSlowdown) ? 6 + (1 + this.getActivePotionEffect(digSlowdown).getAmplifier()) * 2 : 6;
         }
@@ -1346,7 +1346,7 @@ public abstract class EntityLivingBase extends Entity
     protected void jump()
     {
         final JumpEvent jumpEvent = new JumpEvent(this.getJumpUpwardsMotion(), this.rotationYaw);
-        MoonLight.INSTANCE.getEventManager().call(jumpEvent);
+        Moonlight.INSTANCE.getEventManager().call(jumpEvent);
         if (jumpEvent.isCancelled())
             return;
 
@@ -1386,7 +1386,7 @@ public abstract class EntityLivingBase extends Entity
     public void moveEntityWithHeading(float strafe, float forward)
     {
         MoveMathEvent event = new MoveMathEvent(strafe,forward);
-        MoonLight.INSTANCE.getEventManager().call(event);
+        Moonlight.INSTANCE.getEventManager().call(event);
 
         if(event.isCancelled())
             return;
@@ -1446,7 +1446,7 @@ public abstract class EntityLivingBase extends Entity
                     if(this instanceof EntityPlayerSP) {
                         MoveEvent moveEvent = new MoveEvent(this.motionX, this.motionY, this.motionZ);
 
-                        MoonLight.INSTANCE.getEventManager().call(moveEvent);
+                        Moonlight.INSTANCE.getEventManager().call(moveEvent);
 
                         if (event.isCancelled()) {
                             this.moveEntity(0, 0, 0);
@@ -1641,7 +1641,7 @@ public abstract class EntityLivingBase extends Entity
         if (this.swingProgress > 0.0F)
         {
             //f1 = this.rotationYaw;
-            f1 = RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get() ? RotationUtils.currentRotation[0] : this.rotationYaw;
+            f1 = RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get() ? RotationUtils.currentRotation[0] : this.rotationYaw;
         }
 
         if (!this.onGround)
@@ -1703,7 +1703,7 @@ public abstract class EntityLivingBase extends Entity
     {
         float rotationYaw = this.rotationYaw;
         if (this instanceof EntityPlayerSP) {
-            if (RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).body.get()) {
+            if (RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).body.get()) {
                 rotationYaw = RotationUtils.currentRotation[0];
             }
         }
@@ -1722,7 +1722,7 @@ public abstract class EntityLivingBase extends Entity
             f1 = 75.0F;
         }
 
-        if(RotationUtils.shouldRotate() && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && !MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get())
+        if(RotationUtils.shouldRotate() && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && !Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get())
             f1 = 0;
 
         this.renderYawOffset = rotationYaw - f1;
@@ -1791,7 +1791,7 @@ public abstract class EntityLivingBase extends Entity
         {
             this.worldObj.theProfiler.startSection("newAi");
             this.updateEntityActionState();
-            this.rotationYawHead = RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get() ? RotationUtils.currentRotation[0] : this.rotationYawHead;
+            this.rotationYawHead = RotationUtils.shouldRotate() && this ==  Minecraft.getMinecraft().thePlayer && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Rotation.class).realistic.get() ? RotationUtils.currentRotation[0] : this.rotationYawHead;
             this.worldObj.theProfiler.endSection();
         }
 

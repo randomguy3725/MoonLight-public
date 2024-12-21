@@ -2,7 +2,7 @@ package wtf.moonlight.features.command.impl;
 
 import net.minecraft.util.EnumChatFormatting;
 import org.lwjglx.input.Keyboard;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.command.Command;
 import wtf.moonlight.features.command.CommandExecutionException;
 import wtf.moonlight.features.modules.Module;
@@ -22,7 +22,7 @@ public final class BindCommand extends Command {
             final String keyName = arguments[2];
             boolean foundModule = false;
 
-            for (final Module module : MoonLight.INSTANCE.getModuleManager().getModules()) {
+            for (final Module module : Moonlight.INSTANCE.getModuleManager().getModules()) {
                 if (module.getName().equalsIgnoreCase(moduleName)) {
                     module.setKeyBind(Keyboard.getKeyIndex(keyName.toUpperCase()));
                     final String string = "Set " + module.getName() + " to " + StringUtils.upperSnakeCaseToPascal(Keyboard.getKeyName(module.getKeyBind())) + ".";
@@ -41,13 +41,13 @@ public final class BindCommand extends Command {
             }
 
             if (arguments[1].equalsIgnoreCase("clear")) {
-                for (final Module module2 : MoonLight.INSTANCE.getModuleManager().getModules()) {
+                for (final Module module2 : Moonlight.INSTANCE.getModuleManager().getModules()) {
                     module2.setKeyBind(0);
                     DebugUtils.sendMessage("Cleared all binds.");
                 }
             } else if (arguments[1].equalsIgnoreCase("list")) {
                 DebugUtils.sendMessage("Binds");
-                for (final Module module2 : MoonLight.INSTANCE.getModuleManager().getModules()) {
+                for (final Module module2 : Moonlight.INSTANCE.getModuleManager().getModules()) {
                     if (module2.getKeyBind() != 0) {
                         DebugUtils.sendMessage(EnumChatFormatting.GRAY + "- " + EnumChatFormatting.RED + module2.getName() + ": " + Keyboard.getKeyName(module2.getKeyBind()));
                     }

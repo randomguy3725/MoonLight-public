@@ -27,7 +27,7 @@ import net.optifine.util.IntegratedServerUtils;
 import net.optifine.util.PropertiesOrdered;
 import net.optifine.util.ResUtils;
 import net.optifine.util.StrUtils;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 
 public class RandomEntities
@@ -88,7 +88,7 @@ public class RandomEntities
 
     public static void worldChanged(World oldWorld, World newWorld)
     {
-        MoonLight.INSTANCE.getEventManager().call(new WorldEvent());
+        Moonlight.INSTANCE.getEventManager().call(new WorldEvent());
         if (newWorld != null)
         {
             List list = newWorld.getLoadedEntityList();

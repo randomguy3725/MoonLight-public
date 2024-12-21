@@ -9,6 +9,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S14PacketEntity;
 import net.minecraft.network.play.server.S38PacketPlayerListItem;
+import net.minecraft.util.EnumChatFormatting;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
@@ -30,17 +31,24 @@ import java.util.regex.Pattern;
 
 @ModuleInfo(name = "AntiBot", category = ModuleCategory.Combat)
 public class AntiBot extends Module {
-    public final MultiBoolValue options = new MultiBoolValue("Options", Arrays.asList(new BoolValue("Tab", false), new BoolValue("Matrix Test", false), new BoolValue("Matrix Armor", false), new BoolValue("HYT Get Name", false)), this);
-    private final ModeValue hytGetNameModes = new ModeValue("GetName Mode", new String[]{"Bw4v4","Bw1v1","Bw32","Bw16"},"Bw4v4",this,()->options.isEnabled("HYT Get Name"));
+    public final MultiBoolValue options = new MultiBoolValue("Options", Arrays.asList(
+            new BoolValue("Tab", false),
+            new BoolValue("Matrix Test", false),
+            new BoolValue("Matrix Armor", false),
+            new BoolValue("HYT Get Name", false),
+            new BoolValue("Hypixel", false))
+            , this);
+    private final ModeValue hytGetNameModes = new ModeValue("GetName Mode", new String[]{"Bw4v4", "Bw1v1", "Bw32", "Bw16"}, "Bw4v4", this, () -> options.isEnabled("HYT Get Name"));
     public final ArrayList<EntityPlayer> bots = new ArrayList<>();
     private final List<String> playerName = new ArrayList<>();
+    private static final String VALID_USERNAME_REGEX = "^[a-zA-Z0-9_]{1,16}+$";
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        for (EntityPlayer entity : mc.theWorld.playerEntities) {
-            if (entity != mc.thePlayer)
-                if (isBot(entity))
-                    bots.add(entity);
+        for (EntityPlayer player : mc.theWorld.playerEntities) {
+            if (player != mc.thePlayer)
+                if (isBot(player))
+                    bots.add(player);
         }
     }
 
@@ -125,7 +133,7 @@ public class AntiBot extends Module {
             }
         }
 
-        if(options.isEnabled("Matrix Test")){
+        if (options.isEnabled("Matrix Test")) {
             if (packet instanceof S38PacketPlayerListItem) {
                 for (S38PacketPlayerListItem.AddPlayerData data : ((S38PacketPlayerListItem) packet).getEntries()) {
                     if (((S38PacketPlayerListItem) packet).getAction().equals(S38PacketPlayerListItem.Action.ADD_PLAYER) &&
@@ -150,22 +158,23 @@ public class AntiBot extends Module {
         bots.clear();
     }
 
-    public boolean isBot(EntityPlayer entity) {
+    public boolean isBot(EntityPlayer player) {
 
         if (options.isEnabled("Tab")) {
-            String targetName = RenderUtils.stripColor(entity.getDisplayName().getFormattedText());
-            if (targetName != null) {
-                for (NetworkPlayerInfo networkPlayerInfo : mc.getNetHandler().getPlayerInfoMap()) {
-                    String networkName = RenderUtils.stripColor(PlayerUtils.getName(networkPlayerInfo));
-                    if (targetName.contains(networkName)) return false;
-                }
-                return true;
+            for (NetworkPlayerInfo info : mc.getNetHandler().getPlayerInfoMap()) {
+                return info.getGameProfile().getId().compareTo(player.getUniqueID()) != 0;
+            }
+        }
+
+        if (options.isEnabled("Hypixel")) {
+            for (NetworkPlayerInfo info : mc.getNetHandler().getPlayerInfoMap()) {
+                return info.getGameProfile().getId().compareTo(player.getUniqueID()) != 0 || this.nameStartsWith(player, "[NPC] ") || !player.getName().matches(VALID_USERNAME_REGEX);
             }
         }
 
         if (options.isEnabled("Matrix Armor")) {
-            ItemStack helmet = entity.getInventory()[3];
-            ItemStack chestplate = entity.getInventory()[2];
+            ItemStack helmet = player.getInventory()[3];
+            ItemStack chestplate = player.getInventory()[2];
 
             if (helmet == null || chestplate == null)
                 return true;
@@ -177,10 +186,13 @@ public class AntiBot extends Module {
             return !(helmetColor > 0 && chestplateColor == helmetColor);
         }
 
-        if(options.isEnabled("HYT Get Name")){
-            return playerName.contains(entity.getName());
+        if (options.isEnabled("HYT Get Name")) {
+            return playerName.contains(player.getName());
         }
 
         return false;
+    }
+    private boolean nameStartsWith(EntityPlayer player, String prefix) {
+        return EnumChatFormatting.getTextWithoutFormattingCodes(player.getDisplayName().getUnformattedText()).startsWith(prefix);
     }
 }

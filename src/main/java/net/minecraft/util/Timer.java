@@ -1,7 +1,7 @@
 package net.minecraft.util;
 
 import net.minecraft.client.Minecraft;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.misc.TimerManipulationEvent;
 
 public class Timer
@@ -34,7 +34,7 @@ public class Timer
     public void updateTimer()
     {
         TimerManipulationEvent timerManipulationEvent = new TimerManipulationEvent(Minecraft.getSystemTime());
-        MoonLight.INSTANCE.getEventManager().call(timerManipulationEvent);
+        Moonlight.INSTANCE.getEventManager().call(timerManipulationEvent);
         long i = timerManipulationEvent.getTime();
         this.field_194148_c = (float)(i - this.lastSyncSysClock) / this.field_194149_e * this.timerSpeed;
         this.lastSyncSysClock = i;

@@ -3,7 +3,7 @@ package wtf.moonlight.gui.font;
 import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.floats.Float2ObjectArrayMap;
 import it.unimi.dsi.fastutil.floats.Float2ObjectMap;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -19,7 +19,9 @@ public enum Fonts {
     Tahoma("others/Exhi"),
     skeet("others/skeet"),
     noti("others/noti"),
-    noti2("others/noti2");
+    noti2("others/noti2"),
+    session("others/session"),
+    session2("others/session2");
     private final String file;
     private final Float2ObjectMap<FontRenderer> fontMap = new Float2ObjectArrayMap<>();
 
@@ -48,7 +50,7 @@ public enum Fonts {
 
         try {
             InputStream in = Preconditions.checkNotNull(
-                    MoonLight.class.getResourceAsStream("/assets/minecraft/" + MoonLight.INSTANCE.getClientName().toLowerCase() + "/font/" + file + ".ttf"), "Font resource is null"
+                    Moonlight.class.getResourceAsStream("/assets/minecraft/" + Moonlight.INSTANCE.getClientName().toLowerCase() + "/font/" + file + ".ttf"), "Font resource is null"
             );
             font = Font.createFont(0, in).deriveFont(Font.PLAIN, size);
         } catch (Exception ex) {

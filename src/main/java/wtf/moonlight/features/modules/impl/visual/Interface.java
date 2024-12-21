@@ -23,7 +23,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
 import org.lwjgl.opengl.GL11;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.TickEvent;
 import wtf.moonlight.events.impl.misc.WorldEvent;
@@ -35,6 +35,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
+import wtf.moonlight.features.modules.impl.player.Stealer;
 import wtf.moonlight.features.values.impl.*;
 import wtf.moonlight.gui.font.FontRenderer;
 import wtf.moonlight.gui.font.Fonts;
@@ -57,7 +58,7 @@ import java.util.*;
 
 @ModuleInfo(name = "Interface", category = ModuleCategory.Visual)
 public class Interface extends Module {
-    public final TextValue cao = new TextValue("Client Name", "MoonLight", this);
+    public final TextValue cao = new TextValue("Client Name", "Moonlight", this);
 
     public final MultiBoolValue elements = new MultiBoolValue("Elements", Arrays.asList(
             new BoolValue("Watermark",true),
@@ -88,10 +89,10 @@ public class Interface extends Module {
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
     public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1"}, "Default", this);
-    public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust"}, "Astolfo", this);
+    public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust","Moon","Novo 1","Novo 2","Novo 3"}, "Astolfo", this);
     public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Type 1","Type 2", "Test2","Exhi"}, "Default", this);
     public final ModeValue keyBindMode = new ModeValue("Key Bind Mode", new String[]{"Type 1"}, "Type 1", this);
-    public final ModeValue sessionInfoMode = new ModeValue("Session Info Mode", new String[]{"Default","Exhi","Rise"}, "Default", this,() -> elements.isEnabled("Session Info"));
+    public final ModeValue sessionInfoMode = new ModeValue("Session Info Mode", new String[]{"Default","Exhi","Rise","Moon"}, "Default", this,() -> elements.isEnabled("Session Info"));
     public final BoolValue centerNotif = new BoolValue("Center Notification",true,this,() -> notificationMode.is("Exhi"));
     public final ModeValue color = new ModeValue("Color Setting", new String[]{"Custom", "Rainbow", "Dynamic", "Fade","Astolfo"}, "Custom", this);
     private final ColorValue mainColor = new ColorValue("Main Color", new Color(128, 128, 255), this);
@@ -99,6 +100,7 @@ public class Interface extends Module {
     public final SliderValue fadeSpeed = new SliderValue("Fade Speed", 1, 1, 10, 1, this, () -> color.is("Dynamic") || color.is("Fade"));
     public final ModeValue bgColor = new ModeValue("Background Color", new String[]{"Dark", "Synced","Custom"}, "Dark", this);
     private final ColorValue bgCustomColor = new ColorValue("Background Custom Color", new Color(32, 32, 64), this,() -> bgColor.is("Custom"));
+    private final SliderValue bgAlpha = new SliderValue("Background Alpha",100,1,255,1,this);
     public final BoolValue hideScoreRed = new BoolValue("Hide Scoreboard Red Points", true, this);
     public final BoolValue chatCombine = new BoolValue("Chat Combine", true, this);
 
@@ -125,7 +127,7 @@ public class Interface extends Module {
                     DateFormat dateFormat = new SimpleDateFormat("hh:mm");
                     String dateString = dateFormat.format(new Date());
 
-                    String name = " | " + MoonLight.INSTANCE.getVersion() +
+                    String name = " | " + Moonlight.INSTANCE.getVersion() +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + dateString +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.thePlayer.getName() +
                             EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.getCurrentServerData().serverIP;
@@ -135,7 +137,7 @@ public class Interface extends Module {
                     int width = Fonts.interBold.get(17).getStringWidth("ML") + Fonts.interRegular.get(17).getStringWidth(name) + 5;
                     int height = Fonts.interRegular.get(17).getHeight() + 3;
 
-                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(bgColor()));
+                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(getModule(Interface.class).bgColor(),true));
                     Fonts.interBold.get(17).drawOutlinedString("ML", x + 2, y + 4.5f, -1, color());
                     Fonts.interRegular.get(17).drawStringWithShadow(name, Fonts.interBold.get(17).getStringWidth("ML") + x + 2, y + 4.5f, -1);
                     break;
@@ -163,10 +165,10 @@ public class Interface extends Module {
                     float fontSize = 15f;
                     float iconSize = 5.0F;
                     float rectWidth = 10.0F;
-                    String title = "MoonLight";
+                    String title = "Moonlight";
                     float titleWidth = Fonts.interMedium.get(fontSize).getStringWidth(title);
 
-                    RoundedUtils.drawRound(posX, posY, rectWidth + iconSize * 2.5F + titleWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+                    RoundedUtils.drawRound(posX, posY, rectWidth + iconSize * 2.5F + titleWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
 
                     Fonts.nursultan.get(18).drawString("S", posX + iconSize, posY + 2 + iconSize - 1.0F + 2F, color());
 
@@ -176,7 +178,7 @@ public class Interface extends Module {
                     float playerNameWidth = Fonts.interMedium.get(fontSize).getStringWidth(playerName);
                     float playerNameX = posX + rectWidth + iconSize * 2.5F + titleWidth + iconSize;
 
-                    RoundedUtils.drawRound(playerNameX, posY, rectWidth + iconSize * 2.5F + playerNameWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+                    RoundedUtils.drawRound(playerNameX, posY, rectWidth + iconSize * 2.5F + playerNameWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
 
                     Fonts.nursultan.get(fontSize).drawString("W", playerNameX + iconSize, posY + 1 + iconSize + 2F, color());
 
@@ -187,7 +189,7 @@ public class Interface extends Module {
                     float fpsTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(fpsText);
                     float fpsX = playerNameX + rectWidth + iconSize * 2.5F + playerNameWidth + iconSize;
 
-                    RoundedUtils.drawRound(fpsX, posY, rectWidth + iconSize * 2.5F + fpsTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+                    RoundedUtils.drawRound(fpsX, posY, rectWidth + iconSize * 2.5F + fpsTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
 
                     Fonts.nursultan.get(18).drawString("X", fpsX + iconSize, posY + 1 + iconSize + 2F, color());
 
@@ -197,7 +199,7 @@ public class Interface extends Module {
                     float positionTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(playerPosition);
                     float positionY = posY + rectWidth + iconSize * 2.0F + iconSize;
 
-                    RoundedUtils.drawRound(posX, positionY, rectWidth + iconSize * 2.5F + positionTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+                    RoundedUtils.drawRound(posX, positionY, rectWidth + iconSize * 2.5F + positionTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
 
                     Fonts.nursultan.get(18).drawString("F", posX + iconSize, positionY + 1.5F + iconSize + 2F, color());
 
@@ -207,7 +209,7 @@ public class Interface extends Module {
                     float pingTextWidth = Fonts.interMedium.get(fontSize).getStringWidth(pingText);
                     float pingX = posX + rectWidth + iconSize * 2.5F + positionTextWidth + iconSize;
 
-                    RoundedUtils.drawRound(pingX, positionY, rectWidth + iconSize * 2.5F + pingTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(bgColor()));
+                    RoundedUtils.drawRound(pingX, positionY, rectWidth + iconSize * 2.5F + pingTextWidth, rectWidth + iconSize * 2.0F, 4.0F, new Color(getModule(Interface.class).bgColor(),true));
 
                     Fonts.nursultan.get(18).drawString("Q", pingX + iconSize, positionY + 1 + iconSize + 2F, color());
 
@@ -352,9 +354,9 @@ public class Interface extends Module {
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), alphaAnimation));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), alphaAnimation));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     }
 
                     if (animation.get().equals("ScaleIn")) {
@@ -418,7 +420,7 @@ public class Interface extends Module {
                 DateFormat dateFormat = new SimpleDateFormat("hh:mm");
                 String dateString = dateFormat.format(new Date());
 
-                String name = " | " + MoonLight.INSTANCE.getVersion() +
+                String name = " | " + Moonlight.INSTANCE.getVersion() +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + dateString +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.thePlayer.getName() +
                         EnumChatFormatting.GRAY + " | " + EnumChatFormatting.WHITE + mc.getCurrentServerData().serverIP;
@@ -547,9 +549,9 @@ public class Interface extends Module {
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), 1));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), 255));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.applyOpacity(color(count), 1));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), 255));
                         }
                     }
 
@@ -567,7 +569,7 @@ public class Interface extends Module {
     @EventTarget
     public void onRenderGui(RenderGuiEvent event){
         if(elements.isEnabled("Health")) {
-            if (mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiChest || mc.currentScreen instanceof GuiContainerCreative) {
+            if (mc.currentScreen instanceof GuiInventory || mc.currentScreen instanceof GuiChest && !getModule(Stealer.class).isStealing || mc.currentScreen instanceof GuiContainerCreative) {
                 renderHealth();
             }
         }
@@ -790,49 +792,49 @@ public class Interface extends Module {
     }
 
 
-    public int color(int counter, float alpha) {
+    public int color(int counter, int alpha) {
         int colors = getMainColor().getRGB();
         switch (color.get()) {
             case "Rainbow":
-                colors = ColorUtils.applyOpacity(getRainbow(counter), alpha);
+                colors = ColorUtils.swapAlpha(getRainbow(counter), alpha);
                 break;
             case "Dynamic":
-                colors = ColorUtils.applyOpacity(ColorUtils.colorSwitch(getMainColor(), new Color(ColorUtils.darker(getMainColor().getRGB(), 0.25F)), 2000.0F, counter, 75L, fadeSpeed.get()).getRGB(), alpha);
+                colors = ColorUtils.swapAlpha(ColorUtils.colorSwitch(getMainColor(), new Color(ColorUtils.darker(getMainColor().getRGB(), 0.25F)), 2000.0F, counter, 75L, fadeSpeed.get()).getRGB(), alpha);
                 break;
             case "Fade":
-                colors = ColorUtils.applyOpacity((ColorUtils.colorSwitch(getMainColor(), getSecondColor(), 2000.0F, counter, 75L, fadeSpeed.get()).getRGB()), alpha);
+                colors = ColorUtils.swapAlpha((ColorUtils.colorSwitch(getMainColor(), getSecondColor(), 2000.0F, counter, 75L, fadeSpeed.get()).getRGB()), alpha);
                 break;
             case "Astolfo":
-                colors = astolfoRainbow(counter,mainColor.getSaturation(),mainColor.getBrightness());
+                colors = ColorUtils.swapAlpha(astolfoRainbow(counter,mainColor.getSaturation(),mainColor.getBrightness()),alpha);
                 break;
         }
         return colors;
     }
 
     public int color(int counter) {
-        return color(counter, 1);
+        return color(counter, 255);
     }
 
-    public int bgColor(int counter, float opacity) {
+    public int bgColor(int counter, int alpha) {
         int colors = getMainColor().getRGB();
         switch (bgColor.get()) {
             case "Dark":
-                colors = (new Color(21, 21, 21, 255).getRGB());
+                colors = (new Color(21, 21, 21, alpha)).getRGB();
                 break;
             case "Synced":
-                colors = new Color(ColorUtils.darker(color(counter,opacity),0.35f)).getRGB();
+                colors = new Color(ColorUtils.applyOpacity(color(counter,alpha),alpha / 255f),true).darker().darker().getRGB();
                 break;
             case "None":
                 colors = new Color(0, 0, 0, 0).getRGB();
                 break;
             case "Custom":
-                colors = bgCustomColor.get().getRGB();
+                colors = ColorUtils.swapAlpha(bgCustomColor.get().getRGB(),alpha);
                 break;
         }
         return colors;
     }
     public int bgColor(int counter) {
-        return bgColor(counter, 1);
+        return bgColor(counter, (int) bgAlpha.get());
     }
 
     public int bgColor() {

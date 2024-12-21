@@ -32,7 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.features.modules.impl.exploit.Disabler;
 
@@ -135,7 +135,7 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     public void sendPacket(Packet packetIn) {
 
         PacketEvent event = new PacketEvent(packetIn, PacketEvent.State.OUTGOING);
-        if (direction == CLIENTBOUND) MoonLight.INSTANCE.getEventManager().call(event);
+        if (direction == CLIENTBOUND) Moonlight.INSTANCE.getEventManager().call(event);
 
         if(event.isCancelled())
             return;
@@ -449,14 +449,14 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         if (this.channel.isOpen()) {
             Packet<INetHandler> p = (Packet<INetHandler>) p_channelRead0_2_;
             try {
-                if (MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).isEnabled() && MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).options.isEnabled("GrimAC") && MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).grim.isEnabled("Post") && MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).getPost() && MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).postDelay(p)) {
+                if (Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).options.isEnabled("GrimAC") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).grim.isEnabled("Post") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getPost() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).postDelay(p)) {
                     Minecraft.getMinecraft().addScheduledTask(() -> {
-                        MoonLight.INSTANCE.getModuleManager().getModule(Disabler.class).getStoredPackets().add(p);
+                        Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getStoredPackets().add(p);
                     });
                 } else {
 
                     PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.State.INCOMING);
-                    MoonLight.INSTANCE.getEventManager().call(event);
+                    Moonlight.INSTANCE.getEventManager().call(event);
 
                     if (event.isCancelled()) {
                         return;

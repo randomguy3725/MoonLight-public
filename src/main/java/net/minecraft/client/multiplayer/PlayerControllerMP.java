@@ -28,7 +28,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSettings;
-import wtf.moonlight.MoonLight;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.player.AttackEvent;
 
 public class PlayerControllerMP
@@ -442,7 +442,7 @@ public class PlayerControllerMP
 
         AttackEvent event = new AttackEvent(targetEntity);
 
-        MoonLight.INSTANCE.getEventManager().call(event);
+        Moonlight.INSTANCE.getEventManager().call(event);
 
         if(event.isCancelled())
             return;
