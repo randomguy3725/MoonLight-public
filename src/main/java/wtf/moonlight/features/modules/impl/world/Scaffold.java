@@ -79,7 +79,6 @@ public class Scaffold extends Module {
     private final SliderValue sneakDistance = new SliderValue("Sneak Distance", 0, 0, 0.5f, 0.01f, this, () -> addons.isEnabled("Sneak"));
     private final ModeValue tower = new ModeValue("Tower", new String[]{"Jump", "Vanilla","Watchdog","Watchdog Test"}, "Jump", this,() -> !mode.is("Telly"));
     private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog","Watchdog Test","Low"}, "Jump", this,() -> !mode.is("Telly"));
-    private final SliderValue stopTick = new SliderValue("Stop Tick",15,3,30,this,() -> towerMove.canDisplay() && towerMove.is("Watchdog"));
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
@@ -102,7 +101,6 @@ public class Scaffold extends Module {
     private boolean placed;
     private boolean isOnRightSide;
     private HoverState hoverState = HoverState.DONE;
-    private Map<BlockPos, Timer> highlight = new HashMap<>();
     private final List<Block> blacklistedBlocks = Arrays.asList(Blocks.air, Blocks.water, Blocks.flowing_water, Blocks.lava, Blocks.wooden_slab, Blocks.chest, Blocks.flowing_lava,
             Blocks.enchanting_table, Blocks.carpet, Blocks.glass_pane, Blocks.skull, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice, Blocks.packed_ice,
             Blocks.coal_ore, Blocks.diamond_ore, Blocks.emerald_ore, Blocks.trapped_chest, Blocks.torch, Blocks.anvil,
@@ -377,7 +375,7 @@ public class Scaffold extends Module {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
 
-        if (tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && towering()) {
+        if (tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && towering() || towerMoving() && (towerMove.is("Watchdog") || towerMove.is("Watchdog Test"))) {
             rotation = RotationUtils.getRotations(getVec3(data));
         }
 
@@ -581,11 +579,6 @@ public class Scaffold extends Module {
                 case "Watchdog":
                     if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
                         if (towerMoving()) {
-                            if (towerMoveTick >= stopTick.get()) {
-                                towerMoveTick = -2;
-                                return;
-                            }
-                            if (towerMoveTick > -1) {
                                 if (mc.thePlayer.onGround) {
                                     event.setY(mc.thePlayer.motionY = 0.42);
                                 }
@@ -598,10 +591,8 @@ public class Scaffold extends Module {
                                         event.setY(Math.floor(mc.thePlayer.posY + 1) - mc.thePlayer.posY);
                                         break;
                                 }
-                            }
-                            towerMoveTick++;
-                        } else towerMoveTick = 0;
-                    } else towerMoveTick = 0;
+                        }
+                    }
                     break;
             }
         }
