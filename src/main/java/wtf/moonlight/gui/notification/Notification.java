@@ -62,6 +62,9 @@ public class Notification implements InstanceAccess {
             case "Type 2":
                 width = Math.max(100.0f, Math.max(Fonts.interRegular.get(18).getStringWidth(getTitle()), Fonts.interRegular.get(14).getStringWidth(getDescription())) + 70);
                 break;
+            case "Type 3":
+                width = Math.max(Fonts.interRegular.get(22).getStringWidth(getTitle()), Fonts.interRegular.get(20).getStringWidth(getDescription())) + 50;
+                break;
         }
         return width;
     }
@@ -83,6 +86,9 @@ public class Notification implements InstanceAccess {
                 break;
             case "Type 2":
                 height = 30;
+                break;
+            case "Type 3":
+                height = 35;
                 break;
         }
         return height;

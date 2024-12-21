@@ -88,10 +88,10 @@ public class Interface extends Module {
     public final BoolValue line = new BoolValue("Line",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
-    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1"}, "Default", this);
-    public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust","Moon","Novo 1","Novo 2","Novo 3"}, "Astolfo", this);
-    public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Type 1","Type 2", "Test2","Exhi"}, "Default", this);
-    public final ModeValue keyBindMode = new ModeValue("Key Bind Mode", new String[]{"Type 1"}, "Type 1", this);
+    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1"}, "Default", this,() -> elements.isEnabled("Potion HUD"));
+    public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust","Moon","Novo 1","Novo 2","Novo 3"}, "Astolfo", this,() -> elements.isEnabled("Target HUD"));
+    public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Type 1","Type 2","Type 3", "Test2","Exhi"}, "Default", this,() -> elements.isEnabled("Notification"));
+    public final ModeValue keyBindMode = new ModeValue("Key Bind Mode", new String[]{"Type 1"}, "Type 1", this,() -> elements.isEnabled("Key Bind"));
     public final ModeValue sessionInfoMode = new ModeValue("Session Info Mode", new String[]{"Default","Exhi","Rise","Moon"}, "Default", this,() -> elements.isEnabled("Session Info"));
     public final BoolValue centerNotif = new BoolValue("Center Notification",true,this,() -> notificationMode.is("Exhi"));
     public final ModeValue color = new ModeValue("Color Setting", new String[]{"Custom", "Rainbow", "Dynamic", "Fade","Astolfo"}, "Custom", this);

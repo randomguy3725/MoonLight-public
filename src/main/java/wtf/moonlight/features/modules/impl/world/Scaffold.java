@@ -662,8 +662,10 @@ public class Scaffold extends Module {
                             int valY = (int) Math.round((event.y % 1) * 10000);
                             if (valY == 0) {
                                 mc.thePlayer.motionY = 0.42F;
+                                MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
                             } else if (valY > 4000 && valY < 4300) {
                                 mc.thePlayer.motionY = 0.33;
+                                MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
                             } else if (valY > 7000) {
                                 mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
                             }

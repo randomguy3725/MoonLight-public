@@ -127,6 +127,15 @@ public class FontRenderer {
         return drawString(str, (float) x, (float) y, color, false);
     }
 
+    public int drawStringNoFormat(String str, double x, double y, int color) {
+        return drawString(str, (float) x, (float) y, color, false);
+    }
+
+    public final void drawStringWithShadowNoFormat(String str, float x, float y, int color) {
+        drawStringNoFormat(str,x + 0.5f,y + 0.5f,color,true);
+        drawStringNoFormat(str, x, y, color, false);
+    }
+
     public final int drawStringNoFormat(String str, float x, float y, int color, boolean darken) {
         GlStateManager.color(1F, 1F, 1F, 1F);
         str = str.replace("▬", "=");

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.network.Packet;
+import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
@@ -104,7 +105,7 @@ public class Module implements InstanceAccess {
             if (mc.thePlayer != null)
                 exception.printStackTrace();
         }
-        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Module", getName() + " enabled");
+        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Module", getName() + EnumChatFormatting.GREEN + " enabled");
         if (mc.thePlayer != null)
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("random.click"), 1F));
     }
@@ -117,7 +118,7 @@ public class Module implements InstanceAccess {
             if (mc.thePlayer != null)
                 exception.printStackTrace();
         }
-        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.WARNING, "Module", getName() + " disabled");
+        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.WARNING, "Module", getName() + EnumChatFormatting.RED + " disabled");
         if (mc.thePlayer != null)
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("random.click"), 0.8F));
     }
