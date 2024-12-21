@@ -18,6 +18,7 @@ import wtf.moonlight.features.modules.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.*;
 import wtf.moonlight.features.modules.impl.world.BedNuker;
 import wtf.moonlight.features.modules.impl.world.Scaffold;
+import wtf.moonlight.features.modules.impl.world.Scaffold2;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,7 +126,8 @@ public class ModuleManager {
 
                 //world
                 BedNuker.class,
-                Scaffold.class
+                Scaffold.class,
+                Scaffold2.class
 
         );
 
