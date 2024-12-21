@@ -32,7 +32,7 @@ import wtf.moonlight.utils.player.*;
 import java.util.Arrays;
 import java.util.List;
 
-@ModuleInfo(name = "Scaffold2", category = ModuleCategory.World)
+@ModuleInfo(name = "Scaffold", category = ModuleCategory.World)
 public class Scaffold extends Module {
     private final ModeValue switchBlock = new ModeValue("Switch Block", new String[]{"Silent", "Switch", "Spoof"}, "Normal", this);
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
