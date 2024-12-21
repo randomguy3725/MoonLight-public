@@ -751,7 +751,7 @@ public class Scaffold extends Module {
     private void place(BlockPos pos,EnumFacing facing,Vec3 hitVec) {
 
         placing = false;
-        if (addons.isEnabled("Ray Trace")) {
+        if (!addons.isEnabled("Ray Trace")) {
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), pos, facing, hitVec)) {
                 if (addons.isEnabled("Swing")) {
                     mc.thePlayer.swingItem();
