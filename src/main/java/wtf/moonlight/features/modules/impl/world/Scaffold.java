@@ -34,7 +34,7 @@ import java.util.List;
 
 @ModuleInfo(name = "Scaffold", category = ModuleCategory.World)
 public class Scaffold extends Module {
-    private final ModeValue switchBlock = new ModeValue("Switch Block", new String[]{"Silent", "Switch", "Spoof"}, "Normal", this);
+    private final ModeValue switchBlock = new ModeValue("Switch Block", new String[]{"Silent", "Switch", "Spoof"}, "Spoof", this);
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Normal", "Telly", "Watchdog"}, "Normal", this);
     private final SliderValue minTellyTicks = new SliderValue("Min Telly Ticks", 2, 1, 5, this, () -> mode.is("Telly"));
@@ -378,6 +378,8 @@ public class Scaffold extends Module {
             rotation = RotationUtils.getRotations(getVec3(data));
         }
 
+        previousRotation = rotation;
+
         if (addons.isEnabled("Snap") && PlayerUtils.getBlock(targetBlock) instanceof BlockAir || !addons.isEnabled("Snap") && !mode.is("Telly") || mode.is("Telly") && mc.thePlayer.offGroundTicks >= tellyTicks) {
 
             if (customRotationSetting.get()) {
@@ -392,8 +394,6 @@ public class Scaffold extends Module {
             } else {
                 RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF);
             }
-
-            previousRotation = rotation;
 
             place(data.blockPos, data.facing, getVec3(data));
         }
