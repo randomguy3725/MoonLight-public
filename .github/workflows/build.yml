@@ -28,7 +28,7 @@ jobs:
           gradle-version: wrapper
       - name: Rename and move files to root
         run: |
-          mv build/libs/MoonLight-1.8.9-all.jar Moonlight.jar
+          mv build/libs/Moonlight-1.8.9-all.jar Moonlight.jar
           mv json/Moonlight.json Moonlight.json
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
