@@ -68,7 +68,7 @@ public class AntiFall extends Module {
     @EventTarget
     public void onPacket(PacketEvent event) {
 
-        if (isEnabled(LongJump.class) || isEnabled(Scaffold.class) && getModule(Scaffold.class).data.getPosition() != null)
+        if (isEnabled(LongJump.class) || isEnabled(Scaffold.class) && getModule(Scaffold.class).data.blockPos != null)
             return;
 
         if (mode.is("Universal")) {

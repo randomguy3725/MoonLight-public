@@ -180,7 +180,7 @@ public class KillAura extends Module {
         setTag(mode.get());
 
         if (((isEnabled(Scaffold.class) && noScaffold.get() ||
-                !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.getPosition()).getBlock() instanceof BlockAir) ||
+                !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.blockPos).getBlock() instanceof BlockAir) ||
                 noInventory.get() && mc.currentScreen instanceof GuiContainer ||
                 (noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null || !noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).rotate)
         ) && target != null) {
@@ -238,7 +238,7 @@ public class KillAura extends Module {
         }
 
         if (mc.thePlayer.isSpectator() || mc.thePlayer.isDead || (isEnabled(Scaffold.class) && noScaffold.get() ||
-                !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.getPosition()).getBlock() instanceof BlockAir) ||
+                !noScaffold.get() && isEnabled(Scaffold.class) && mc.theWorld.getBlockState(getModule(Scaffold.class).data.blockPos).getBlock() instanceof BlockAir) ||
                 noInventory.get() && mc.currentScreen instanceof GuiContainer ||
                 (noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).bedPos != null || !noBedNuker.get() && isEnabled(BedNuker.class) && getModule(BedNuker.class).rotate)
         ) return;
