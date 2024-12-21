@@ -388,19 +388,22 @@ public class RotationUtils implements InstanceAccess {
         return new float[]{MathHelper.wrapAngleTo180_float(f), f2};
     }
 
-    public static float[] getRotations(Vec3 pos) {
-        return getRotations(pos.xCoord,pos.yCoord, pos.zCoord);
+    public static float[] getRotations(double rotX, double rotY, double rotZ, double startX, double startY, double startZ) {
+        double x = rotX - startX;
+        double y = rotY - startY;
+        double z = rotZ - startZ;
+        double dist = MathHelper.sqrt_double(x * x + z * z);
+        float yaw = (float)(Math.atan2(z, x) * 180.0 / Math.PI) - 90.0F;
+        float pitch = (float)(-(Math.atan2(y, dist) * 180.0 / Math.PI));
+        return new float[]{yaw, pitch};
     }
 
-    public static float[] getRotations(double x,double y,double z) {
-        double d0 = x - mc.thePlayer.getPositionEyes(1).xCoord;
-        double d1 = y - mc.thePlayer.getPositionEyes(1).yCoord;
-        double d2 = z - mc.thePlayer.getPositionEyes(1).zCoord;
-        double d3 = MathHelper.sqrt_double((float) (d0 * d0 + d2 * d2));
-        float yaw = (float) (MathHelper.atan2(d2, d0) * 180.0D / Math.PI) - 90.0F;
-        float pitch = (float) (-(MathHelper.atan2(d1, d3) * 180.0D / Math.PI));
+    public static float[] getRotations(double posX, double posY, double posZ) {
+        return getRotations(posX, posY, posZ, mc.thePlayer.posX, mc.thePlayer.posY + (double)mc.thePlayer.getEyeHeight(), mc.thePlayer.posZ);
+    }
 
-        return new float[]{yaw, pitch};
+    public static float[] getRotations(Vec3 vec) {
+        return getRotations(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 
     public static float[] getRotationToBlock(BlockPos blockPos,EnumFacing direction) {
@@ -602,22 +605,5 @@ public class RotationUtils implements InstanceAccess {
         xyz.yCoord = MathHelper.clamp_double(xyz.yCoord + MathUtils.randomSin(), minY, maxY);
         xyz.zCoord = MathHelper.clamp_double(xyz.zCoord + MathUtils.randomSin(), minZ, maxZ);
         return xyz;
-    }
-
-    public static float getEnumRotations(EnumFacing facing) {
-        float yaw = 0;
-        if (facing == EnumFacing.NORTH) {
-            yaw = 0;
-        }
-        if (facing == EnumFacing.EAST) {
-            yaw = 90;
-        }
-        if (facing == EnumFacing.WEST) {
-            yaw = -90;
-        }
-        if (facing == EnumFacing.SOUTH) {
-            yaw = 180;
-        }
-        return yaw;
     }
 }
