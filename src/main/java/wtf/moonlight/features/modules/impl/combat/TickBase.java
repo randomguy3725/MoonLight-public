@@ -88,6 +88,11 @@ public class TickBase extends Module {
     @EventTarget
     public void onTimerManipulation(TimerManipulationEvent event) {
         if (mode.is("Past")) {
+
+            if (target == null || predictProcesses.isEmpty() || shouldStop()) {
+                return;
+            }
+
             if (shouldStart() && timer.hasTimeElapsed(delay.get())) {
                 shifted += event.getTime() - previousTime;
             }
