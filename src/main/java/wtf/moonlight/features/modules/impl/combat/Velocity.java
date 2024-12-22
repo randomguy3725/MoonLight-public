@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 
 @ModuleInfo(name = "Velocity", category = ModuleCategory.Combat)
 public class Velocity extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Cancel", "Air","Horizontal", "Boost", "Jump Reset", "GrimAC","Intave Reduce","Legit"}, "Air", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Cancel", "Air","Horizontal","Watchdog", "Boost", "Jump Reset", "GrimAC","Intave Reduce","Legit"}, "Air", this);
     private final ModeValue grimMode = new ModeValue("Grim Mode", new String[]{"Reduce", "1.17"}, "Reduce", this, () -> mode.is("GrimAC"));
     private final SliderValue reverseTick = new SliderValue("Boost Tick", 1, 1, 5, 1, this, () -> mode.is("Boost"));
     private final SliderValue reverseStrength = new SliderValue("Boost Strength", 1, 0.1f, 1, 0.01f, this, () -> mode.is("Boost"));
@@ -44,6 +44,7 @@ public class Velocity extends Module {
     private int idk = 0;
     private int intaveTick,intaveDamageTick;
     private long lastAttackTime;
+    private boolean absorbedVelocity;
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
@@ -73,6 +74,12 @@ public class Velocity extends Module {
                     veloPacket = false;
                 }
                 break;
+
+            case "Watchdog":
+                if (mc.thePlayer.onGround) {
+                    absorbedVelocity = false;
+                }
+                break;
         }
     }
 
@@ -94,8 +101,8 @@ public class Velocity extends Module {
                     break;
                 case "Horizontal":
                     if (!isEnabled(LongJump.class)) {
-                        event.setCancelled(true);
-                        mc.thePlayer.motionY = (double) s12.getMotionY() / 8000;
+                        s12.motionX = (int) (mc.thePlayer.motionX * 8000);
+                        s12.motionZ = (int) (mc.thePlayer.motionZ * 8000);
                     }
                     break;
                 case "Boost":
@@ -105,6 +112,18 @@ public class Velocity extends Module {
                         event.setCancelled(true);
                         mc.thePlayer.motionY = (double) s12.getMotionY() / 8000;
                     }
+                    break;
+
+                case "Watchdog":
+                    if (!mc.thePlayer.onGround) {
+                        if (!absorbedVelocity) {
+                            event.setCancelled(true);
+                            absorbedVelocity = true;
+                            return;
+                        }
+                    }
+                    s12.motionX = (int) (mc.thePlayer.motionX * 8000);
+                    s12.motionZ = (int) (mc.thePlayer.motionZ * 8000);
                     break;
 
                 case "GrimAC":
