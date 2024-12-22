@@ -469,20 +469,22 @@ public class KillAura extends Module {
         MovingObjectPosition rayCast = RotationUtils.rayCast(RotationUtils.currentRotation, attackRange.get());
         if (addons.isEnabled("Ray Cast") && rayCast.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && rayCast.entityHit instanceof EntityLivingBase) {
             //if ((((EntityLivingBase) rayCast.entityHit).hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
-            if (canAttack((EntityLivingBase) rayCast.entityHit))
+            if (canAttack((EntityLivingBase) rayCast.entityHit)) {
                 if (getModule(AutoGap.class).isEnabled() && getModule(AutoGap.class).alwaysAttack.get() && getModule(AutoGap.class).eating) {
                     AttackOrder.sendFixedAttackNoPacketEvent(mc.thePlayer, rayCast.entityHit);
                 } else {
                     AttackOrder.sendFixedAttack(mc.thePlayer, rayCast.entityHit);
                 }
+            }
         } else {
             //if ((target.hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
-            if (canAttack(target))
+            if (canAttack(target)) {
                 if (getModule(AutoGap.class).isEnabled() && getModule(AutoGap.class).alwaysAttack.get() && getModule(AutoGap.class).eating) {
                     AttackOrder.sendFixedAttackNoPacketEvent(mc.thePlayer, target);
                 } else {
                     AttackOrder.sendFixedAttack(mc.thePlayer, target);
                 }
+            }
         }
         perfectHitTimer.reset();
     }

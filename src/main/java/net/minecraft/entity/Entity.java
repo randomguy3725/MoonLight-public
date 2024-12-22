@@ -1335,8 +1335,12 @@ public abstract class Entity implements ICommandSender
         Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
         return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
     }
+
     public MovingObjectPosition rayTraceCustom(double blockReachDistance, float yaw, float pitch) {
-        final Vec3 vec3 = this.getPositionEyes(1.0F);
+        return rayTraceCustom(blockReachDistance,1f,yaw,pitch);
+    }
+    public MovingObjectPosition rayTraceCustom(double blockReachDistance,float partialTicks, float yaw, float pitch) {
+        final Vec3 vec3 = this.getPositionEyes(partialTicks);
         final Vec3 vec31 = this.getLookCustom(yaw, pitch);
         final Vec3 vec32 = vec3.addVector(vec31.xCoord * blockReachDistance, vec31.yCoord * blockReachDistance, vec31.zCoord * blockReachDistance);
         return this.worldObj.rayTraceBlocks(vec3, vec32, false, false, true);
