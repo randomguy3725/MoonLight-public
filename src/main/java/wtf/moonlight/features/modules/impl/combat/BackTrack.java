@@ -70,7 +70,7 @@ public class BackTrack extends Module {
 
             if (on) {
                 if (onlyWhenHit.get()) {
-                    if (target.hurtTime == 0) {
+                    if (target.hurtTime != 0) {
                         ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
                     }
                 } else ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());

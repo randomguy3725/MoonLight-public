@@ -94,8 +94,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
     public void onUpdate()
     {
+
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
+
             super.onUpdate();
 
             if (this.isRiding())

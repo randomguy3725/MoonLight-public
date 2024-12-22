@@ -3,6 +3,7 @@ import org.apache.tools.ant.taskdefs.condition.Os
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
 }
 
 group = 'net.example'
@@ -23,6 +24,14 @@ repositories {
         url "https://mvnrepository.com/artifact"
     }
 }
+
+javafx {
+    modules = [ 'javafx.controls', 'javafx.media', 'javafx.base', 'javafx.graphics', 'javafx.swing' ]
+    version = '22'
+    platform = 'windows'
+    configurations = [ 'implementation', 'testImplementation' ]
+}
+
 
 shadowJar {
     archiveClassifier.set('all')

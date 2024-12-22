@@ -43,7 +43,7 @@ public class SimulatedPlayer implements InstanceAccess {
     private boolean inWater;
     public boolean onGround;
     private boolean isAirBorne;
-    public final float rotationYaw;
+    public float rotationYaw;
     private double posX;
     private double posY;
     private double posZ;

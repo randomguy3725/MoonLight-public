@@ -378,7 +378,9 @@ public class Scaffold extends Module {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
 
-        if (tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && towering() || towerMoving() && (towerMove.is("Watchdog") || towerMove.is("Watchdog Test"))) {
+        if (tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && towering()
+               // || towerMoving() && (towerMove.is("Watchdog") || towerMove.is("Watchdog Test"))
+        ) {
             rotation = RotationUtils.getRotations(getVec3(data));
         }
 
