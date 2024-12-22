@@ -14,7 +14,7 @@ import wtf.moonlight.utils.player.MovementUtils;
 
 @ModuleInfo(name = "MoreKB", category = ModuleCategory.Combat)
 public class MoreKB extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Legit Test", "Packet"}, "Legit Test", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Legit Fast", "Packet"}, "Legit Test", this);
     private final BoolValue onlyGround = new BoolValue("Only Ground", true, this);
     public int ticks;
 
@@ -33,14 +33,8 @@ public class MoreKB extends Module {
         if (target != null && MovementUtils.isMoving()) {
             if ((onlyGround.get() && mc.thePlayer.onGround || !onlyGround.get())) {
                 switch (mode.get()) {
-                    case "Legit Test":
-                        if (ticks == 2) {
-                            mc.thePlayer.setSprinting(false);
-                            ticks = 1;
-                        } else if (ticks == 1) {
-                            mc.thePlayer.setSprinting(MovementUtils.canSprint(true));
-                            ticks = 0;
-                        }
+                    case "Legit Fast":
+                        mc.thePlayer.sprintingTicksLeft = 0;
                         break;
                     case "Packet":
                         sendPacket(new C0BPacketEntityAction(mc.thePlayer, C0BPacketEntityAction.Action.STOP_SPRINTING));

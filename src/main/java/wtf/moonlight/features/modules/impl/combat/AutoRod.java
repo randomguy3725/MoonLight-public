@@ -19,6 +19,7 @@ import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
+import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
 import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
@@ -33,7 +34,6 @@ public class AutoRod extends Module {
     private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
     private final SliderValue range = new SliderValue("Range", 8F, 1F, 20F, 1, this);
     private final SliderValue delay = new SliderValue("Delay", 100, 0, 2000, 25, this);
-    private final SliderValue switchBackDelay = new SliderValue("Switch Back Delay", 500, 50, 2000, 25, this);
     private final SliderValue predictSize = new SliderValue("Predict Size", 2, 0.1f, 5, 0.1f, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final ModeValue calcRotSpeedMode = new ModeValue("Calculate Rotate Speed Mode", new String[]{"Linear", "Acceleration"}, "Linear", this, customRotationSetting::get);
@@ -71,9 +71,10 @@ public class AutoRod extends Module {
             }
 
             if (usingProjectile) {
-                if (mc.thePlayer.fishEntity != null || projectilePullTimer.hasTimeElapsed(switchBackDelay.get())) {
+                if (mc.thePlayer.fishEntity != null) {
                     if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                         mc.thePlayer.inventory.currentItem = this.switchBack;
+                        SpoofSlotUtils.stopSpoofing();
                         mc.playerController.updateController();
                     } else {
                         mc.thePlayer.stopUsingItem();
@@ -92,6 +93,7 @@ public class AutoRod extends Module {
                     }
 
                     this.switchBack = mc.thePlayer.inventory.currentItem;
+                    SpoofSlotUtils.startSpoofing(switchBack);
                     mc.thePlayer.inventory.currentItem = projectile - 36;
                     mc.playerController.updateController();
                 }
@@ -102,10 +104,11 @@ public class AutoRod extends Module {
             }
         }
 
-        if (mc.thePlayer.fishEntity != null || wasThrowing && projectilePullTimer.hasTimeElapsed(switchBackDelay.get())) {
+        if (mc.thePlayer.fishEntity != null || wasThrowing) {
             if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                 mc.thePlayer.inventory.currentItem = this.switchBack;
                 mc.playerController.updateController();
+                SpoofSlotUtils.stopSpoofing();
             } else {
                 mc.thePlayer.stopUsingItem();
             }

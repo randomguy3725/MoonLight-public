@@ -17,6 +17,7 @@ import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
+import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
 import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
@@ -75,6 +76,7 @@ public class AutoProjectile extends Module {
                     if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                         mc.thePlayer.inventory.currentItem = this.switchBack;
                         mc.playerController.updateController();
+                        SpoofSlotUtils.stopSpoofing();
                     } else {
                         mc.thePlayer.stopUsingItem();
                     }
@@ -92,6 +94,7 @@ public class AutoProjectile extends Module {
                     }
 
                     this.switchBack = mc.thePlayer.inventory.currentItem;
+                    SpoofSlotUtils.startSpoofing(switchBack);
                     mc.thePlayer.inventory.currentItem = projectile - 36;
                     mc.playerController.updateController();
                 }
@@ -106,6 +109,7 @@ public class AutoProjectile extends Module {
             if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                 mc.thePlayer.inventory.currentItem = this.switchBack;
                 mc.playerController.updateController();
+                SpoofSlotUtils.stopSpoofing();
             } else {
                 mc.thePlayer.stopUsingItem();
             }
