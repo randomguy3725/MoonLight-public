@@ -440,7 +440,7 @@ public class RotationUtils implements InstanceAccess {
     }
 
     public static MovingObjectPosition rayCast(final float[] rotation, final double range) {
-        return rayCast(rotation, range, 1,1f);
+        return rayCast(rotation, range, 0,1f);
     }
 
     public static MovingObjectPosition rayCast(final float[] rots, final double range, final double hitBoxExpand,final float partialTicks) {
