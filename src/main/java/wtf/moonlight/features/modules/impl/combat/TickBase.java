@@ -14,6 +14,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
+import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
@@ -29,46 +30,76 @@ import java.util.List;
 
 @ModuleInfo(name = "TickBase", category = ModuleCategory.Combat)
 public class TickBase extends Module {
+    public final ModeValue mode = new ModeValue("Mode",new String[]{"Future","Past"},"Future",this);
     public final SliderValue delay = new SliderValue("Delay", 50, 0, 1000,50, this);
     public final SliderValue minActiveRange = new SliderValue("Min Active Range", 3f, 0.1f, 7f, 0.1f, this);
     public final SliderValue maxActiveRange = new SliderValue("Max Active Range", 7f, 0.1f, 7f, 0.1f, this);
     public final SliderValue maxTick = new SliderValue("Max Ticks", 4, 1, 20, this);
     public final BoolValue displayPredictPos = new BoolValue("Dislay Predict Pos",false,this);
     public final BoolValue check = new BoolValue("Check",false,this);
+    public TimerUtils timer = new TimerUtils();
     public int skippedTick = 0;
+    private long shifted, previousTime;
     public boolean working;
+    private boolean firstAnimation = true;
     public final List<PredictProcess> predictProcesses = new ArrayList<>();
+    public EntityOtherPlayerMP target;
+
+    @Override
+    public void onEnable() {
+        shifted = 0;
+        previousTime = 0;
+    }
 
     @EventTarget
-    public void onPlayerTick(PlayerTickEvent event) {
-        if (event.getState() == PlayerTickEvent.State.PRE)
-            return;
+    public void onUpdate(UpdateEvent event){
+        target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
+    }
 
-        EntityOtherPlayerMP target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
+    @EventTarget
+    public void onMotion(MotionEvent event) {
+        if (mode.is("Future")) {
+            if (event.getState() == MotionEvent.State.PRE)
+                return;
 
-        if(target == null || predictProcesses.isEmpty() || shouldStop()) {
-            return;
-        }
+            if (target == null || predictProcesses.isEmpty() || shouldStop()) {
+                return;
+            }
 
-        if (predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector()) <
-                mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) &&
-                MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector())) &&
-                mc.thePlayer.canEntityBeSeen(target) &&
-                target.canEntityBeSeen(mc.thePlayer) &&
-                (RotationUtils.getRotationDifference(mc.thePlayer, target) <= 90 && check.get() || !check.get()) &&
-                !predictProcesses.get((int) (maxTick.get() - 1)).isCollidedHorizontally
-        ) {
-            while (skippedTick <= maxTick.get() && !shouldStop()) {
-                ++skippedTick;
-                try {
-                    mc.runTick();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+            if(timer.hasTimeElapsed(delay.get())) {
+                if (shouldStart()) {
+                    firstAnimation = false;
+                    while (skippedTick <= maxTick.get() && !shouldStop()) {
+                        ++skippedTick;
+                        try {
+                            mc.runTick();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    timer.reset();
                 }
             }
+            working = false;
         }
+    }
 
-        working = false;
+
+    @EventTarget
+    public void onTimerManipulation(TimerManipulationEvent event) {
+        if (mode.is("Past")) {
+            if (shouldStart() && timer.hasTimeElapsed(delay.get())) {
+                shifted += event.getTime() - previousTime;
+            }
+
+            if (shifted >= maxTick.get() * (1000 / 20f)) {
+                shifted = 0;
+                timer.reset();
+            }
+
+            previousTime = event.getTime();
+            event.setTime(event.getTime() - shifted);
+        }
     }
 
     @EventTarget
@@ -103,14 +134,37 @@ public class TickBase extends Module {
         }
     }
 
+    public boolean shouldStart(){
+        return predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector()) <
+                mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) &&
+                MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector())) &&
+                mc.thePlayer.canEntityBeSeen(target) &&
+                target.canEntityBeSeen(mc.thePlayer) &&
+                (RotationUtils.getRotationDifference(mc.thePlayer, target) <= 90 && check.get() || !check.get()) &&
+                !predictProcesses.get((int) (maxTick.get() - 1)).isCollidedHorizontally;
+    }
+
     public boolean shouldStop(){
         return mc.thePlayer.hurtTime != 0;
     }
 
     public boolean handleTick() {
-        if (working || skippedTick < 0) return true;
-        if (isEnabled() && skippedTick > 0) {
-            --skippedTick;
+        if (mode.is("Future")) {
+            if (working || skippedTick < 0) return true;
+            if (isEnabled() && skippedTick > 0) {
+                --skippedTick;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean freezeAnim(){
+        if (skippedTick != 0) {
+            if (!firstAnimation) {
+                firstAnimation = true;
+                return false;
+            }
             return true;
         }
         return false;

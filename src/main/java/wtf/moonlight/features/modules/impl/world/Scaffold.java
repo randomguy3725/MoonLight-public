@@ -516,7 +516,7 @@ public class Scaffold extends Module {
         }
 
         if (mc.thePlayer.onGround) {
-            if (((addons.isEnabled("Keep Y") || mode.is("Telly")) && !isEnabled(Speed.class) && (wdKeepY.canDisplay() && !towering() && !towerMoving()) || addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class)) && MovementUtils.isMoving() && !mc.gameSettings.keyBindJump.isKeyDown()) {
+            if (((addons.isEnabled("Keep Y") || mode.is("Telly")|| wdKeepY.canDisplay())) && MovementUtils.isMoving() && !towering() && !towerMoving() && (!isEnabled(Speed.class))) {
                 mc.thePlayer.jump();
             }
         }
