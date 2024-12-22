@@ -106,12 +106,11 @@ public final class Stealer extends Module {
         setTag(String.valueOf(delay.get()));
         rotation = null;
         if (aura.get() && !(isEnabled(Scaffold.class) || getModule(KillAura.class).isBlocking)) {
-            if(event.isPre()) {
+            if (event.isPre()) {
                 if (!isStealing) {
                     for (TileEntity chest : tileEntityList()) {
                         if (!posList.contains(chest.getPos()) && timerAura.hasTimeElapsed(300)) {
                             rotate(chest.getPos(), Block.getFacingDirection(chest.getPos()));
-                            //if (RayCastUtil.overBlock(new Vector2f(RotationUtils.currentRotation[0], RotationUtils.currentRotation[1]), Block.getFacingDirection(chest.getPos()), chest.getPos(), true) && (chest instanceof TileEntityChest || brewingStand.get() && chest instanceof TileEntityBrewingStand || furnace.get() && chest instanceof TileEntityFurnace)) {
                             if (RotationUtils.rayTrace(RotationUtils.currentRotation, range.get(), 1).getBlockPos().equals(chest.getPos()) && (chest instanceof TileEntityChest || brewingStand.get() && chest instanceof TileEntityBrewingStand || furnace.get() && chest instanceof TileEntityFurnace)) {
                                 mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), chest.getPos(), Block.getFacingDirection(chest.getPos()), getVec3(chest.getPos()));
                                 posList.add(chest.getPos());
@@ -131,16 +130,15 @@ public final class Stealer extends Module {
                                         prevItem = mc.thePlayer.inventory.currentItem;
                                         mc.thePlayer.inventory.currentItem = getBlockSlot();
                                         rotate(posList.get(chestIndex), Block.getFacingDirection(posList.get(chestIndex)));
-                                        //if (RayCastUtil.overBlock(new Vector2f(RotationUtils.currentRotation[0], RotationUtils.currentRotation[1]), Block.getFacingDirection(posList.get(chestIndex)), posList.get(chestIndex), true)) {
-                                        if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), posList.get(chestIndex).add(0, 1, 0), Block.getFacingDirection(posList.get(chestIndex).add(0, 1, 0)), getVec3(posList.get(chestIndex).add(0, 1, 0)))) {
-                                            //PacketUtil.send(new C08PacketPlayerBlockPlacement(posList.get(chestIndex).add(0,1,0), Block.getFacingDirection(posList.get(chestIndex).add(0,1,0)).getIndex(), null, 0, 0, 0));
-                                            mc.thePlayer.swingItem();
-                                        }
+                                        if (RotationUtils.rayTrace(RotationUtils.currentRotation, range.get(), 1).getBlockPos().equals(posList.get(chestIndex))) {
+                                            if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld, mc.thePlayer.getHeldItem(), posList.get(chestIndex).add(0, 1, 0), Block.getFacingDirection(posList.get(chestIndex).add(0, 1, 0)), getVec3(posList.get(chestIndex).add(0, 1, 0)))) {
+                                                mc.thePlayer.swingItem();
+                                            }
 
-                                        chestIndex += 1;
-                                        mc.thePlayer.inventory.currentItem = prevItem;
-                                        timerAvoid.reset();
-                                        //}
+                                            chestIndex += 1;
+                                            mc.thePlayer.inventory.currentItem = prevItem;
+                                            timerAvoid.reset();
+                                        }
                                     }
                                 }
                             }

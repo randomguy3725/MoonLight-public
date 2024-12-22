@@ -5,6 +5,7 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.material.MaterialLiquid;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
@@ -23,6 +24,7 @@ import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
+import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.animations.ContinualAnimation;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
@@ -30,6 +32,7 @@ import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 
 @ModuleInfo(name = "BedNuker", category = ModuleCategory.World)
 public class BedNuker extends Module {
@@ -47,6 +50,7 @@ public class BedNuker extends Module {
     private int delayTicks;
     private Vec3 home;
     public ContinualAnimation barAnim = new ContinualAnimation();
+    public ContinualAnimation textAnim = new ContinualAnimation();
 
     @Override
     public void onEnable() {
@@ -124,20 +128,28 @@ public class BedNuker extends Module {
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
-        if (
-                progressBar.get() && bedPos != null) {
+        if (progressBar.get() && bedPos != null) {
 
             if (breakTicks == 0.0f)
                 return;
 
-            final int x = event.getScaledResolution().getScaledWidth() / 2;
-            final int y = event.getScaledResolution().getScaledHeight() / 2 + 20;
+            final ScaledResolution resolution = event.getScaledResolution();
+            final int x = resolution.getScaledWidth() / 2;
+            final int y = resolution.getScaledHeight() - 70;
+            final float thickness = 6;
 
-            final int width = 120;
+            float percentage = Math.min(breakTicks, 10f) / 10f;
 
-            barAnim.animate((float) breakTicks / 10, 50);
+            final int width = resolution.getScaledWidth() / 4;
+            final int half = width / 2;
+            barAnim.animate(width * percentage, 40);
+            textAnim.animate(percentage * 100f,10);
 
-            RoundedUtils.drawRound(x - width, y, (width * barAnim.getOutput()) * 2, 5, 4, new Color(getModule(Interface.class).color()));
+            RoundedUtils.drawRoundOutline(x - half, y, width, thickness, thickness / 2,0.1f, new Color(getModule(Interface.class).bgColor(),true),new Color(0,0,0,150));
+
+            RoundedUtils.drawGradientHorizontal(x - half, y, barAnim.getOutput(), thickness, thickness / 2, new Color(getModule(Interface.class).color(0)), new Color(getModule(Interface.class).color(90)));
+
+            Fonts.interRegular.get(12).drawCenteredStringWithShadow(new DecimalFormat("0.0").format(textAnim.getOutput()) + "%", x, y + 1, -1);
         }
     }
 
@@ -178,7 +190,7 @@ public class BedNuker extends Module {
             return;
         }
 
-        int totalBreakTicks = getBreakTicks(bedPos, autoTool.get() && autoToolOnPacket.get() && PlayerUtils.findTool(bedPos) != -1 ? PlayerUtils.findTool(bedPos) : mc.thePlayer.inventory.currentItem);
+        float totalBreakTicks = getBreakTicks(bedPos, autoTool.get() && autoToolOnPacket.get() && PlayerUtils.findTool(bedPos) != -1 ? PlayerUtils.findTool(bedPos) : mc.thePlayer.inventory.currentItem);
         if (breakTicks == 0) {
             rotate = true;
             if (autoTool.get() && autoToolOnPacket.get()) {
@@ -301,12 +313,12 @@ public class BedNuker extends Module {
         return EnumFacing.UP;
     }
 
-    private int getBreakTicks(BlockPos bp, int tool) {
+    private float getBreakTicks(BlockPos bp, int tool) {
         int oldHeld = mc.thePlayer.inventory.currentItem;
 
         mc.thePlayer.inventory.currentItem = tool;
         IBlockState bs = mc.theWorld.getBlockState(bp);
-        int ticks = (int) Math.ceil(1f / bs.getBlock().getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, bp));
+        float ticks = 1f / bs.getBlock().getPlayerRelativeBlockHardness(mc.thePlayer, mc.theWorld, bp);
 
         mc.thePlayer.inventory.currentItem = oldHeld;
         return ticks;

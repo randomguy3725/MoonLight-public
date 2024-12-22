@@ -16,11 +16,13 @@ import org.lwjglx.input.Keyboard;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.player.*;
+import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
 import wtf.moonlight.features.modules.impl.movement.Speed;
+import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
@@ -28,6 +30,7 @@ import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.*;
+import wtf.moonlight.utils.render.RenderUtils;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -72,7 +75,7 @@ public class Scaffold extends Module {
             new BoolValue("Hover", false),
             new BoolValue("Sneak", false),
             new BoolValue("Jump", false),
-            new BoolValue("Block ESP", false)
+            new BoolValue("Target Block ESP", false)
     ), this);
     private final SliderValue blocksToJump = new SliderValue("Blocks To Jump", 7, 1, 8, this, () -> addons.isEnabled("Jump"));
     private final SliderValue blocksToSneak = new SliderValue("Blocks To Sneak", 7, 1, 8, this, () -> addons.isEnabled("Sneak"));
@@ -673,6 +676,16 @@ public class Scaffold extends Module {
                     }
                     break;
             }
+        }
+    }
+
+    @EventTarget
+    public void onRender3D(Render3DEvent event){
+        if (data == null || data.blockPos == null || data.facing == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir))
+            return;
+
+        if(addons.isEnabled("Target Block ESP")){
+            RenderUtils.renderBlock(data.blockPos,getModule(Interface.class).color(0,100),false,true);
         }
     }
 
