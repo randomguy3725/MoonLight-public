@@ -74,11 +74,11 @@ public class AutoRod extends Module {
                 if (mc.thePlayer.fishEntity != null) {
                     if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                         mc.thePlayer.inventory.currentItem = this.switchBack;
-                        SpoofSlotUtils.stopSpoofing();
                         mc.playerController.updateController();
                     } else {
                         mc.thePlayer.stopUsingItem();
                     }
+                    SpoofSlotUtils.stopSpoofing();
 
                     this.switchBack = -1;
                     this.projectileInUse = false;
@@ -108,10 +108,11 @@ public class AutoRod extends Module {
             if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                 mc.thePlayer.inventory.currentItem = this.switchBack;
                 mc.playerController.updateController();
-                SpoofSlotUtils.stopSpoofing();
             } else {
                 mc.thePlayer.stopUsingItem();
             }
+
+            SpoofSlotUtils.stopSpoofing();
 
             this.switchBack = -1;
             this.projectileInUse = false;

@@ -81,10 +81,10 @@ public class AutoProjectile extends Module {
                     if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                         mc.thePlayer.inventory.currentItem = this.switchBack;
                         mc.playerController.updateController();
-                        SpoofSlotUtils.stopSpoofing();
                     } else {
                         mc.thePlayer.stopUsingItem();
                     }
+                    SpoofSlotUtils.stopSpoofing();
 
                     this.switchBack = -1;
                     this.projectileInUse = false;
@@ -114,10 +114,10 @@ public class AutoProjectile extends Module {
             if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                 mc.thePlayer.inventory.currentItem = this.switchBack;
                 mc.playerController.updateController();
-                SpoofSlotUtils.stopSpoofing();
             } else {
                 mc.thePlayer.stopUsingItem();
             }
+            SpoofSlotUtils.stopSpoofing();
 
             this.switchBack = -1;
             this.projectileInUse = false;
