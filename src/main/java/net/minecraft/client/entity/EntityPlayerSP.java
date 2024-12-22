@@ -178,6 +178,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 RotationUtils.previousRotation = RotationUtils.currentRotation;
                 yaw = RotationUtils.currentRotation[0];
                 pitch = RotationUtils.currentRotation[1];
+            } else {
+                RotationUtils.previousRotation = new float[]{yaw,pitch};
             }
 
             double d3 = (yaw - this.lastReportedYaw);
