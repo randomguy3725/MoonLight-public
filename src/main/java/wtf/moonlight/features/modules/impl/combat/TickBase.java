@@ -46,11 +46,6 @@ public class TickBase extends Module {
 
         EntityOtherPlayerMP target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
 
-        /*if (target != null && mc.thePlayer.canEntityBeSeen(target) && target.canEntityBeSeen(mc.thePlayer) && predictProcesses.get(skippedTick).position.distanceTo(target.getPositionVector()) <
-                mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) &&
-                MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get(skippedTick).position.distanceTo(target.getPositionVector()))) {
-            */
-
         if(target == null || predictProcesses.isEmpty() || shouldStop()) {
             return;
         }
@@ -60,7 +55,9 @@ public class TickBase extends Module {
                 MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector())) &&
                 mc.thePlayer.canEntityBeSeen(target) &&
                 target.canEntityBeSeen(mc.thePlayer) &&
-                (RotationUtils.getRotationDifference(mc.thePlayer, target) <= 90 && check.get() || !check.get())) {
+                (RotationUtils.getRotationDifference(mc.thePlayer, target) <= 90 && check.get() || !check.get()) &&
+                !predictProcesses.get((int) (maxTick.get() - 1)).isCollidedHorizontally
+        ) {
             while (skippedTick <= maxTick.get() && !shouldStop()) {
                 ++skippedTick;
                 try {
@@ -80,6 +77,8 @@ public class TickBase extends Module {
         predictProcesses.clear();
 
         SimulatedPlayer simulatedPlayer = SimulatedPlayer.fromClientPlayer(mc.thePlayer.movementInput);
+
+        simulatedPlayer.rotationYaw = RotationUtils.currentRotation != null ? RotationUtils.currentRotation[0] : mc.thePlayer.rotationYaw;
 
         for (int i = 0; i < (skippedTick != 0 ? skippedTick : maxTick.get()); i++) {
             simulatedPlayer.tick();
