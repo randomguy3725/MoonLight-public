@@ -47,7 +47,6 @@ public class RotationUtils implements InstanceAccess {
 
     public static void setRotation(float[] rotation, final MovementCorrection correction) {
         rotationSmoother = RotationSmoother.OFF;
-        RotationUtils.previousRotation = smooth(serverRotation, rotation);
         RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         smoothlyReset = false;
@@ -58,7 +57,6 @@ public class RotationUtils implements InstanceAccess {
         rotationSmoother = RotationSmoother.LINEAR;
         RotationUtils.hSpeed = hSpeed;
         RotationUtils.vSpeed = vSpeed;
-        RotationUtils.previousRotation = smooth(serverRotation, rotation);
         RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
@@ -71,7 +69,6 @@ public class RotationUtils implements InstanceAccess {
         RotationUtils.maxVAcceleration = maxVAcceleration;
         RotationUtils.accelerationError = accelerationError;
         RotationUtils.constantError = constantError;
-        RotationUtils.previousRotation = smooth(serverRotation, rotation);
         RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;

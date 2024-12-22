@@ -173,6 +173,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
             float yaw = motionEvent.getYaw();
             float pitch = motionEvent.getPitch();
 
+            RotationUtils.previousRotation = new float[]{yaw,pitch};
+
             if(RotationUtils.currentRotation != null){
                 yaw = RotationUtils.currentRotation[0];
                 pitch = RotationUtils.currentRotation[1];
