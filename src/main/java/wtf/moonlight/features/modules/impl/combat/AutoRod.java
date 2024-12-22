@@ -65,7 +65,7 @@ public class AutoRod extends Module {
             return;
         }
 
-        if (target != null && (RotationUtils.getRotationDifference(target) >= fov.get() || fov.get() == 180)) {
+        if (target != null && (RotationUtils.getRotationDifference(target) <= fov.get() || fov.get() == 180)) {
             if (mode.is("Always") && findRod() != -1) {
                 rotate();
             }

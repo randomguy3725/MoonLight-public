@@ -45,7 +45,7 @@ public class BowAimBot extends Module {
 
         if(target == null)
             return;
-        if((RotationUtils.getRotationDifference(target) >= fov.get() || fov.get() == 180) && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow && mc.thePlayer.isUsingItem()){
+        if((RotationUtils.getRotationDifference(target) <= fov.get() || fov.get() == 180) && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBow && mc.thePlayer.isUsingItem()){
             float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get());
 
             if (customRotationSetting.get()) {

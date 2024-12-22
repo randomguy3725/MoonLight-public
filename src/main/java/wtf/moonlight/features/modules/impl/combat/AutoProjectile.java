@@ -56,6 +56,11 @@ public class AutoProjectile extends Module {
     private EntityPlayer target;
     private boolean wasThrowing;
 
+    @Override
+    public void onDisable(){
+        SpoofSlotUtils.stopSpoofing();
+    }
+
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         boolean usingProjectile = (mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem() != null && (mc.thePlayer.getHeldItem().getItem() instanceof ItemSnowball || mc.thePlayer.getHeldItem().getItem() instanceof ItemEgg))) || this.projectileInUse;
@@ -66,7 +71,7 @@ public class AutoProjectile extends Module {
             return;
         }
 
-        if (target != null && (RotationUtils.getRotationDifference(target) >= fov.get() || fov.get() == 180)) {
+        if (target != null && (RotationUtils.getRotationDifference(target) <= fov.get() || fov.get() == 180)) {
             if (mode.is("Always") && findProjectile() != -1) {
                 rotate();
             }

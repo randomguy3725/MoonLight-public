@@ -489,7 +489,7 @@ public class KillAura extends Module {
         final List<EntityLivingBase> entities = new ArrayList<>();
         for (final Entity entity : mc.theWorld.loadedEntityList) {
             if (entity instanceof EntityLivingBase e) {
-                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) <= searchRange.get() && (RotationUtils.getRotationDifference(e) >= fov.get() || fov.get() == 180)) entities.add(e);
+                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) <= searchRange.get() && (RotationUtils.getRotationDifference(e) <= fov.get() || fov.get() == 180)) entities.add(e);
                 else entities.remove(e);
 
             }
