@@ -49,6 +49,7 @@ import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.GuiIngameMenu;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GLCapabilities;
+import wtf.moonlight.features.modules.impl.combat.TickBase;
 import wtf.moonlight.gui.mainmenu.GuiMainMenu;
 import net.minecraft.client.gui.GuiMemoryErrorScreen;
 import net.minecraft.client.gui.GuiScreen;
@@ -996,8 +997,12 @@ public class Minecraft implements IThreadListener, IPlayerUsage
         long l = System.nanoTime();
         this.mcProfiler.startSection("tick");
 
-        for (int j = 0; j < this.timer.elapsedTicks; ++j)
-        {
+        TickBase tickBase = Moonlight.INSTANCE.getModuleManager().getModule(TickBase.class);
+
+        for (int j = 0; j < this.timer.elapsedTicks; ++j) {
+            if (tickBase.handleTick()) {
+                continue;
+            }
             this.runTick();
         }
 

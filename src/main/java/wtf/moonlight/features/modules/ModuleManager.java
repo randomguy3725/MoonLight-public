@@ -33,7 +33,6 @@ public class ModuleManager {
                 AntiBot.class,
                 AutoClicker.class,
                 AutoGap.class,
-                AutoGap2.class,
                 AutoPot.class,
                 AutoProjectile.class,
                 AutoRod.class,

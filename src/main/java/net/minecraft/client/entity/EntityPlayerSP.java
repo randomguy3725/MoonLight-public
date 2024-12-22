@@ -98,7 +98,17 @@ public class EntityPlayerSP extends AbstractClientPlayer
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
 
+            PlayerTickEvent event = new PlayerTickEvent(PlayerTickEvent.State.PRE);
+
+            Moonlight.INSTANCE.getEventManager().call(event);
+
+            if(event.isCancelled())
+                return;
+
             super.onUpdate();
+
+            final PlayerTickEvent postTickEvent = new PlayerTickEvent(PlayerTickEvent.State.POST);
+            Moonlight.INSTANCE.getEventManager().call(postTickEvent);
 
             if (this.isRiding())
             {

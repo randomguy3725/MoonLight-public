@@ -47,7 +47,8 @@ public class RotationUtils implements InstanceAccess {
 
     public static void setRotation(float[] rotation, final MovementCorrection correction) {
         rotationSmoother = RotationSmoother.OFF;
-        setCurrentRotation(smooth(serverRotation, rotation));
+        RotationUtils.previousRotation = smooth(serverRotation, rotation);
+        RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         smoothlyReset = false;
         enabled = true;
@@ -57,7 +58,8 @@ public class RotationUtils implements InstanceAccess {
         rotationSmoother = RotationSmoother.LINEAR;
         RotationUtils.hSpeed = hSpeed;
         RotationUtils.vSpeed = vSpeed;
-        setCurrentRotation(smooth(serverRotation, rotation));
+        RotationUtils.previousRotation = smooth(serverRotation, rotation);
+        RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
         enabled = true;
@@ -69,14 +71,11 @@ public class RotationUtils implements InstanceAccess {
         RotationUtils.maxVAcceleration = maxVAcceleration;
         RotationUtils.accelerationError = accelerationError;
         RotationUtils.constantError = constantError;
-        setCurrentRotation(smooth(serverRotation, rotation));
+        RotationUtils.previousRotation = smooth(serverRotation, rotation);
+        RotationUtils.currentRotation = smooth(serverRotation, rotation);
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
         enabled = true;
-    }
-
-    public static void setCurrentRotation(float[] value) {
-        previousRotation = currentRotation = value;
     }
 
 
@@ -103,10 +102,10 @@ public class RotationUtils implements InstanceAccess {
                 return;
             }
 
-            if (distanceToPlayerRotation > 0) {
+            if (smoothlyReset && distanceToPlayerRotation > 0) {
                 accelerationError = 0;
                 constantError = 0;
-                setCurrentRotation(smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
+                RotationUtils.currentRotation = (smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
             }
         }
         enabled = false;
@@ -200,7 +199,7 @@ public class RotationUtils implements InstanceAccess {
     @EventTarget
     @EventPriority(-100)
     public void onMotion(MotionEvent event) {
-        if (event.isPost() && (smoothlyReset || rotationSmoother == RotationSmoother.ACCELERATION) || !smoothlyReset) {
+        if (event.isPost() && smoothlyReset || !smoothlyReset) {
             double distanceToPlayerRotation = getRotationDifference(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
 
             if (!enabled) {
@@ -213,7 +212,7 @@ public class RotationUtils implements InstanceAccess {
                 if (distanceToPlayerRotation > 0) {
                     accelerationError = 0;
                     constantError = 0;
-                    setCurrentRotation(smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
+                    RotationUtils.currentRotation = (smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
                 }
             }
             enabled = false;
@@ -227,7 +226,7 @@ public class RotationUtils implements InstanceAccess {
     }
     private static void resetRotation() {
         enabled = false;
-        setCurrentRotation(null);
+        RotationUtils.currentRotation = null;
         currentCorrection = MovementCorrection.OFF;
     }
 
@@ -247,7 +246,7 @@ public class RotationUtils implements InstanceAccess {
     }
 
     public static float[] accelerationSmooth(final float[] currentRotation, final float[] targetRotation) {
-        float[] prevRotation = Objects.requireNonNullElse(previousRotation, new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
+        float[] prevRotation = previousRotation;
         float prevYawDiff = getAngleDifference(currentRotation[0], prevRotation[0]);
         float prevPitchDiff = getAngleDifference(currentRotation[1], prevRotation[1]);
         float yawDiff = getAngleDifference(targetRotation[0], currentRotation[0]);
@@ -308,19 +307,6 @@ public class RotationUtils implements InstanceAccess {
 
     public static float getAngleDifference(float a, float b) {
         return MathHelper.wrapAngleTo180_float(a - b);
-    }
-
-    public static float[] faceBlock(final double posX, final double posY, final double posZ) {
-        final double diffX = posX - mc.thePlayer.posX;
-        final double diffZ = posZ - mc.thePlayer.posZ;
-        final double diffY = posY - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
-        final double dist = MathHelper.sqrt_double(diffX * diffX + diffZ * diffZ);
-        final float yaw = (float) (Math.atan2(diffZ, diffX) * 180.0 / 3.141592653589793) - 90.0f;
-        final float pitch = (float) (-(Math.atan2(diffY, dist) * 180.0 / 3.141592653589793));
-        float lyaw = mc.thePlayer.rotationYaw;
-        float lpitch = mc.thePlayer.rotationPitch;
-        return new float[]{lyaw + MathHelper.wrapAngleTo180_float(yaw - lyaw),
-                lpitch + MathHelper.wrapAngleTo180_float(pitch - lpitch)};
     }
 
     public static float[] getAngles(Entity entity) {
@@ -429,13 +415,6 @@ public class RotationUtils implements InstanceAccess {
 
     public static float clampTo90(final float n) {
         return MathHelper.clamp_float(n, -90, 90);
-    }
-
-    public static float[] getRotations(final BlockPos blockPos) {
-        final double n = blockPos.getX() + 0.45 - mc.thePlayer.posX;
-        final double n2 = blockPos.getY() + 0.45 - (mc.thePlayer.posY + mc.thePlayer.getEyeHeight());
-        final double n3 = blockPos.getZ() + 0.45 - mc.thePlayer.posZ;
-        return new float[]{mc.thePlayer.rotationYaw + MathHelper.wrapAngleTo180_float((float) (Math.atan2(n3, n) * 57.295780181884766) - 90.0f - mc.thePlayer.rotationYaw), clampTo90(mc.thePlayer.rotationPitch + MathHelper.wrapAngleTo180_float((float) (-(Math.atan2(n2, MathHelper.sqrt_double(n * n + n3 * n3)) * 57.295780181884766)) - mc.thePlayer.rotationPitch))};
     }
 
     public static float calculateYawFromSrcToDst(final float yaw,
