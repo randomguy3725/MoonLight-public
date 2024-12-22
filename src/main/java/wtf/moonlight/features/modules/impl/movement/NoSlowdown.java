@@ -140,33 +140,31 @@ public class NoSlowdown extends Module {
             }
 
             case "GrimAC":
-                if (!isEnabled(AutoGap.class)) {
-                    if (mc.thePlayer.isUsingItem()) {
-                        if (mc.thePlayer.getHeldItem().getItem() instanceof ItemAppleGold) {
-                            if (mc.gameSettings.keyBindUseItem.isKeyDown()) {
-                                if (packet instanceof C07PacketPlayerDigging) {
-                                    if (((C07PacketPlayerDigging) packet).getStatus() == C07PacketPlayerDigging.Action.DROP_ITEM) {
-                                        event.setCancelled(true);
-                                    }
+                if (mc.thePlayer.isUsingItem()) {
+                    if (mc.thePlayer.getHeldItem().getItem() instanceof ItemAppleGold) {
+                        if (mc.gameSettings.keyBindUseItem.isKeyDown()) {
+                            if (packet instanceof C07PacketPlayerDigging) {
+                                if (((C07PacketPlayerDigging) packet).getStatus() == C07PacketPlayerDigging.Action.DROP_ITEM) {
+                                    event.setCancelled(true);
                                 }
                             }
                         }
                     }
-                    boolean anti = true;
-                    MovingObjectPosition movingObjectPosition = mc.objectMouseOver;
-                    if (movingObjectPosition == null) return;
-                    if (movingObjectPosition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-                        if (mc.thePlayer.getHeldItem().getItem() instanceof ItemFood && isInteractBlock(mc.theWorld.getBlockState(movingObjectPosition.getBlockPos()).getBlock())) {
-                            anti = false;
-                        }
-                    }
-                    if (mc.thePlayer.getHeldItem().stackSize <= 1) {
+                }
+                boolean anti = true;
+                MovingObjectPosition movingObjectPosition = mc.objectMouseOver;
+                if (movingObjectPosition == null) return;
+                if (movingObjectPosition.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
+                    if (mc.thePlayer.getHeldItem().getItem() instanceof ItemFood && isInteractBlock(mc.theWorld.getBlockState(movingObjectPosition.getBlockPos()).getBlock())) {
                         anti = false;
                     }
-                    if (mc.thePlayer.getHeldItem().getItem() instanceof ItemAppleGold) {
-                        if (packet instanceof S2FPacketSetSlot && anti) {
-                            event.setCancelled(true);
-                        }
+                }
+                if (mc.thePlayer.getHeldItem().stackSize <= 1) {
+                    anti = false;
+                }
+                if (mc.thePlayer.getHeldItem().getItem() instanceof ItemAppleGold) {
+                    if (packet instanceof S2FPacketSetSlot && anti) {
+                        event.setCancelled(true);
                     }
                 }
                 break;

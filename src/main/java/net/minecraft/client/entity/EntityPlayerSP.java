@@ -47,7 +47,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
     private float lastReportedPitch;
     private boolean serverSneakState;
     public boolean serverSprintState;
-    private int positionUpdateTicks;
+    public int positionUpdateTicks;
     private boolean hasValidHealth;
     private String clientBrand;
     public MovementInput movementInput;
@@ -674,7 +674,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if ((this.isUsingItem() || Moonlight.INSTANCE.getModuleManager().getModule(KillAura.class).target != null && Moonlight.INSTANCE.getModuleManager().getModule(KillAura.class).slow.get() &&
                 Moonlight.INSTANCE.getModuleManager().getModule(KillAura.class).shouldBlock() && Moonlight.INSTANCE.getModuleManager().getModule(KillAura.class).isBlocking ||
-                Moonlight.INSTANCE.getModuleManager().getModule(AutoGap.class).working
+                Moonlight.INSTANCE.getModuleManager().getModule(AutoGap.class).eating
         ) && !this.isRiding()) {
             SlowDownEvent slowDownEvent = new SlowDownEvent(0.2F, 0.2F,true);
             Moonlight.INSTANCE.getEventManager().call(slowDownEvent);

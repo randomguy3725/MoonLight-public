@@ -4,6 +4,7 @@ import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.server.S08PacketPlayerPosLook;
 import org.joml.Vector2f;
+import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
@@ -20,12 +21,6 @@ public class Freeze extends Module {
     private double z;
     private boolean onGround = false;
     private Vector2f rotation;
-
-    private static Freeze INSTANCE;
-
-    public Freeze() {
-        INSTANCE = this;
-    }
 
     @Override
     public void onEnable() {
@@ -84,7 +79,7 @@ public class Freeze extends Module {
     }
 
     public static void throwPearl(final Vector2f current) {
-        if (!INSTANCE.isEnabled()) {
+        if (!Moonlight.INSTANCE.getModuleManager().getModule(Freeze.class).isEnabled()) {
             return;
         }
         mc.thePlayer.rotationYaw = current.x;
@@ -93,10 +88,10 @@ public class Freeze extends Module {
         final float gcd = f * f * f * 1.2f;
         current.x -= current.x % gcd;
         current.y -= current.y % gcd;
-        if (!INSTANCE.rotation.equals(current)) {
-            PacketUtils.sendPacket(new C03PacketPlayer.C05PacketPlayerLook(current.x, current.y, INSTANCE.onGround));
+        if (!Moonlight.INSTANCE.getModuleManager().getModule(Freeze.class).rotation.equals(current)) {
+            PacketUtils.sendPacket(new C03PacketPlayer.C05PacketPlayerLook(current.x, current.y, Moonlight.INSTANCE.getModuleManager().getModule(Freeze.class).onGround));
         }
-        INSTANCE.rotation = current;
+        Moonlight.INSTANCE.getModuleManager().getModule(Freeze.class).rotation = current;
         PacketUtils.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
     }
 }
