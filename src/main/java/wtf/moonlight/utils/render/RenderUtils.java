@@ -371,26 +371,8 @@ public class RenderUtils implements InstanceAccess {
         double xPos = x - mc.getRenderManager().viewerPosX;
         double yPos = y - mc.getRenderManager().viewerPosY;
         double zPos = z - mc.getRenderManager().viewerPosZ;
-        GL11.glPushMatrix();
-        GL11.glBlendFunc(770, 771);
-        GL11.glEnable(3042);
-        GL11.glLineWidth(2.0f);
-        GL11.glDisable(3553);
-        GL11.glDisable(2929);
-        GL11.glDepthMask(false);
-        float n8 = (color >> 24 & 0xFF) / 255.0f;
-        float n9 = (color >> 16 & 0xFF) / 255.0f;
-        float n10 = (color >> 8 & 0xFF) / 255.0f;
-        float n11 = (color & 0xFF) / 255.0f;
-        GL11.glColor4f(n9, n10, n11, n8);
         AxisAlignedBB axisAlignedBB = new AxisAlignedBB(xPos, yPos, zPos, xPos + x2, yPos + y2, zPos + z2);
-        drawSelectionBoundingBox(axisAlignedBB, outline, shade);
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-        GL11.glEnable(3553);
-        GL11.glEnable(2929);
-        GL11.glDepthMask(true);
-        GL11.glDisable(3042);
-        GL11.glPopMatrix();
+        drawAxisAlignedBB(axisAlignedBB, shade, outline,color);
     }
 
     public static void drawAxisAlignedBB(AxisAlignedBB axisAlignedBB, boolean outline, int color) {
@@ -398,118 +380,102 @@ public class RenderUtils implements InstanceAccess {
     }
 
     public static void drawAxisAlignedBB(AxisAlignedBB axisAlignedBB,boolean filled, boolean outline, int color) {
-        GL11.glBlendFunc(770, 771);
-        GL11.glEnable(3042);
-        GL11.glLineWidth(2.0f);
-        GL11.glDisable(3553);
+        drawSelectionBoundingBox(axisAlignedBB, outline, filled,color);
+    }
+
+    public static void drawOutlineBoundingBox(final AxisAlignedBB bb,Color color) {
+        RenderGlobal.drawOutlinedBoundingBox(bb,color.getRed(),color.getGreen(),color.getBlue(),color.getAlpha());
+    }
+
+    public static void drawFilledBoundingBox(final AxisAlignedBB bb,Color color) {
+
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(bb.minX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.minX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.minZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.maxY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        worldrenderer.pos(bb.maxX, bb.minY, bb.maxZ).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawSelectionBoundingBox(final AxisAlignedBB bb, final boolean outline, final boolean filled,int color) {
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(770, 771);
+        GL11.glLineWidth(2.0F);
+        GlStateManager.disableTexture2D();
         GL11.glDisable(2929);
-        GL11.glDepthMask(false);
-        GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
-        drawSelectionBoundingBox(axisAlignedBB, outline, filled);
-        GlStateManager.resetColor();
-        GL11.glEnable(3553);
-        GL11.glEnable(2929);
-        GL11.glDepthMask(true);
-        GL11.glDisable(3042);
-    }
+        GlStateManager.depthMask(false);
+        GlStateManager.pushMatrix();
 
-    public static void drawOutlineBoundingBox(final AxisAlignedBB bb) {
-        GL11.glBegin(3);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glEnd();
-        GL11.glBegin(3);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glEnd();
-        GL11.glBegin(1);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glEnd();
-    }
-
-    public static void drawFilledBoundingBox(final AxisAlignedBB bb) {
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glEnd();
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glEnd();
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glEnd();
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glEnd();
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glEnd();
-        GL11.glBegin(7);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
-        GL11.glVertex3d(bb.minX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
-        GL11.glVertex3d(bb.maxX, bb.maxY, bb.maxZ);
-        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
-        GL11.glEnd();
-    }
-
-    public static void drawSelectionBoundingBox(final AxisAlignedBB bb, final boolean outline, final boolean filled) {
         if (outline) {
-            drawOutlineBoundingBox(bb);
+            drawOutlineBoundingBox(bb,new Color(color,true));
         }
         if (filled) {
-            drawFilledBoundingBox(bb);
+            drawFilledBoundingBox(bb,new Color(color,true));
         }
+
+        GlStateManager.popMatrix();
+        GlStateManager.depthMask(true);
+        GL11.glEnable(2929);
+        GlStateManager.enableTexture2D();
+        GlStateManager.disableBlend();
     }
 
     public static void drawRoundedRect(float x, float y, float width, float height, float radius, int color) {
