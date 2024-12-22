@@ -47,9 +47,10 @@ public class AutoGap extends Module {
 
     private final SliderValue delay = new SliderValue("Delay", 1000, 0, 10000, 100,this);
     private final SliderValue health = new SliderValue("Health", 15, 0, 20, 0.5f,this);
-    private final BoolValue noMove = new BoolValue("Stop move when eating", false,this);
+    private final BoolValue noMove = new BoolValue("Stop Move When Eating", false,this);
+    public final BoolValue alwaysAttack = new BoolValue("Always Attack", false,this);
     private final BoolValue autoClose = new BoolValue("Close When No Golden Apple", true,this);
-    private final BoolValue lagValue = new BoolValue("Lag when in air", false,this);
+    private final BoolValue lagValue = new BoolValue("Lag When In Air", false,this);
     private final TimerUtils timer = new TimerUtils();
     public boolean eating = false;
     private int movingPackets = 0;

@@ -456,6 +456,25 @@ public class PlayerControllerMP
         }
     }
 
+    public void attackEntityNoPacketEvent(EntityPlayer playerIn, Entity targetEntity)
+    {
+
+        AttackEvent event = new AttackEvent(targetEntity);
+
+        Moonlight.INSTANCE.getEventManager().call(event);
+
+        if(event.isCancelled())
+            return;
+
+        this.syncCurrentPlayItem();
+        this.netClientHandler.sendPacketNoEvent(new C02PacketUseEntity(targetEntity, C02PacketUseEntity.Action.ATTACK));
+
+        if (this.currentGameType != WorldSettings.GameType.SPECTATOR)
+        {
+            playerIn.attackTargetEntityWithCurrentItem(targetEntity);
+        }
+    }
+
     public boolean interactWithEntitySendPacket(EntityPlayer playerIn, Entity targetEntity)
     {
         this.syncCurrentPlayItem();
