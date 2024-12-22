@@ -30,13 +30,15 @@ import static java.lang.Math.hypot;
 public class RotationUtils implements InstanceAccess {
     public static float[] currentRotation = null, serverRotation = new float[]{}, previousRotation = null;
     public static MovementCorrection currentCorrection = MovementCorrection.OFF;
-    public static RotationSmoother rotationSmoother = RotationSmoother.OFF;
-    private static float maxHAcceleration,maxVAcceleration, accelerationError, constantError;
-    private static float hSpeed, vSpeed;
     private static boolean enabled;
     private static boolean smoothlyReset;
     public static boolean fixSprint = false;
-
+    public static float cachedHSpeed;
+    public static float cachedVSpeed;
+    public static float cachedMaxHAcceleration;
+    public static float cachedMaxVAcceleration;
+    public static float cachedAccelerationError;
+    public static float cachedConstantError;
     public static boolean shouldRotate() {
         return currentRotation != null;
     }
@@ -46,35 +48,25 @@ public class RotationUtils implements InstanceAccess {
     }
 
     public static void setRotation(float[] rotation, final MovementCorrection correction) {
-        rotationSmoother = RotationSmoother.OFF;
-        RotationUtils.currentRotation = smooth(serverRotation, rotation);
+        RotationUtils.currentRotation = applyGCDFix(serverRotation, rotation);
         currentCorrection = correction;
         smoothlyReset = false;
         enabled = true;
     }
 
-    public static void setRotation(float[] rotation, final MovementCorrection correction, float hSpeed, float vSpeed, boolean smoothlyReset) {
-        rotationSmoother = RotationSmoother.LINEAR;
-        RotationUtils.hSpeed = hSpeed;
-        RotationUtils.vSpeed = vSpeed;
-        RotationUtils.currentRotation = smooth(serverRotation, rotation);
+    public static void setRotation(float[] rotation, final MovementCorrection correction,float hSpeed,float vSpeed, float maxHAcceleration, float maxVAcceleration, float accelerationError, float constantError, boolean smoothlyReset) {
+        RotationUtils.currentRotation = smooth(serverRotation, rotation, hSpeed, vSpeed, maxHAcceleration, maxVAcceleration, accelerationError, constantError);
         currentCorrection = correction;
         RotationUtils.smoothlyReset = smoothlyReset;
+        cachedHSpeed = hSpeed;
+        cachedVSpeed = vSpeed;
+        cachedMaxHAcceleration = maxHAcceleration;
+        cachedMaxVAcceleration = maxVAcceleration;
+        cachedAccelerationError = 0;
+        cachedConstantError = 0;
+
         enabled = true;
     }
-
-    public static void setRotation(float[] rotation, final MovementCorrection correction, float maxHAcceleration, float maxVAcceleration, float accelerationError, float constantError, boolean smoothlyReset) {
-        rotationSmoother = RotationSmoother.ACCELERATION;
-        RotationUtils.maxHAcceleration = maxHAcceleration;
-        RotationUtils.maxVAcceleration = maxVAcceleration;
-        RotationUtils.accelerationError = accelerationError;
-        RotationUtils.constantError = constantError;
-        RotationUtils.currentRotation = smooth(serverRotation, rotation);
-        currentCorrection = correction;
-        RotationUtils.smoothlyReset = smoothlyReset;
-        enabled = true;
-    }
-
 
     @EventTarget
     @EventPriority(1000)
@@ -90,19 +82,18 @@ public class RotationUtils implements InstanceAccess {
     @EventTarget
     @EventPriority(-100)
     public void onRotationUpdate(UpdateEvent event) {
-        double distanceToPlayerRotation = getRotationDifference(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
 
-        if (!enabled) {
+        if (!enabled && currentRotation != null) {
+
+            double distanceToPlayerRotation = getRotationDifference(currentRotation, new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
 
             if (!smoothlyReset || distanceToPlayerRotation < 1) {
                 resetRotation();
                 return;
             }
 
-            if (smoothlyReset && distanceToPlayerRotation > 0) {
-                accelerationError = 0;
-                constantError = 0;
-                RotationUtils.currentRotation = (smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
+            if (distanceToPlayerRotation > 0) {
+                RotationUtils.currentRotation = smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch},cachedHSpeed,cachedVSpeed,cachedMaxHAcceleration,cachedMaxVAcceleration,cachedAccelerationError,cachedConstantError);
             }
         }
         enabled = false;
@@ -196,8 +187,8 @@ public class RotationUtils implements InstanceAccess {
     @EventTarget
     @EventPriority(-100)
     public void onMotion(MotionEvent event) {
-        if (event.isPost() && smoothlyReset || !smoothlyReset) {
-            double distanceToPlayerRotation = getRotationDifference(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
+        if ((event.isPost() || !smoothlyReset) && currentRotation != null) {
+            double distanceToPlayerRotation = getRotationDifference(currentRotation, new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch});
 
             if (!enabled) {
 
@@ -207,9 +198,7 @@ public class RotationUtils implements InstanceAccess {
                 }
 
                 if (distanceToPlayerRotation > 0) {
-                    accelerationError = 0;
-                    constantError = 0;
-                    RotationUtils.currentRotation = (smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch}));
+                    RotationUtils.currentRotation = smooth(Objects.requireNonNullElse(currentRotation, serverRotation), new float[]{mc.thePlayer.rotationYaw, mc.thePlayer.rotationPitch},cachedHSpeed,cachedVSpeed,cachedMaxHAcceleration,cachedMaxVAcceleration,cachedAccelerationError,cachedConstantError);
                 }
             }
             enabled = false;
@@ -227,48 +216,33 @@ public class RotationUtils implements InstanceAccess {
         currentCorrection = MovementCorrection.OFF;
     }
 
-    public static float[] smooth(final float[] currentRotation, final float[] targetRotation) {
-        switch (rotationSmoother) {
-            case OFF -> {
-                return applyGCDFix(currentRotation, targetRotation);
-            }
-            case LINEAR -> {
-                return linearSmooth(currentRotation, targetRotation);
-            }
-            case ACCELERATION -> {
-                return accelerationSmooth(currentRotation, targetRotation);
-            }
-        }
-        return null;
-    }
+    public static float[] smooth(final float[] currentRotation, final float[] targetRotation,float hSpeed,float vSpeed,float maxHAcceleration,float maxVAcceleration,float accelerationError,float constantError) {
 
-    public static float[] accelerationSmooth(final float[] currentRotation, final float[] targetRotation) {
-        float[] prevRotation = previousRotation;
-        float prevYawDiff = getAngleDifference(currentRotation[0], prevRotation[0]);
-        float prevPitchDiff = getAngleDifference(currentRotation[1], prevRotation[1]);
-        float yawDiff = getAngleDifference(targetRotation[0], currentRotation[0]);
-        float pitchDiff = getAngleDifference(targetRotation[1], currentRotation[1]);
-
-        float[] newDiff = computeTurnSpeed(prevYawDiff, prevPitchDiff, yawDiff, pitchDiff);
-
-        float[] rot = new float[]{
-                (currentRotation[0] + newDiff[0]),
-                (currentRotation[1] + newDiff[1])
-        };
-
-        return applyGCDFix(serverRotation, rot);
-    }
-
-    public static float[] linearSmooth(final float[] prevRotation, final float[] currentRotation) {
-        float yawDifference = getAngleDifference(currentRotation[0], prevRotation[0]);
-        float pitchDifference = getAngleDifference(currentRotation[1], prevRotation[1]);
+        float yawDifference = getAngleDifference(targetRotation[0], currentRotation[0]);
+        float pitchDifference = getAngleDifference(targetRotation[1], currentRotation[1]);
 
         double rotationDifference = hypot(abs(yawDifference), abs(pitchDifference));
 
         float straightLineYaw = (float) (abs(yawDifference / rotationDifference) * hSpeed);
         float straightLinePitch = (float) (abs(pitchDifference / rotationDifference) * vSpeed);
 
-        return applyGCDFix(currentRotation, new float[]{prevRotation[0] + Math.max(-straightLineYaw, Math.min(straightLineYaw, yawDifference)), prevRotation[1] + Math.max(-straightLinePitch, Math.min(straightLinePitch, pitchDifference))});
+        float[] finalTargetRotation = new float[]{currentRotation[0] + Math.max(-straightLineYaw, Math.min(straightLineYaw, yawDifference)), currentRotation[1] + Math.max(-straightLinePitch, Math.min(straightLinePitch, pitchDifference))};
+
+        float[] prevRotation = previousRotation;
+
+        float prevYawDiff = getAngleDifference(currentRotation[0], prevRotation[0]);
+        float prevPitchDiff = getAngleDifference(currentRotation[1], prevRotation[1]);
+        float yawDiff = getAngleDifference(finalTargetRotation[0], currentRotation[0]);
+        float pitchDiff = getAngleDifference(finalTargetRotation[1], currentRotation[1]);
+
+        float[] newDiff = computeTurnSpeed(maxHAcceleration,maxVAcceleration,prevYawDiff, prevPitchDiff, yawDiff, pitchDiff,accelerationError,constantError);
+
+        float[] result = new float[]{
+                (currentRotation[0] + newDiff[0]),
+                (currentRotation[1] + newDiff[1])
+        };
+
+        return applyGCDFix(currentRotation,result);
     }
 
     public static float[] applyGCDFix(float[] prevRotation, float[] currentRotation) {
@@ -280,7 +254,7 @@ public class RotationUtils implements InstanceAccess {
         return new float[]{yaw, pitch};
     }
 
-    private static float[] computeTurnSpeed(float prevYawDiff, float prevPitchDiff, float yawDiff, float pitchDiff) {
+    private static float[] computeTurnSpeed(float maxHAcceleration,float maxVAcceleration,float prevYawDiff, float prevPitchDiff, float yawDiff, float pitchDiff,float accelerationError,float constantError) {
 
         float yawAccel = getAngleDifference(yawDiff, prevYawDiff);
         yawAccel = Math.max(-maxHAcceleration, Math.min(yawAccel, maxHAcceleration));
@@ -288,17 +262,17 @@ public class RotationUtils implements InstanceAccess {
         float pitchAccel = getAngleDifference(pitchDiff, prevPitchDiff);
         pitchAccel = Math.max(-maxVAcceleration, Math.min(pitchAccel, maxVAcceleration));
 
-        float yawError = yawAccel * errorMult() + constantError();
-        float pitchError = pitchAccel * errorMult() + constantError();
+        float yawError = yawAccel * errorMult(accelerationError) + constantError(constantError);
+        float pitchError = pitchAccel * errorMult(accelerationError) + constantError(constantError);
 
         return new float[]{prevYawDiff + yawAccel + yawError, prevPitchDiff + pitchAccel + pitchError};
     }
 
-    public static float errorMult() {
+    public static float errorMult(float accelerationError) {
         return MathUtils.nextFloat(-accelerationError, accelerationError);
     }
 
-    public static float constantError() {
+    public static float constantError(float constantError) {
         return MathUtils.nextFloat(-constantError, constantError);
     }
 
