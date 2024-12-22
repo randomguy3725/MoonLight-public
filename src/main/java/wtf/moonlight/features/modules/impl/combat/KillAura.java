@@ -446,7 +446,7 @@ public class KillAura extends Module {
             }
 
             if (via.get()) {
-                if (ViaLoadingBase.getInstance().getTargetVersion().getVersion() > 47) {
+                if (!getModule(AutoGap.class).eating && ViaLoadingBase.getInstance().getTargetVersion().getVersion() > 47) {
                     sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                     PacketWrapper useItem = PacketWrapper.create(29, null, Via.getManager().getConnectionManager().getConnections().iterator().next());
                     useItem.write(Type.VAR_INT, 1);
