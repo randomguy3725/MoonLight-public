@@ -23,16 +23,22 @@ import java.util.List;
 public class GuiMainMenu extends GuiScreen {
 
     private final List<MenuButton> buttons = List.of(
-            new MenuButton("single player"),
-            new MenuButton("multi player"),
-            new MenuButton("alts manager"),
-            new MenuButton("settings"),
-            new MenuButton("shutdown"));
+            new MenuButton("Singleplayer"),
+            new MenuButton("Multiplayer"),
+            new MenuButton("Alts"),
+            new MenuButton("Options"),
+            new MenuButton("Shutdown"));
 
     private final List<ChangeLog> logs = new ArrayList<>();
 
     public GuiMainMenu() {
-        logs.add(new ChangeLog("Released", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("1.8x autoblock for Hypixel", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("Hypixel tower/towermove", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("New Hypixel rotations for scaffold", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("Glide speed bypassing Hypixel", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("New notification mode", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("TargetHUD showing up from far away", ChangeLogType.FIX));
+        logs.add(new ChangeLog("Issues with towermove", ChangeLogType.FIX));
     }
 
     @Override
@@ -65,11 +71,11 @@ public class GuiMainMenu extends GuiScreen {
             button.height = buttonHeight;
             button.clickAction = () -> {
                 switch (button.text) {
-                    case "single player" -> mc.displayGuiScreen(new GuiSelectWorld(this));
-                    case "multi player" -> mc.displayGuiScreen(new GuiMultiplayer(this));
-                    case "alts manager" -> mc.displayGuiScreen(new GuiAltManager(this));
-                    case "settings" -> mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings));
-                    case "shutdown" -> mc.shutdown();
+                    case "Singleplayer" -> mc.displayGuiScreen(new GuiSelectWorld(this));
+                    case "Multiplayer" -> mc.displayGuiScreen(new GuiMultiplayer(this));
+                    case "Alts" -> mc.displayGuiScreen(new GuiAltManager(this));
+                    case "Options" -> mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings));
+                    case "Shutdown" -> mc.shutdown();
                 }
             };
             button.drawScreen(mouseX, mouseY);
