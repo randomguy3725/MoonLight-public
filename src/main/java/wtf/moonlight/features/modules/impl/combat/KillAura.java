@@ -96,7 +96,7 @@ public class KillAura extends Module {
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
-    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "Watchdog", "Release","Interact"}, "Fake", this);
+    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla","HYT", "Watchdog", "Release","Interact"}, "Fake", this);
     public final BoolValue interact = new BoolValue("Interact", false, this, () -> !autoBlock.is("None"));
     public final BoolValue via = new BoolValue("Via", false, this, () -> !autoBlock.is("None"));
     public final BoolValue slow = new BoolValue("Slowdown", false, this, () -> !autoBlock.is("None"));
@@ -283,7 +283,7 @@ public class KillAura extends Module {
 
             if (clicks == 0) return;
 
-            if (isBlocking)
+            if (isBlocking || autoBlock.is("HYT"))
                 if (preAttack()) return;
 
             if (shouldAttack()) {
@@ -294,7 +294,7 @@ public class KillAura extends Module {
                 }
             }
 
-            if (!autoBlock.is("None") && shouldBlock()) {
+            if (!autoBlock.is("None") && (shouldBlock() || autoBlock.is("HYT"))) {
                 if (Mouse.isButtonDown(2))
                     KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
                 postAttack();
@@ -407,6 +407,15 @@ public class KillAura extends Module {
                     return true;
                 }
                 break;
+            case "HYT":
+                if (this.isBlocking && !getModule(AutoGap.class).eating) {
+                    unblock();
+                }
+
+                if (isBlocking) {
+                    unblock();
+                }
+                break;
         }
         return false;
     }
@@ -418,6 +427,10 @@ public class KillAura extends Module {
                 break;
             case "Interact":
                 block(true);
+                break;
+            case "HYT":
+                if (!shouldBlock() && isBlocking)
+                    unblock();
                 break;
         }
     }
@@ -448,7 +461,12 @@ public class KillAura extends Module {
 
     public void unblock() {
         if (isBlocking) {
+            if(mode.is("HYT")){
+                sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
+                sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
+            } else {
             sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+            }
             isBlocking = false;
         }
     }
