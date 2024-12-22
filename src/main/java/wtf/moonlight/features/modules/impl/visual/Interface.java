@@ -155,8 +155,7 @@ public class Interface extends Module {
                 case "Exhi":
                     boolean shouldChange = RenderUtils.COLOR_PATTERN.matcher(cao.get()).find();
                     String text = shouldChange ? "§r" + cao.get() : cao.get().charAt(0) + "§r§f" + cao.get().substring(1) +
-                            "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r " + "§7[§f" +
-                            mc.getNetHandler().getPlayerInfo(mc.thePlayer.getUniqueID()).getResponseTime() + "ms§7]§r ";
+                            "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
                     mc.fontRendererObj.drawStringWithShadow(text, 2.0f, 2.0f, color());
                     break;
                 case "Type 1":
