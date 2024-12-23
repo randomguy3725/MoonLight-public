@@ -30,6 +30,7 @@ public class MoreKB extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
+        setTag(mode.get());
         if (target != null && MovementUtils.isMoving()) {
             if ((onlyGround.get() && mc.thePlayer.onGround || !onlyGround.get())) {
                 switch (mode.get()) {

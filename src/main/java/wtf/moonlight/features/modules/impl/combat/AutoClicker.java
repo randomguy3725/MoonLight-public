@@ -19,6 +19,11 @@ public class AutoClicker extends Module {
     private final BoolValue breakBlocks = new BoolValue("Break Blocks", true, this);
     private final TimerUtils clickTimer = new TimerUtils();
 
+    @Override
+    public void onEnable(){
+        clickTimer.reset();
+    }
+
     @EventTarget
     public void onTick(TickEvent event) {
         if (breakBlocks.get() && mc.objectMouseOver.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK)

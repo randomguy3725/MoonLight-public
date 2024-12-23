@@ -3,6 +3,7 @@ package wtf.moonlight;
 import de.florianmichael.viamcp.ViaMCP;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.SoundCategory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjglx.Sys;
@@ -17,6 +18,7 @@ import wtf.moonlight.gui.click.dropdown.DropdownGUI;
 import wtf.moonlight.gui.click.menu.MenuGUI;
 import wtf.moonlight.gui.click.skeet.SkeetUI;
 import wtf.moonlight.gui.notification.NotificationManager;
+import wtf.moonlight.gui.notification.NotificationType;
 import wtf.moonlight.gui.widget.WidgetManager;
 import wtf.moonlight.utils.discord.DiscordInfo;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
@@ -59,8 +61,10 @@ public class Moonlight {
 
     public void init() {
         loaded = false;
+
         if (!mainDir.exists()) {
             mainDir.mkdir();
+            Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MUSIC,0);
         }
         Display.setTitle(clientName + " " + version + " | " + Sys.getVersion());
         eventManager = new EventManager();
@@ -118,6 +122,12 @@ public class Moonlight {
             trayIcon.displayMessage("Ratted",
                     "Sexy"
                     , TrayIcon.MessageType.WARNING);
+        }
+
+
+        if(Minecraft.getMinecraft().gameSettings.ofFastRender){
+            notificationManager.post(NotificationType.WARNING,"Fast Rendering has been disabled","due to compatibility issues");
+            Minecraft.getMinecraft().gameSettings.ofFastRender = false;
         }
 
         loaded = true;

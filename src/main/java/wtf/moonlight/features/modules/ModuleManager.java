@@ -38,6 +38,7 @@ public class ModuleManager {
                 AutoRod.class,
                 AutoWeapon.class,
                 BackTrack.class,
+                BlockHit.class,
                 BowAimBot.class,
                 Critical.class,
                 KeepRange.class,

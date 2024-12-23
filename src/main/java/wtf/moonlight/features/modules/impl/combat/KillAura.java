@@ -369,7 +369,7 @@ public class KillAura extends Module {
                     case 1:
                         return false;
                     case 2:
-                        block();
+                        block(false);
                         if (!BlinkComponent.blinking)
                             BlinkComponent.blinking = true;
                         BlinkComponent.release(true);
@@ -656,9 +656,9 @@ public class KillAura extends Module {
         pitch = (float) (-Math.toDegrees(Math.atan2(deltaY, Math.hypot(deltaX, deltaZ))));
 
         if (pitch > 90.0f) {
-            pitch = 90.0f;
+            pitch = 90;
         } else if (pitch < -90.0f) {
-            pitch = -90.0f;
+            pitch = -90;
         }
         return new float[]{yaw, pitch};
     }

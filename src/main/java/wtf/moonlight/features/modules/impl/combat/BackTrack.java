@@ -38,8 +38,8 @@ public class BackTrack extends Module {
     public final BoolValue releaseOnVelocity = new BoolValue("Release On Velocity",false,this);
     public SliderValue minMS = new SliderValue("Min MS", 50, 0, 5000, 5, this);
     public SliderValue maxMS = new SliderValue("Max MS", 200, 0, 5000, 5, this);
-    private EntityPlayer target;
-    private Vec3 realPosition = new Vec3(0, 0, 0);
+    public EntityPlayer target;
+    public Vec3 realPosition = new Vec3(0, 0, 0);
     private final ContinualAnimation animatedX = new ContinualAnimation();
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();

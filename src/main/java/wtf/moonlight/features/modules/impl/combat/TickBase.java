@@ -1,6 +1,8 @@
 package wtf.moonlight.features.modules.impl.combat;
 
 import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import wtf.moonlight.events.annotations.EventTarget;
@@ -37,13 +39,14 @@ public class TickBase extends Module {
     public final SliderValue maxTick = new SliderValue("Max Ticks", 4, 1, 20, this);
     public final BoolValue displayPredictPos = new BoolValue("Dislay Predict Pos",false,this);
     public final BoolValue check = new BoolValue("Check",false,this);
+    public final BoolValue workWithBackTrack = new BoolValue("Work With Back Track",false,this);
     public TimerUtils timer = new TimerUtils();
     public int skippedTick = 0;
     private long shifted, previousTime;
     public boolean working;
     private boolean firstAnimation = true;
     public final List<PredictProcess> predictProcesses = new ArrayList<>();
-    public EntityOtherPlayerMP target;
+    public EntityPlayer target;
 
     @Override
     public void onEnable() {
@@ -52,12 +55,17 @@ public class TickBase extends Module {
     }
 
     @EventTarget
-    public void onUpdate(UpdateEvent event){
-        target = (EntityOtherPlayerMP) PlayerUtils.getTarget(maxActiveRange.get() * 3);
+    public void onUpdate(UpdateEvent event) {
+        if (workWithBackTrack.get()) {
+            target = getModule(BackTrack.class).target;
+        } else {
+            target = PlayerUtils.getTarget(maxActiveRange.get() * 3);
+        }
     }
 
     @EventTarget
     public void onMotion(MotionEvent event) {
+        setTag(mode.get());
         if (mode.is("Future")) {
             if (event.getState() == MotionEvent.State.PRE)
                 return;
@@ -140,6 +148,9 @@ public class TickBase extends Module {
     }
 
     public boolean shouldStart(){
+        Vec3 targetPos = target.getPositionVector();
+        if(workWithBackTrack.get())
+            targetPos = getModule(BackTrack.class).realPosition;
         return predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector()) <
                 mc.thePlayer.getPositionVector().distanceTo(target.getPositionVector()) &&
                 MathUtils.inBetween(minActiveRange.get(), maxActiveRange.get(), predictProcesses.get((int) (maxTick.get() - 1)).position.distanceTo(target.getPositionVector())) &&
