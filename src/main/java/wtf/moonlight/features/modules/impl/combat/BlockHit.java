@@ -20,10 +20,12 @@ public class BlockHit extends Module {
 
     public TimerUtils timer = new TimerUtils();
     public EntityPlayer target;
+    public boolean predicted;
 
     @Override
     public void onEnable() {
         timer.reset();
+        predicted = false;
     }
 
     @EventTarget
@@ -55,8 +57,14 @@ public class BlockHit extends Module {
         }*/
 
         if (!(packet instanceof C02PacketUseEntity)&& getModule(KillAura.class).isHoldingSword() && target != null && target.swingProgressInt > 0 && (mc.thePlayer.hurtTime == 0 && timer.hasTimeElapsed(500) || mc.thePlayer.hurtTime == 9)) {
-            KeyBinding.onTick(mc.gameSettings.keyBindUseItem.getKeyCode());
+            mc.gameSettings.keyBindUseItem.setPressed(true);
+            predicted = true;
             timer.reset();
+        }
+
+        if(predicted && (mc.thePlayer.isBlocking() || !getModule(KillAura.class).isHoldingSword())) {
+            mc.gameSettings.keyBindUseItem.setPressed(false);
+            predicted = false;
         }
     }
 }
