@@ -1,12 +1,8 @@
 package wtf.moonlight.features.modules.impl.combat;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemEgg;
 import net.minecraft.item.ItemFishingRod;
-import net.minecraft.item.ItemSnowball;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Rotations;
-import net.minecraft.util.Vec3;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.features.modules.Module;
@@ -21,7 +17,6 @@ import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
-import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 import wtf.moonlight.utils.render.RenderUtils;
@@ -47,7 +42,6 @@ public class AutoRod extends Module {
     public final BoolValue smoothlyResetRotation = new BoolValue("Smoothly Reset Rotation", true, this, customRotationSetting::get);
     private final BoolValue moveFix = new BoolValue("Move Fix", true, this);
     public final ModeValue moveFixMode = new ModeValue("Move Fix Mode", new String[]{"Silent", "Strict"}, "Silent", this);
-    private final TimerUtils projectilePullTimer = new TimerUtils();
     private final TimerUtils delayTimer = new TimerUtils();
     private boolean projectileInUse;
     private int switchBack;
@@ -61,7 +55,7 @@ public class AutoRod extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        boolean usingProjectile = (mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem() != null && (mc.thePlayer.getHeldItem().getItem() instanceof ItemSnowball || mc.thePlayer.getHeldItem().getItem() instanceof ItemEgg))) || this.projectileInUse;
+        boolean usingProjectile = (mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem() != null && (mc.thePlayer.getHeldItem().getItem() instanceof ItemFishingRod))) || this.projectileInUse;
 
         target = PlayerUtils.getTarget(range.get());
 
@@ -149,7 +143,6 @@ public class AutoRod extends Module {
             mc.playerController.sendUseItem(mc.thePlayer, mc.theWorld, mc.thePlayer.inventoryContainer.getSlot(projectile).getStack());
 
             projectileInUse = true;
-            projectilePullTimer.reset();
             delayTimer.reset();
         }
     }
