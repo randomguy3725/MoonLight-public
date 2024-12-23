@@ -25,20 +25,21 @@ public class GuiMainMenu extends GuiScreen {
     private final List<MenuButton> buttons = List.of(
             new MenuButton("Singleplayer"),
             new MenuButton("Multiplayer"),
-            new MenuButton("Alts"),
+            new MenuButton("Alt Manager"),
             new MenuButton("Options"),
-            new MenuButton("Shutdown"));
+            new MenuButton("Exit"));
 
     private final List<ChangeLog> logs = new ArrayList<>();
 
     public GuiMainMenu() {
         logs.add(new ChangeLog("1.8x autoblock for Hypixel", ChangeLogType.ADDITION));
-        logs.add(new ChangeLog("Hypixel tower/towermove", ChangeLogType.ADDITION));
-        logs.add(new ChangeLog("New Hypixel rotations for scaffold", ChangeLogType.ADDITION));
-        logs.add(new ChangeLog("Glide speed bypassing Hypixel", ChangeLogType.ADDITION));
-        logs.add(new ChangeLog("New notification mode", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("Hypixel tower", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("New rotations for hypixel sprint scaffold", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("New notification modes", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("BlockHit module", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("Moon & Novoline visuals", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("TargetHUD showing up from far away", ChangeLogType.FIX));
-        logs.add(new ChangeLog("Issues with towermove", ChangeLogType.FIX));
+
     }
 
     @Override
@@ -73,9 +74,9 @@ public class GuiMainMenu extends GuiScreen {
                 switch (button.text) {
                     case "Singleplayer" -> mc.displayGuiScreen(new GuiSelectWorld(this));
                     case "Multiplayer" -> mc.displayGuiScreen(new GuiMultiplayer(this));
-                    case "Alts" -> mc.displayGuiScreen(new GuiAltManager(this));
+                    case "Alt Manager" -> mc.displayGuiScreen(new GuiAltManager(this));
                     case "Options" -> mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings));
-                    case "Shutdown" -> mc.shutdown();
+                    case "Exit" -> mc.shutdown();
                 }
             };
             button.drawScreen(mouseX, mouseY);
