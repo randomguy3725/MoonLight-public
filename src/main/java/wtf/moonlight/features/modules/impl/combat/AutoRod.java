@@ -56,8 +56,7 @@ public class AutoRod extends Module {
 
     @Override
     public void onDisable(){
-        if(!projectileInUse)
-            SpoofSlotUtils.stopSpoofing();
+        SpoofSlotUtils.stopSpoofing();
     }
 
     @EventTarget
@@ -157,7 +156,7 @@ public class AutoRod extends Module {
 
     private void rotate(){
 
-        float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get());
+        float[] finalRotation = RotationUtils.faceTrajectory(target, true, predictSize.get(), 0.03f, 2f);
 
         if (customRotationSetting.get()) {
             RotationUtils.setRotation(finalRotation, moveFix.get() ? (Objects.equals(moveFixMode.get(), "Silent") ? MovementCorrection.SILENT : MovementCorrection.STRICT) : MovementCorrection.OFF, MathUtils.randomizeInt(minYawRotSpeed.get(), maxYawRotSpeed.get()), MathUtils.randomizeInt(minPitchRotSpeed.get(), maxPitchRotSpeed.get()), maxYawAcceleration.get(), maxPitchAcceleration.get(), accelerationError.get(), constantError.get(), smoothlyResetRotation.get());

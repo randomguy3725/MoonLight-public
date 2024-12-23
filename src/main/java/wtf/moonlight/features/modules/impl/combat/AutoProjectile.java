@@ -56,9 +56,8 @@ public class AutoProjectile extends Module {
     private boolean wasThrowing;
 
     @Override
-    public void onDisable(){
-        if(!projectileInUse)
-            SpoofSlotUtils.stopSpoofing();
+    public void onDisable() {
+        SpoofSlotUtils.stopSpoofing();
     }
 
     @EventTarget
