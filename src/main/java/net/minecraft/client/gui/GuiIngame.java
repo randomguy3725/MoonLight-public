@@ -592,7 +592,7 @@ public class GuiIngame extends Gui
 
             final Matcher linkMatcher = LINK_PATTERN.matcher(s1);
             if(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).isEnabled() && linkMatcher.find()) {
-                s1 = "Moonlight.wtf";
+                s1 = "moonlight.wtf";
                 this.getFontRenderer().drawGradientWithShadow(s1, l1, k,(index) -> new Color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(index)));
             } else {
                 this.getFontRenderer().drawString(s1, l1, k, 553648127, true);
