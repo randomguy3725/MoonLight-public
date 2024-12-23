@@ -62,6 +62,7 @@ public class KillAura extends Module {
     private final SliderValue maxAimRange = new SliderValue("Highest Aim Range", 1, 0, 1, 0.05f, this, inRange::get);
     private final BoolValue heuristics = new BoolValue("Heuristics", false, this);
     private final BoolValue bruteforce = new BoolValue("Bruteforce", true, this);
+    private final BoolValue smart = new BoolValue("Smart", true, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
     private final SliderValue minPitchRotSpeed = new SliderValue("Min Pitch Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
@@ -125,6 +126,7 @@ public class KillAura extends Module {
     public boolean renderBlocking;
     public boolean blinked;
     public boolean lag;
+    public Vec3 prevVec;
     public Vec3 currentVec;
     public Vec3 targetVec;
     public boolean damaged = false;
@@ -151,7 +153,7 @@ public class KillAura extends Module {
         targets.clear();
         index = 0;
         switchTimer.reset();
-        currentVec = targetVec = null;
+        prevVec = currentVec = targetVec = null;
         Iterator<Map.Entry<EntityPlayer, DecelerateAnimation>> iterator = getModule(Interface.class).animationEntityPlayerMap.entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<EntityPlayer, DecelerateAnimation> entry = iterator.next();
@@ -225,7 +227,7 @@ public class KillAura extends Module {
 
         } else {
             target = null;
-            currentVec = targetVec = null;
+            prevVec = currentVec = targetVec = null;
             unblock();
             lag = false;
             if (blinked) {
@@ -536,6 +538,7 @@ public class KillAura extends Module {
 
     public float[] calcToEntity(EntityLivingBase entity) {
 
+        prevVec = currentVec;
         float yaw;
         float pitch;
 
@@ -645,6 +648,14 @@ public class KillAura extends Module {
                         );
                     }
                     break;
+            }
+        }
+
+        MovingObjectPosition test = RotationUtils.rayCast(RotationUtils.getRotations(prevVec),rotationRange.get());
+
+        if(smart.get()) {
+            if (test.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && (addons.isEnabled("Ray Cast") || !addons.isEnabled("Ray Cast") && test.entityHit == target)) {
+                currentVec = prevVec;
             }
         }
 
