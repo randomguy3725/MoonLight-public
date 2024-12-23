@@ -4,6 +4,7 @@ import com.google.common.base.Objects;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture.Type;
+import lombok.val;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.SkinManager;
@@ -193,5 +194,13 @@ public class NetworkPlayerInfo
     public void func_178843_c(long p_178843_1_)
     {
         this.field_178869_m = p_178843_1_;
+    }
+    public String getFullName(){
+        if (displayName != null)
+            return displayName.getFormattedText();
+
+        ScorePlayerTeam team = getPlayerTeam();
+        String name = gameProfile.getName();
+        return team.formatString(name) != null ? team.formatString(name) : name;
     }
 }

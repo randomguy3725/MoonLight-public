@@ -75,7 +75,7 @@ public class HackerDetector extends Module {
             for (EntityPlayer player : mc.theWorld.playerEntities) {
                 for (Check check : checks) {
                     if ((selfCheck.get() || player != mc.thePlayer) && !player.isDead && !Moonlight.INSTANCE.getFriendManager().isFriend(player)) {
-                        if(isEnabled(AntiBot.class) && getModule(AntiBot.class).bots.contains(player))
+                        if(isEnabled(AntiBot.class) && getModule(AntiBot.class).isBot(player))
                             continue;
                         if (options.isEnabled(check.getName())) {
                             check.onPacketReceive(event, player);

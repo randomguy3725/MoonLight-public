@@ -1,5 +1,6 @@
 package wtf.moonlight.features.modules.impl.combat;
 
+import lombok.val;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -160,10 +161,19 @@ public class AntiBot extends Module {
 
     public boolean isBot(EntityPlayer player) {
 
+        if(!isEnabled())
+            return false;
+
         if (options.isEnabled("Tab")) {
-            for (NetworkPlayerInfo info : mc.getNetHandler().getPlayerInfoMap()) {
-                return info.getGameProfile().getId().compareTo(player.getUniqueID()) != 0;
+            String targetName = RenderUtils.stripColor(player.getDisplayName().getFormattedText());
+
+            boolean shouldReturn = true;
+
+            for (NetworkPlayerInfo networkPlayerInfo : mc.getNetHandler().getPlayerInfoMap()) {
+                shouldReturn = !RenderUtils.stripColor(networkPlayerInfo.getFullName()).contains(targetName);
             }
+
+            return !shouldReturn;
         }
 
         if (options.isEnabled("Hypixel")) {

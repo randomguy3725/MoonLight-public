@@ -520,7 +520,7 @@ public class KillAura extends Module {
                 if (targetOption.isEnabled("Players") && entity instanceof EntityPlayer) {
                     if (filter.isEnabled("Friends") && Moonlight.INSTANCE.getFriendManager().isFriend((EntityPlayer) entity))
                         return false;
-                    return !isEnabled(AntiBot.class) || !getModule(AntiBot.class).bots.contains(entity);
+                    return !isEnabled(AntiBot.class) || !getModule(AntiBot.class).isBot((EntityPlayer) entity);
                 }
             }
             return (targetOption.isEnabled("Mobs") && PlayerUtils.isMob(entity)) || (targetOption.isEnabled("Animals") && PlayerUtils.isAnimal(entity));

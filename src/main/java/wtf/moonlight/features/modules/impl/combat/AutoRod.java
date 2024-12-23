@@ -54,6 +54,12 @@ public class AutoRod extends Module {
     private EntityPlayer target;
     private boolean wasThrowing;
 
+    @Override
+    public void onDisable(){
+        if(!projectileInUse)
+            SpoofSlotUtils.stopSpoofing();
+    }
+
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         boolean usingProjectile = (mc.thePlayer.isUsingItem() && (mc.thePlayer.getHeldItem() != null && (mc.thePlayer.getHeldItem().getItem() instanceof ItemSnowball || mc.thePlayer.getHeldItem().getItem() instanceof ItemEgg))) || this.projectileInUse;
@@ -103,7 +109,7 @@ public class AutoRod extends Module {
             }
         }
 
-        if (mc.thePlayer.fishEntity != null || wasThrowing) {
+        if (mc.thePlayer.fishEntity != null && wasThrowing) {
             if (this.switchBack != -1 && mc.thePlayer.inventory.currentItem != this.switchBack) {
                 mc.thePlayer.inventory.currentItem = this.switchBack;
                 mc.playerController.updateController();
