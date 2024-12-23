@@ -319,7 +319,7 @@ public class Scaffold extends Module {
 
                         finalYaw = Math.round(yaw / 45f) * 45f;
 
-                        pitch = getYawBasedPitch(data.blockPos, data.facing, finalYaw, previousRotation[1], minPitch.getMin(), maxPitch.getMax());
+                        pitch = getYawBasedPitch(data.blockPos, data.facing, finalYaw, previousRotation[1], minPitch.get(), maxPitch.get());
 
                         rotation = new float[]{finalYaw, pitch};
                     }
