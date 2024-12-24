@@ -33,8 +33,8 @@ import java.awt.*;
 public class BackTrack extends Module {
     private final ModeValue esp = new ModeValue("Mode", new String[]{"Off", "Box"}, "Box", this);
     public final BoolValue cancelClientP = new BoolValue("Cancel Client Packet",false,this);
-    public final BoolValue swingCheck = new BoolValue("Swing Check",false,this);
-    public final BoolValue onlyWhenHit = new BoolValue("Only When Hit",false,this);
+    public final BoolValue swingCheck = new BoolValue("Swing Check",false,this);;
+    private final ModeValue activeMode = new ModeValue("Active Mode", new String[]{"Hit", "Not Hit","Always"}, "Box", this);
     public final BoolValue releaseOnVelocity = new BoolValue("Release On Velocity",false,this);
     public SliderValue minMS = new SliderValue("Min MS", 50, 0, 5000, 5, this);
     public SliderValue maxMS = new SliderValue("Max MS", 200, 0, 5000, 5, this);
@@ -66,15 +66,16 @@ public class BackTrack extends Module {
             double realDistance = realPosition.distanceTo(mc.thePlayer);
             double clientDistance = target.getDistanceToEntity(mc.thePlayer);
 
-            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9 && (onlyWhenHit.get() && target.hurtTime != 0 || !onlyWhenHit.get()) && (releaseOnVelocity.get() && mc.thePlayer.hurtTime == 0 || !releaseOnVelocity.get());
+            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9 && shouldActive(target) && (releaseOnVelocity.get() && mc.thePlayer.hurtTime == 0 || !releaseOnVelocity.get());
 
             if (on) {
-                if (onlyWhenHit.get()) {
-                    if (target.hurtTime != 0) {
-                        ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
-                    }
-                } else ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
-                PingSpoofComponent.spoof(ping, true, true, true, true,cancelClientP.get(),cancelClientP.get());
+                if (shouldActive(target)) {
+                    ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
+                    PingSpoofComponent.spoof(ping, true, true, true, true, cancelClientP.get(), cancelClientP.get());
+                } else {
+                    PingSpoofComponent.disable();
+                    PingSpoofComponent.dispatch();
+                }
             } else {
                 PingSpoofComponent.disable();
                 PingSpoofComponent.dispatch();
@@ -95,7 +96,7 @@ public class BackTrack extends Module {
             double realDistance = realPosition.distanceTo(mc.thePlayer);
             double clientDistance = target.getDistanceToEntity(mc.thePlayer);
 
-            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9 && (onlyWhenHit.get() && target.hurtTime != 0 || !onlyWhenHit.get());
+            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9 && shouldActive(target);
 
             if(on) {
                 if (packet instanceof S14PacketEntity s14PacketEntity) {
@@ -134,5 +135,9 @@ public class BackTrack extends Module {
                     break;
             }
         }
+    }
+    
+    public boolean shouldActive(EntityPlayer target){
+        return activeMode.is("Always") || activeMode.is("Hit") && target.hurtTime != 0 || activeMode.is("Not Hit") && target.hurtTime == 0;
     }
 }
