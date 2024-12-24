@@ -35,10 +35,12 @@ public class GuiMainMenu extends GuiScreen {
         logs.add(new ChangeLog("1.8x autoblock for Hypixel", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("Hypixel tower/towermove", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("New Hypixel rotations for scaffold", ChangeLogType.ADDITION));
+        logs.add(new ChangeLog("Smart option for KillAura", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("Glide speed bypassing Hypixel", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("New notification mode", ChangeLogType.ADDITION));
         logs.add(new ChangeLog("TargetHUD showing up from far away", ChangeLogType.FIX));
         logs.add(new ChangeLog("Issues with towermove", ChangeLogType.FIX));
+        logs.add(new ChangeLog("Buttons on MainMenu not working", ChangeLogType.FIX));
     }
 
     @Override
