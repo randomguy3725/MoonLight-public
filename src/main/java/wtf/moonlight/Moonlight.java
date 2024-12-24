@@ -31,15 +31,27 @@ import wtf.moonlight.utils.player.RotationUtils;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 @Getter
 public class Moonlight {
+
+    // Logger instance for logging events and errors
+    public static final Logger LOGGER = LogManager.getLogger(Moonlight.class);
+
+    // Singleton instance of Moonlight
+    public static final Moonlight INSTANCE = new Moonlight();
+
+    // Client information
     public final String clientName = "Moonlight";
     public final String version = "Alpha";
     public final String clientCloud = "https://randomguy3725.github.io/MoonLightCloud/";
-    public static Moonlight INSTANCE = new Moonlight();
+
+    // Directory for configuration files and other data
     private final File mainDir = new File(Minecraft.getMinecraft().mcDataDir, clientName);
+
+    // Managers and GUI components
     private EventManager eventManager;
     private NotificationManager notificationManager;
     private ModuleManager moduleManager;
@@ -51,31 +63,85 @@ public class Moonlight {
     private DropdownGUI dropdownGUI;
     private SkeetUI skeetGUI;
     private DiscordInfo discordRP;
-    public TrayIcon trayIcon;
-    public static final Logger LOGGER = LogManager.getLogger();
-    @Getter
+
+    // System Tray icon
+    private TrayIcon trayIcon;
+
+    // Start time tracking
     private int startTime;
-    @Getter
     private long startTimeLong;
-    public boolean loaded;
+
+    // Load status
+    private boolean loaded;
 
     /**
-     * Returns the Logger instance.
-     *
-     * @return the Logger
+     * Private constructor to enforce Singleton pattern.
      */
-    public Logger getLogger() {
-        return LOGGER;
+    private Moonlight() {
+        // Private constructor to prevent external instantiation
     }
 
+    /**
+     * Provides access to the Singleton instance of Moonlight.
+     *
+     * @return the single instance of Moonlight
+     */
+    public static Moonlight getInstance() {
+        return INSTANCE;
+    }
+
+    /**
+     * Initializes the Moonlight client by setting up directories, managers, event handlers,
+     * system tray, Discord RPC, and other components.
+     */
     public void init() {
         loaded = false;
 
+        setupMainDirectory();
+        setupDisplayTitle();
+        initializeManagers();
+        registerEventHandlers();
+        initializeStartTime();
+        initializeViaMCP();
+        setupDiscordRPC();
+        setupSystemTray();
+        handleFastRender();
+
+        loaded = true;
+        LOGGER.info("{} {} initialized successfully.", clientName, version);
+    }
+
+    /**
+     * Sets up the main directory for configurations and other client data.
+     */
+    private void setupMainDirectory() {
         if (!mainDir.exists()) {
-            mainDir.mkdir();
+            boolean dirCreated = mainDir.mkdir();
+            if (dirCreated) {
+                LOGGER.info("Created main directory at {}", mainDir.getAbsolutePath());
+            } else {
+                LOGGER.warn("Failed to create main directory at {}", mainDir.getAbsolutePath());
+            }
             Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MUSIC, 0);
+        } else {
+            LOGGER.info("Main directory already exists at {}", mainDir.getAbsolutePath());
         }
-        Display.setTitle(clientName + " " + version + " | " + Sys.getVersion());
+    }
+
+    /**
+     * Sets up the display title for the client window.
+     */
+    private void setupDisplayTitle() {
+        String osVersion = Sys.getVersion();
+        String title = String.format("%s %s | %s", clientName, version, osVersion);
+        Display.setTitle(title);
+        LOGGER.info("Display title set to: {}", title);
+    }
+
+    /**
+     * Initializes all manager and GUI components used by the client.
+     */
+    private void initializeManagers() {
         eventManager = new EventManager();
         notificationManager = new NotificationManager();
         moduleManager = new ModuleManager();
@@ -86,7 +152,12 @@ public class Moonlight {
         menuGUI = new MenuGUI();
         dropdownGUI = new DropdownGUI();
         skeetGUI = new SkeetUI();
+    }
 
+    /**
+     * Registers event handlers with the EventManager.
+     */
+    private void registerEventHandlers() {
         eventManager.register(new ScaffoldCounter());
         eventManager.register(new RotationUtils());
         eventManager.register(new FallDistanceComponent());
@@ -95,55 +166,94 @@ public class Moonlight {
         eventManager.register(new BlinkComponent());
         eventManager.register(new SpoofSlotUtils());
 
+        LOGGER.info("Event handlers registered.");
+    }
+
+    /**
+     * Initializes the start time for tracking the client's uptime.
+     */
+    private void initializeStartTime() {
         startTime = (int) System.currentTimeMillis();
         startTimeLong = System.currentTimeMillis();
+        LOGGER.info("Start time initialized: {} ms", startTime);
+    }
 
-
+    /**
+     * Initializes ViaMCP for handling Minecraft protocol modifications.
+     */
+    private void initializeViaMCP() {
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
+        LOGGER.info("ViaMCP initialized.");
+    }
 
+    /**
+     * Sets up Discord Rich Presence for the client.
+     */
+    private void setupDiscordRPC() {
         try {
             discordRP = new DiscordInfo();
             discordRP.init();
+            LOGGER.info("Discord Rich Presence initialized.");
         } catch (Throwable throwable) {
-            Moonlight.LOGGER.error("Failed to setup Discord RPC.", throwable);
+            LOGGER.error("Failed to set up Discord RPC.", throwable);
         }
+    }
 
-        if (System.getProperties().getProperty("os.name").toLowerCase().contains("windows") && SystemTray.isSupported()) {
+    /**
+     * Sets up the system tray icon if supported by the operating system.
+     */
+    private void setupSystemTray() {
+        if (isWindows() && SystemTray.isSupported()) {
             try {
-                trayIcon = new TrayIcon(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/assets/minecraft/moonlight/img/logo.png"))));
-            } catch (Exception var4) {
-                Moonlight.LOGGER.error("Failed to create TrayIcon.", var4);
-                var4.printStackTrace();
-            }
+                Image trayImage = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/assets/minecraft/moonlight/img/logo.png")));
+                trayIcon = new TrayIcon(trayImage, clientName);
+                trayIcon.setImageAutoSize(true);
+                trayIcon.setToolTip(clientName);
 
-            trayIcon.setImageAutoSize(true);
-            trayIcon.setToolTip("Ratted");
-
-            try {
                 SystemTray.getSystemTray().add(trayIcon);
-            } catch (AWTException e) {
-                Moonlight.LOGGER.error("Failed to add TrayIcon to SystemTray.", e);
-                throw new RuntimeException(e);
+                trayIcon.displayMessage(clientName, "Client started successfully.", TrayIcon.MessageType.INFO);
+
+                LOGGER.info("System tray icon added.");
+            } catch (IOException | AWTException | NullPointerException e) {
+                LOGGER.error("Failed to create or add TrayIcon.", e);
             }
-
-            trayIcon.displayMessage("Ratted",
-                    "Sexy",
-                    TrayIcon.MessageType.WARNING);
+        } else {
+            LOGGER.warn("System tray not supported or not running on Windows.");
         }
+    }
 
-
+    /**
+     * Handles the Fast Render setting by disabling it if enabled, due to compatibility issues.
+     */
+    private void handleFastRender() {
         if (Minecraft.getMinecraft().gameSettings.ofFastRender) {
             notificationManager.post(NotificationType.WARNING, "Fast Rendering has been disabled", "due to compatibility issues");
             Minecraft.getMinecraft().gameSettings.ofFastRender = false;
+            LOGGER.info("Fast Rendering was disabled due to compatibility issues.");
         }
-
-        loaded = true;
-
     }
 
+    /**
+     * Checks if the operating system is Windows.
+     *
+     * @return {@code true} if the OS is Windows, {@code false} otherwise.
+     */
+    private boolean isWindows() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        return osName.contains("windows");
+    }
+
+    /**
+     * Stops the Moonlight client, performing necessary cleanup tasks such as stopping Discord RPC
+     * and saving configurations.
+     */
     public void onStop() {
-        discordRP.stop();
+        if (discordRP != null) {
+            discordRP.stop();
+            LOGGER.info("Discord Rich Presence stopped.");
+        }
         configManager.saveConfigs();
+        LOGGER.info("All configurations saved.");
     }
 }
