@@ -40,6 +40,9 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}-
 
+      - name: Grant Execute Permission for gradlew
+        run: chmod +x ./gradlew
+
       - name: Build Project with Gradle
         run: ./gradlew ${{ env.GRADLE_TASK }} --no-daemon
 
