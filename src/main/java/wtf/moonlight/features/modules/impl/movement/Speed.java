@@ -572,6 +572,30 @@ public class Speed extends Module {
                             couldStrafe = true;
                         }
 
+
+                        if (MovementUtils.isMoving()) {
+                            if (MovementUtils.getSpeed() < .45 || mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1 && MovementUtils.getSpeed() < .55 || (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) && MovementUtils.getSpeed() < .61) {
+                                if (ice && mc.thePlayer.onGround && !disable) {
+                                    mc.thePlayer.motionX *= 1.5;
+                                    mc.thePlayer.motionZ *= 1.5;
+                                }
+
+                                if (ice && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.ice || PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.packed_ice) && !disable) {
+                                    mc.thePlayer.motionX *= 1.1;
+                                    mc.thePlayer.motionZ *= 1.1;
+                                }
+
+                                if (ice && mc.thePlayer.offGroundTicks == 1 && !disable) {
+                                    mc.thePlayer.motionX *= 1.25;
+                                    mc.thePlayer.motionZ *= 1.25;
+                                }
+                                if (ice && mc.thePlayer.offGroundTicks > 1 && !disable) {
+                                    mc.thePlayer.motionX *= 1.015;
+                                    mc.thePlayer.motionZ *= 1.015;
+                                }
+                            }
+                        }
+
                     }
                     break;
             }
@@ -615,29 +639,6 @@ public class Speed extends Module {
                             }
                         }
                         break;
-                }
-            }
-
-            if (MovementUtils.isMoving()) {
-                if (MovementUtils.getSpeed() < .45 || mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 == 1 && MovementUtils.getSpeed() < .55 || (mc.thePlayer.isPotionActive(Potion.moveSpeed) && mc.thePlayer.getActivePotionEffect(Potion.moveSpeed).getAmplifier() + 1 >= 2) && MovementUtils.getSpeed() < .61) {
-                    if (ice && mc.thePlayer.onGround && !disable) {
-                        mc.thePlayer.motionX *= 1.5;
-                        mc.thePlayer.motionZ *= 1.5;
-                    }
-
-                    if (ice && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.ice || PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) == Blocks.packed_ice) && !disable) {
-                        mc.thePlayer.motionX *= 1.1;
-                        mc.thePlayer.motionZ *= 1.1;
-                    }
-
-                    if (ice && mc.thePlayer.offGroundTicks == 1 && !disable) {
-                        mc.thePlayer.motionX *= 1.25;
-                        mc.thePlayer.motionZ *= 1.25;
-                    }
-                    if (ice && mc.thePlayer.offGroundTicks > 1 && !disable && wdMode.is("Full Strafe")) {
-                        mc.thePlayer.motionX *= 1.015;
-                        mc.thePlayer.motionZ *= 1.015;
-                    }
                 }
             }
         }
