@@ -322,22 +322,12 @@ public class Speed extends Module {
                             }
                             break;
                         case "Full Strafe":
-                            if(mc.thePlayer.isInWater() && mc.thePlayer.isInWeb && mc.thePlayer.isInLava() ) {
-                                disable = true;
-                                return;
-                            }
-
-                            if(getModule(Scaffold.class).isEnabled()){
-                            }
-
                             if(mc.thePlayer.isCollidedHorizontally || ticksSinceTeleport < 2){
                                 recentlyCollided = true;
                                 boostTicks = mc.thePlayer.ticksExisted+9;
                             }
-                            if (!mc.thePlayer.isCollidedHorizontally && (mc.thePlayer.ticksExisted > boostTicks)){
-
+                            if (!mc.thePlayer.isCollidedHorizontally && (mc.thePlayer.ticksExisted > boostTicks)) {
                                 recentlyCollided = false;
-
                             }
 
                             if (PlayerUtils.blockRelativeToPlayer(0, -1.0, 0) == (Blocks.packed_ice) || PlayerUtils.blockRelativeToPlayer(0, -1.0, 0) == (Blocks.ice)) {
@@ -351,13 +341,6 @@ public class Speed extends Module {
                             if(mc.thePlayer.onGround){
                                 disable3 = false;
                             }
-                            if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
-                                disable = false;
-                            }
-
-                            if(mc.thePlayer.isCollidedVertically && !mc.thePlayer.onGround && PlayerUtils.isBlockOver(2.0)){
-                                disable = true;
-                            }
 
                             double posY = event.getY();
                             if (Math.abs(posY - Math.round(posY)) > 0.03 && mc.thePlayer.onGround) {
@@ -370,14 +353,16 @@ public class Speed extends Module {
                     }
 
                     if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
+
+                        if(mc.thePlayer.isInWater() && mc.thePlayer.isInWeb && mc.thePlayer.isInLava() ) {
+                            disable = true;
+                        }
                         if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
                             disable = false;
                         }
+
                         if(mc.thePlayer.isCollidedVertically && !mc.thePlayer.onGround && PlayerUtils.isBlockOver(2.0)){
                             disable = true;
-                        }
-                        if (!disable) {
-                            event.setY(event.getY() + 1E-14);
                         }
                     }
 
@@ -556,8 +541,6 @@ public class Speed extends Module {
                         }
 
                         if (mc.thePlayer.offGroundTicks < 7 && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) && mc.thePlayer.isPotionActive(Potion.moveSpeed) && !slab) {
-
-
                             boostTicks = mc.thePlayer.ticksExisted + 9;
                             recentlyCollided = true;
                         }

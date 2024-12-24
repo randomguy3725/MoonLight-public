@@ -134,7 +134,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(s, (c), -c);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
+                    int color = ColorUtils.applyOpacity(new Color(getModule(Interface.class).color(0)), (float) alphaAnim.getOutput()).getRGB();
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
@@ -147,7 +147,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-s, s, -c);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
+                    int color = ColorUtils.applyOpacity(new Color(getModule(Interface.class).color(0)), (float) alphaAnim.getOutput()).getRGB();
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
@@ -160,7 +160,7 @@ public class TargetESP extends Module {
                     GlStateManager.translate(-(s), -(s), (c));
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
-                    int color = getModule(Interface.class).color(i, (int) alphaAnim.getOutput() * 255);
+                    int color = ColorUtils.applyOpacity(new Color(getModule(Interface.class).color(0)), (float) alphaAnim.getOutput()).getRGB();
                     RenderUtils.drawImage(glowCircle, 0f, 0f, -size, -size, color);
                     GlStateManager.translate(-size / 2f, -size / 2f, 0);
                     GlStateManager.translate(size / 2f, size / 2f, 0);
@@ -203,9 +203,9 @@ public class TargetESP extends Module {
                 for (i = 0; i <= 360; ++i) {
                     color = new Color(getModule(Interface.class).color(i));
                     GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.6F);
-                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians(i)) * (double) target.width * 0.8D);
                     GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.01F);
-                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, y, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * (double) target.width * 0.8D, y, z + Math.sin(Math.toRadians(i)) * (double) target.width * 0.8D);
                 }
 
                 GL11.glEnd();
@@ -215,7 +215,7 @@ public class TargetESP extends Module {
                 for (i = 0; i <= 360; ++i) {
                     color = new Color(getModule(Interface.class).color(i));
                     GL11.glColor4f((float) color.getRed() / 255.0F, (float) color.getGreen() / 255.0F, (float) color.getBlue() / 255.0F, 0.8F);
-                    GL11.glVertex3d(x + Math.cos(Math.toRadians((double) i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians((double) i)) * (double) target.width * 0.8D);
+                    GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * (double) target.width * 0.8D, nextY, z + Math.sin(Math.toRadians(i)) * (double) target.width * 0.8D);
                 }
 
                 GL11.glEnd();

@@ -353,9 +353,9 @@ public class Interface extends Module {
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     }
 
                     if (animation.get().equals("ScaleIn")) {
@@ -548,9 +548,9 @@ public class Interface extends Module {
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), 255));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), 255));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y, ColorUtils.swapAlpha(color(count), 255));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), 255));
                         }
                     }
 
