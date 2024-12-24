@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.ServerStatusResponse;
@@ -32,7 +34,7 @@ public class RealmsServerStatusPinger
         if (p_pingServer_1_ != null && !p_pingServer_1_.startsWith("0.0.0.0") && !p_pingServer_1_.isEmpty())
         {
             RealmsServerAddress realmsserveraddress = RealmsServerAddress.parseString(p_pingServer_1_);
-            final NetworkManager networkmanager = NetworkManager.createNetworkManagerAndConnect(InetAddress.getByName(realmsserveraddress.getHost()), realmsserveraddress.getPort(), false);
+            final NetworkManager networkmanager = NetworkManager.createNetworkManagerAndConnect(InetAddress.getByName(realmsserveraddress.getHost()), realmsserveraddress.getPort(),  Minecraft.getMinecraft().gameSettings.isUsingNativeTransport());
             this.connections.add(networkmanager);
             networkmanager.setNetHandler(new INetHandlerStatusClient()
             {
