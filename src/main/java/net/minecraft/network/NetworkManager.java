@@ -15,6 +15,7 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.local.LocalChannel;
+import io.netty.channel.local.LocalEventLoopGroup;
 import io.netty.channel.local.LocalServerChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -51,19 +52,25 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     public static final Marker logMarkerNetwork = MarkerManager.getMarker("NETWORK");
     public static final Marker logMarkerPackets = MarkerManager.getMarker("NETWORK_PACKETS", logMarkerNetwork);
     public static final AttributeKey<EnumConnectionState> attrKeyConnectionState = AttributeKey.valueOf("protocol");
-    public static final LazyLoadBase<NioEventLoopGroup> CLIENT_NIO_EVENTLOOP = new LazyLoadBase<>() {
-        protected NioEventLoopGroup load() {
-            return new NioEventLoopGroup(0, Executors.newCachedThreadPool((new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build()));
+    public static final LazyLoadBase<NioEventLoopGroup> CLIENT_NIO_EVENTLOOP = new LazyLoadBase<NioEventLoopGroup>()
+    {
+        protected NioEventLoopGroup load()
+        {
+            return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build());
         }
     };
-    public static final LazyLoadBase<EpollEventLoopGroup> CLIENT_EPOLL_EVENTLOOP = new LazyLoadBase<>() {
-        protected EpollEventLoopGroup load() {
-            return new EpollEventLoopGroup(0, Executors.newCachedThreadPool((new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).build()));
+    public static final LazyLoadBase<EpollEventLoopGroup> CLIENT_EPOLL_EVENTLOOP = new LazyLoadBase<EpollEventLoopGroup>()
+    {
+        protected EpollEventLoopGroup load()
+        {
+            return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).build());
         }
     };
-    public static final LazyLoadBase<DefaultEventLoop> CLIENT_LOCAL_EVENTLOOP = new LazyLoadBase<>() {
-        protected DefaultEventLoop load() {
-            return new DefaultEventLoop(Executors.newCachedThreadPool((new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).build()));
+    public static final LazyLoadBase<LocalEventLoopGroup> CLIENT_LOCAL_EVENTLOOP = new LazyLoadBase<LocalEventLoopGroup>()
+    {
+        protected LocalEventLoopGroup load()
+        {
+            return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).build());
         }
     };
     private final EnumPacketDirection direction;
@@ -444,14 +451,14 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
         }
     }
 
-    @Override
-    protected void messageReceived(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception {
-        if (this.channel.isOpen()) {
-            Packet<INetHandler> p = (Packet<INetHandler>) p_channelRead0_2_;
+    protected void channelRead0(ChannelHandlerContext p_channelRead0_1_, Packet p_channelRead0_2_) throws Exception
+    {
+        if (this.channel.isOpen())
+        {
             try {
-                if (Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).options.isEnabled("GrimAC") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).grim.isEnabled("Post") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getPost() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).postDelay(p)) {
+                if (Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).options.isEnabled("GrimAC") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).grim.isEnabled("Post") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getPost() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).postDelay(p_channelRead0_2_)) {
                     Minecraft.getMinecraft().addScheduledTask(() -> {
-                        Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getStoredPackets().add(p);
+                        Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getStoredPackets().add(p_channelRead0_2_);
                     });
                 } else {
 
