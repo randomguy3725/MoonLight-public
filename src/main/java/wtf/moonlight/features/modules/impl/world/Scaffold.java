@@ -345,38 +345,26 @@ public class Scaffold extends Module {
             }
             break;
             case "Hypixel Test": {
-                float movingYaw = MovementUtils.getRawDirection() + 180;
-                if (mc.thePlayer.onGround) {
-                    isOnRightSide = Math.floor(mc.thePlayer.posX + Math.cos(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posX) ||
-                            Math.floor(mc.thePlayer.posZ + Math.sin(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posZ);
-
-                    BlockPos posInDirection = mc.thePlayer.getPosition().offset(EnumFacing.fromAngle(movingYaw), 1);
-
-                    boolean isLeaningOffBlock = mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()) instanceof BlockAir;
-                    boolean nextBlockIsAir = mc.theWorld.getBlockState(posInDirection.down()).getBlock() instanceof BlockAir;
-
-                    if (isLeaningOffBlock && nextBlockIsAir) {
-                        isOnRightSide = !isOnRightSide;
-                    }
+                rotation = RotationUtils.getRotations(getVec3(data));
+                if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
+                    rotation[0] = (float) (MovementUtils.getRawDirection() + 139 + Math.random());
+                } else {
+                    rotation[0] = (float) (MovementUtils.getRawDirection() - 139 - Math.random());
                 }
-
-                float yaw = (movingYaw + (isOnRightSide ? 89 : -89));
-
-                rotation = new float[]{yaw, getYawBasedPitch(data.blockPos, data.facing, yaw, previousRotation[1], 70, 87)};
             }
             break;
-            case "Unfair Pitch":
-                rotation = new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.blockPos, data.facing, mc.thePlayer.rotationYaw, previousRotation[1],91, 100)};
-                break;
+            case "Unfair Pitch": {
+                rotation = new float[]{mc.thePlayer.rotationYaw, getYawBasedPitch(data.blockPos, data.facing, mc.thePlayer.rotationYaw, previousRotation[1], 91, 100)};
+            }
+
+            break;
         }
 
 
         if (unPatch.canDisplay() && addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class) && unPatch.get() && !towering() && !towerMoving()) {
-            Vec3 hitVec = getVec3(data);
-
-            rotation = RotationUtils.getRotations(hitVec);
+            rotation = RotationUtils.getRotations(getVec3(data));
         }
-        
+
         if (unPatch.canDisplay() && (addons.isEnabled("Speed Keep Y") && isEnabled(Speed.class) || !addons.isEnabled("Speed Keep Y")) && unPatch.get() && mc.thePlayer.onGround && !towering() && !towerMoving()) {
             rotation = new float[]{mc.thePlayer.rotationYaw, 0f};
         }
@@ -631,8 +619,8 @@ public class Scaffold extends Module {
                 }
             }
             if (mc.thePlayer.onGround && sprintBoost.get()) {
-                mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
-                mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                mc.thePlayer.motionX *= 1.12 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                mc.thePlayer.motionZ *= 1.12 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
             }
         }
         if (tower.canDisplay()) {

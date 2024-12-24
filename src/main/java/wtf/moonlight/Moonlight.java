@@ -64,7 +64,7 @@ public class Moonlight {
 
         if (!mainDir.exists()) {
             mainDir.mkdir();
-            Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MUSIC,0);
+            Minecraft.getMinecraft().gameSettings.setSoundLevel(SoundCategory.MUSIC, 0);
         }
         Display.setTitle(clientName + " " + version + " | " + Sys.getVersion());
         eventManager = new EventManager();
@@ -89,12 +89,9 @@ public class Moonlight {
         startTime = (int) System.currentTimeMillis();
         startTimeLong = System.currentTimeMillis();
 
-        try {
-            ViaMCP.create();
-            ViaMCP.INSTANCE.initAsyncSlider();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        ViaMCP.create();
+        ViaMCP.INSTANCE.initAsyncSlider();
 
         try {
             discordRP = new DiscordInfo();
@@ -125,8 +122,8 @@ public class Moonlight {
         }
 
 
-        if(Minecraft.getMinecraft().gameSettings.ofFastRender){
-            notificationManager.post(NotificationType.WARNING,"Fast Rendering has been disabled","due to compatibility issues");
+        if (Minecraft.getMinecraft().gameSettings.ofFastRender) {
+            notificationManager.post(NotificationType.WARNING, "Fast Rendering has been disabled", "due to compatibility issues");
             Minecraft.getMinecraft().gameSettings.ofFastRender = false;
         }
 

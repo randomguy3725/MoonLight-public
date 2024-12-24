@@ -62,7 +62,8 @@ public class KillAura extends Module {
     private final SliderValue maxAimRange = new SliderValue("Highest Aim Range", 1, 0, 1, 0.05f, this, inRange::get);
     private final BoolValue heuristics = new BoolValue("Heuristics", false, this);
     private final BoolValue bruteforce = new BoolValue("Bruteforce", true, this);
-    private final BoolValue smart = new BoolValue("Smart", true, this);
+    private final BoolValue smartVec = new BoolValue("Smart Vec", true, this);
+    private final BoolValue smartRotation = new BoolValue("Smart Rotation", true, this);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
     private final SliderValue minPitchRotSpeed = new SliderValue("Min Pitch Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
@@ -126,6 +127,7 @@ public class KillAura extends Module {
     public boolean renderBlocking;
     public boolean blinked;
     public boolean lag;
+    public float[] prevRotation;
     public Vec3 prevVec;
     public Vec3 currentVec;
     public Vec3 targetVec;
@@ -153,6 +155,7 @@ public class KillAura extends Module {
         targets.clear();
         index = 0;
         switchTimer.reset();
+        prevRotation = null;
         prevVec = currentVec = targetVec = null;
         Iterator<Map.Entry<EntityPlayer, DecelerateAnimation>> iterator = getModule(Interface.class).animationEntityPlayerMap.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -164,10 +167,6 @@ public class KillAura extends Module {
                 iterator.remove();
             }
         }
-    }
-
-    private float lerp(float start, float end, float factor) {
-        return start + factor * (end - start);
     }
 
     @EventTarget
@@ -227,6 +226,7 @@ public class KillAura extends Module {
 
         } else {
             target = null;
+            prevRotation = null;
             prevVec = currentVec = targetVec = null;
             unblock();
             lag = false;
@@ -349,9 +349,9 @@ public class KillAura extends Module {
     @EventTarget
     public void onRender3D(Render3DEvent event) {
         if (aimPoint.get() && target != null && PlayerUtils.getDistanceToEntityBox(target) < rotationRange.get() && currentVec != null) {
-            float interpolatedX = lerp(animatedX.getOutput(), (float) currentVec.xCoord, interpolation.get());
-            float interpolatedY = lerp(animatedY.getOutput(), (float) currentVec.yCoord, interpolation.get());
-            float interpolatedZ = lerp(animatedZ.getOutput(), (float) currentVec.zCoord, interpolation.get());
+            float interpolatedX = MathUtils.interpolate(animatedX.getOutput(), (float) currentVec.xCoord, interpolation.get());
+            float interpolatedY = MathUtils.interpolate(animatedY.getOutput(), (float) currentVec.yCoord, interpolation.get());
+            float interpolatedZ = MathUtils.interpolate(animatedZ.getOutput(), (float) currentVec.zCoord, interpolation.get());
 
             animatedX.animate(interpolatedX, (int) delay.get());
             animatedY.animate(interpolatedY, (int) delay.get());
@@ -575,11 +575,11 @@ public class KillAura extends Module {
                 targetVec = entityPos;
         }
 
-        if(heuristics.get()){
-            targetVec = RotationUtils.heuristics(entity,targetVec);
+        if (heuristics.get()) {
+            targetVec = RotationUtils.heuristics(entity, targetVec);
         }
 
-        if(bruteforce.get()) {
+        if (bruteforce.get()) {
             if (RotationUtils.rayCast(RotationUtils.getRotations(targetVec), rotationRange.get()).typeOfHit != MovingObjectPosition.MovingObjectType.ENTITY) {
                 final double xWidth = boundingBox.maxX - boundingBox.minX;
                 final double zWidth = boundingBox.maxZ - boundingBox.minZ;
@@ -613,7 +613,7 @@ public class KillAura extends Module {
         currentVec = targetVec;
 
         if (shake.get()) {
-            switch (shakeMode.get()){
+            switch (shakeMode.get()) {
                 case "Random":
                     currentVec = currentVec.addVector(
                             MathUtils.randomizeDouble(-yawShakeRange.get(), yawShakeRange.get()),
@@ -629,7 +629,7 @@ public class KillAura extends Module {
                     );
                     break;
                 case "Noise":
-                    if (gaussianHasReachedTarget(currentVec,targetVec,tolerance.get())) {
+                    if (gaussianHasReachedTarget(currentVec, targetVec, tolerance.get())) {
 
                         double yawFactor = dynamicYawFactor.get() > 0f ? (MathUtils.randomizeDouble(minYawFactor.get(), maxYawFactor.get()) + MovementUtils.getSpeed() * dynamicYawFactor.get()) : (MathUtils.randomizeDouble(minYawFactor.get(), maxYawFactor.get()));
 
@@ -651,9 +651,8 @@ public class KillAura extends Module {
             }
         }
 
-        MovingObjectPosition test = RotationUtils.rayCast(RotationUtils.getRotations(prevVec),rotationRange.get());
-
-        if(smart.get()) {
+        if (smartVec.get()) {
+            MovingObjectPosition test = RotationUtils.rayCast(RotationUtils.getRotations(prevVec), rotationRange.get());
             if (test.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && (addons.isEnabled("Ray Cast") || !addons.isEnabled("Ray Cast") && test.entityHit == target)) {
                 currentVec = prevVec;
             }
@@ -671,6 +670,26 @@ public class KillAura extends Module {
         } else if (pitch < -90.0f) {
             pitch = -90;
         }
+
+
+        if (smartRotation.get() && prevRotation != null) {
+            MovingObjectPosition test = RotationUtils.rayCast(prevRotation, rotationRange.get());
+            MovingObjectPosition test2 = RotationUtils.rayCast(new float[]{yaw, prevRotation[1]}, rotationRange.get());
+            MovingObjectPosition test3 = RotationUtils.rayCast(new float[]{prevRotation[0], pitch}, rotationRange.get());
+
+            if (test.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && (addons.isEnabled("Ray Cast") || !addons.isEnabled("Ray Cast") && test.entityHit == target)) {
+                return prevRotation;
+            }
+
+            if (test2.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && (addons.isEnabled("Ray Cast") || !addons.isEnabled("Ray Cast") && test.entityHit == target)) {
+                return new float[]{yaw, prevRotation[1]};
+            }
+            if (test3.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && (addons.isEnabled("Ray Cast") || !addons.isEnabled("Ray Cast") && test.entityHit == target)) {
+                return new float[]{prevRotation[0], pitch};
+            }
+        }
+
+        prevRotation = new float[]{yaw, pitch};
         return new float[]{yaw, pitch};
     }
     private boolean gaussianHasReachedTarget(Vec3 vec1, Vec3 vec2, float tolerance){
