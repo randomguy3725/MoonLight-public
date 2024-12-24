@@ -346,10 +346,18 @@ public class Scaffold extends Module {
             break;
             case "Hypixel Test": {
                 rotation = RotationUtils.getRotations(getVec3(data));
-                if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
-                    rotation[0] = (float) (MovementUtils.getRawDirection() + 139 + Math.random());
+                if(MovementUtils.isMovingStraight()) {
+                    if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
+                        rotation[0] = (float) (MovementUtils.getRawDirection() + 115 + Math.random());
+                    } else {
+                        rotation[0] = (float) (MovementUtils.getRawDirection() - 115 - Math.random());
+                    }
                 } else {
-                    rotation[0] = (float) (MovementUtils.getRawDirection() - 139 - Math.random());
+                    if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
+                        rotation[0] = (float) (MovementUtils.getRawDirection() + 139 + Math.random());
+                    } else {
+                        rotation[0] = (float) (MovementUtils.getRawDirection() - 139 - Math.random());
+                    }
                 }
             }
             break;

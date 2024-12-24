@@ -44,7 +44,6 @@ public class BackTrack extends Module {
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
     private int ping;
-    private boolean spoofed;
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
@@ -55,25 +54,19 @@ public class BackTrack extends Module {
     public void onMotion(MotionEvent event) {
 
         if (event.isPost()) {
+
+            if (mc.thePlayer.isDead)
+                return;
+
             target = PlayerUtils.getTarget(9);
 
-            if (target == null) {
-                if (spoofed) {
-                    PingSpoofComponent.disable();
-                    PingSpoofComponent.dispatch();
-                    spoofed = false;
-                }
+            if (target == null)
                 return;
-            }
 
-            if (swingCheck.get() && !mc.thePlayer.isSwingInProgress || mc.thePlayer.isDead) {
-                if (spoofed) {
-                    PingSpoofComponent.disable();
-                    PingSpoofComponent.dispatch();
-                    spoofed = false;
-                }
+
+            if (swingCheck.get() && !mc.thePlayer.isSwingInProgress)
                 return;
-            }
+
 
             double realDistance = realPosition.distanceTo(mc.thePlayer);
             double clientDistance = target.getDistanceToEntity(mc.thePlayer);
@@ -84,14 +77,11 @@ public class BackTrack extends Module {
                 if (shouldActive(target)) {
                     ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
                     PingSpoofComponent.spoof(ping, true, true, true, true, cancelClientP.get(), cancelClientP.get());
-                    spoofed = true;
                 } else {
-                    ping = 0;
                     PingSpoofComponent.disable();
                     PingSpoofComponent.dispatch();
                 }
             } else {
-                ping = 0;
                 PingSpoofComponent.disable();
                 PingSpoofComponent.dispatch();
             }
@@ -111,7 +101,7 @@ public class BackTrack extends Module {
             double realDistance = realPosition.distanceTo(mc.thePlayer);
             double clientDistance = target.getDistanceToEntity(mc.thePlayer);
 
-            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9 && shouldActive(target);
+            boolean on = realDistance > clientDistance && realDistance > 2.3 && realDistance < 5.9;
 
             if(on) {
                 if (packet instanceof S14PacketEntity s14PacketEntity) {
