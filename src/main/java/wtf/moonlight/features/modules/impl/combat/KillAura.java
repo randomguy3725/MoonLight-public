@@ -52,7 +52,7 @@ import java.util.*;
 
 @ModuleInfo(name = "KillAura", category = ModuleCategory.Combat, key = Keyboard.KEY_R)
 public class KillAura extends Module {
-    private final SliderValue fov = new SliderValue("FOV",180,1,180,this);
+    private final SliderValue fov = new SliderValue("FOV", 180, 1, 180, this);
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Switch", "Single"}, "Switch", this);
     public final SliderValue switchDelayValue = new SliderValue("SwitchDelay", 15, 0, 20, this, () -> mode.is("Switch"));
     private final ModeValue priority = new ModeValue("Priority", new String[]{"Range", "Armor", "Health", "HurtTime", "FOV"}, "Health", this);
@@ -64,18 +64,20 @@ public class KillAura extends Module {
     private final BoolValue bruteforce = new BoolValue("Bruteforce", true, this);
     private final BoolValue smartVec = new BoolValue("Smart Vec", true, this);
     private final BoolValue smartRotation = new BoolValue("Smart Rotation", true, this);
+    private final BoolValue pauseRotations = new BoolValue("Pause Rotations", false, this);
+    private final SliderValue pauseRange = new SliderValue("Pause Range", 0.5f, 0.1f, 6, 0.1f, this, pauseRotations::get);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
-    private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
-    private final SliderValue minPitchRotSpeed = new SliderValue("Min Pitch Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
-    private final SliderValue maxYawRotSpeed = new SliderValue("Max Yaw Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
-    private final SliderValue maxPitchRotSpeed = new SliderValue("Max Pitch Rotation Speed", 180, 0, 180, 1, this, () -> customRotationSetting.get());
-    public final SliderValue maxYawAcceleration = new SliderValue("Max Yaw Acceleration", 100, 0f, 100f, 1f, this, () -> customRotationSetting.get());
-    public final SliderValue maxPitchAcceleration = new SliderValue("Max Pitch Acceleration", 100, 0f, 100f, 1f, this, () -> customRotationSetting.get());
-   public final SliderValue accelerationError = new SliderValue("Acceleration Error", 0f, 0f, 1f, 0.01f, this, () -> customRotationSetting.get());
-    public final SliderValue constantError = new SliderValue("Constant Error", 0f, 0f, 10f, 0.01f, this, () -> customRotationSetting.get());
+    private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
+    private final SliderValue minPitchRotSpeed = new SliderValue("Min Pitch Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
+    private final SliderValue maxYawRotSpeed = new SliderValue("Max Yaw Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
+    private final SliderValue maxPitchRotSpeed = new SliderValue("Max Pitch Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
+    public final SliderValue maxYawAcceleration = new SliderValue("Max Yaw Acceleration", 100, 0f, 100f, 1f, this, customRotationSetting::get);
+    public final SliderValue maxPitchAcceleration = new SliderValue("Max Pitch Acceleration", 100, 0f, 100f, 1f, this, customRotationSetting::get);
+    public final SliderValue accelerationError = new SliderValue("Acceleration Error", 0f, 0f, 1f, 0.01f, this, customRotationSetting::get);
+    public final SliderValue constantError = new SliderValue("Constant Error", 0f, 0f, 10f, 0.01f, this, customRotationSetting::get);
     public final BoolValue smoothlyResetRotation = new BoolValue("Smoothly Reset Rotation", true, this, customRotationSetting::get);
     private final BoolValue shake = new BoolValue("Shake", false, this);
-    public final ModeValue shakeMode = new ModeValue("Shake Mode", new String[]{"Random", "Secure Random", "Noise"}, "Noise", this,shake::get);
+    public final ModeValue shakeMode = new ModeValue("Shake Mode", new String[]{"Random", "Secure Random", "Noise"}, "Noise", this, shake::get);
     private final SliderValue pitchShakeRange = new SliderValue("Pitch Shake Range", 0, 0, 0.5f, 0.01f, this, () -> shake.get() && !shakeMode.is("Noise"));
     private final SliderValue yawShakeRange = new SliderValue("Yaw Shake Range", 0, 0, 0.5f, 0.01f, this, () -> shake.get() && !shakeMode.is("Noise"));
     private final SliderValue minPitchFactor = new SliderValue("Min Pitch Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
@@ -84,7 +86,7 @@ public class KillAura extends Module {
     private final SliderValue maxYawFactor = new SliderValue("Max Yaw Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue dynamicPitchFactor = new SliderValue("Dynaimc Pitch Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue dynamicYawFactor = new SliderValue("Dynaimc Yaw Factor", 0, 0, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
-    private final SliderValue tolerance = new SliderValue("Tolerance",0.1f,0.01f,0.1f,0.01f,this, () -> shake.get() && shakeMode.is("Noise"));
+    private final SliderValue tolerance = new SliderValue("Tolerance", 0.1f, 0.01f, 0.1f, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue minSpeed = new SliderValue("Min Speed", 0.1f, 0.01f, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue maxSpeed = new SliderValue("Max Speed", 0.2f, 0.01f, 1, 0.01f, this, () -> shake.get() && shakeMode.is("Noise"));
     private final SliderValue minAps = new SliderValue("Min Aps", 9, 1, 20, this);
@@ -97,7 +99,7 @@ public class KillAura extends Module {
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
-    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla","HYT", "Watchdog", "Release","Interact"}, "Fake", this);
+    public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "HYT", "Watchdog", "Release", "Interact"}, "Fake", this);
     public final BoolValue interact = new BoolValue("Interact", false, this, () -> !autoBlock.is("None"));
     public final BoolValue via = new BoolValue("Via", false, this, () -> !autoBlock.is("None"));
     public final BoolValue slow = new BoolValue("Slowdown", false, this, () -> !autoBlock.is("None"));
@@ -119,7 +121,7 @@ public class KillAura extends Module {
     private final TimerUtils attackTimer = new TimerUtils();
     private final TimerUtils switchTimer = new TimerUtils();
     private final TimerUtils perfectHitTimer = new TimerUtils();
-    private Random random = new Random();
+    private final Random random = new Random();
     private int index;
     private int clicks;
     private int maxClicks;
@@ -247,6 +249,9 @@ public class KillAura extends Module {
         if (target != null) {
 
             if (PlayerUtils.getDistanceToEntityBox(target) < rotationRange.get()) {
+                if (PlayerUtils.getDistanceToEntityBox(target) < pauseRange.get() && pauseRotations.get()) {
+                    return;
+                }
 
                 float[] finalRotation = calcToEntity(target);
 
@@ -362,23 +367,21 @@ public class KillAura extends Module {
     }
 
     private boolean preTickBlock() {
-        switch (autoBlock.get()){
-            case "Watchdog":
-                switch (mc.thePlayer.ticksExisted % 3) {
-                    case 0:
-                        unblock();
-                        return true;
-                    case 1:
-                        return false;
-                    case 2:
-                        block(false);
-                        if (!BlinkComponent.blinking)
-                            BlinkComponent.blinking = true;
-                        BlinkComponent.release(true);
-                        blinked = true;
-                        return true;
-                }
-                break;
+        if (autoBlock.get().equals("Watchdog")) {
+            switch (mc.thePlayer.ticksExisted % 3) {
+                case 0:
+                    unblock();
+                    return true;
+                case 1:
+                    return false;
+                case 2:
+                    block(false);
+                    if (!BlinkComponent.blinking)
+                        BlinkComponent.blinking = true;
+                    BlinkComponent.release(true);
+                    blinked = true;
+                    return true;
+            }
         }
         return false;
     }
@@ -428,6 +431,7 @@ public class KillAura extends Module {
                 break;
         }
     }
+
     private void block() {
         block(interact.get());
     }
@@ -455,11 +459,11 @@ public class KillAura extends Module {
 
     public void unblock() {
         if (isBlocking) {
-            if(mode.is("HYT")){
+            if (mode.is("HYT")) {
                 sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem % 8 + 1));
                 sendPacketNoEvent(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
             } else {
-            sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+                sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
             }
             isBlocking = false;
         }
@@ -491,7 +495,7 @@ public class KillAura extends Module {
         perfectHitTimer.reset();
     }
 
-    public boolean canAttack(EntityLivingBase entity){
+    public boolean canAttack(EntityLivingBase entity) {
         return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime == 0 || entity.hurtTime == 1 || perfectHitTimer.hasTimeElapsed(1000L));
     }
 
@@ -503,7 +507,8 @@ public class KillAura extends Module {
         final List<EntityLivingBase> entities = new ArrayList<>();
         for (final Entity entity : mc.theWorld.loadedEntityList) {
             if (entity instanceof EntityLivingBase e) {
-                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) <= searchRange.get() && (RotationUtils.getRotationDifference(e) <= fov.get() || fov.get() == 180)) entities.add(e);
+                if (isValid(e) && PlayerUtils.getDistanceToEntityBox(e) <= searchRange.get() && (RotationUtils.getRotationDifference(e) <= fov.get() || fov.get() == 180))
+                    entities.add(e);
                 else entities.remove(e);
 
             }
@@ -692,11 +697,13 @@ public class KillAura extends Module {
         prevRotation = new float[]{yaw, pitch};
         return new float[]{yaw, pitch};
     }
-    private boolean gaussianHasReachedTarget(Vec3 vec1, Vec3 vec2, float tolerance){
+
+    private boolean gaussianHasReachedTarget(Vec3 vec1, Vec3 vec2, float tolerance) {
         return MathHelper.abs((float) (vec1.xCoord - vec2.xCoord)) < tolerance &&
                 MathHelper.abs((float) (vec1.yCoord - vec2.yCoord)) < tolerance &&
                 MathHelper.abs((float) (vec1.zCoord - vec2.zCoord)) < tolerance;
     }
+
     public static void drawDot(@NotNull Vec3 pos, double size, int color) {
         double d = size / 2;
         AxisAlignedBB bbox = new AxisAlignedBB(pos.xCoord - d, pos.yCoord - d, pos.zCoord - d, pos.xCoord + d, pos.yCoord + d, pos.zCoord + d);

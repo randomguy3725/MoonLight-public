@@ -9,11 +9,12 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.movement.Freeze;
+import wtf.moonlight.features.modules.impl.movement.Speed;
 import wtf.moonlight.features.values.impl.ModeValue;
 
 @ModuleInfo(name = "Critical", category = ModuleCategory.Combat)
 public class Critical extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Jump", "AutoFreeze"}, "Jump", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Jump", "AutoFreeze", "AutoSpeed"}, "Jump", this);
     private boolean attacking;
     public static boolean stuckEnabled;
 
@@ -42,6 +43,17 @@ public class Critical extends Module {
                 if (getModule(KillAura.class).target == null && stuckEnabled) {
                     getModule(Freeze.class).setEnabled(false);
                     stuckEnabled = false;
+                }
+                break;
+            case "AutoSpeed":
+                if (getModule(KillAura.class).target != null) {
+                    if (isDisabled(Speed.class)) {
+                        getModule(Speed.class).setEnabled(true);
+                    }
+                } else {
+                    if (isEnabled(Speed.class)) {
+                        getModule(Speed.class).setEnabled(false);
+                    }
                 }
                 break;
         }

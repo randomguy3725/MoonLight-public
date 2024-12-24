@@ -79,8 +79,16 @@ public class Module implements InstanceAccess {
         return state;
     }
 
+    public boolean isDisabled() {
+        return !state;
+    }
+
     public boolean isEnabled(Class module) {
         return Moonlight.INSTANCE.getModuleManager().getModule(module).isEnabled();
+    }
+
+    public boolean isDisabled(Class module) {
+        return Moonlight.INSTANCE.getModuleManager().getModule(module).isDisabled();
     }
 
     public void toggle() {
