@@ -12,11 +12,14 @@ import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
+import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 
 @ModuleInfo(name = "BlockHit",category = ModuleCategory.Combat)
 public class BlockHit extends Module {
+
+    public final BoolValue swingCheck = new BoolValue("Swing Check",true,this);
 
     public TimerUtils timer = new TimerUtils();
     public EntityPlayer target;
@@ -30,7 +33,7 @@ public class BlockHit extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event){
-        setTag("Predict Test");
+        setTag("Predict");
         target = PlayerUtils.getTarget(16);
     }
 
@@ -56,7 +59,7 @@ public class BlockHit extends Module {
             timer.reset();
         }*/
 
-        if (mc.thePlayer.isSwingInProgress && !(packet instanceof C02PacketUseEntity)&& getModule(KillAura.class).isHoldingSword() && target != null && target.swingProgressInt > 0 && (mc.thePlayer.hurtTime == 0 && timer.hasTimeElapsed(500) || mc.thePlayer.hurtTime == 9)) {
+        if ((swingCheck.get() && mc.thePlayer.isSwingInProgress || !swingCheck.get())!(packet instanceof C02PacketUseEntity)&& getModule(KillAura.class).isHoldingSword() && target != null && target.swingProgressInt > 0 && (mc.thePlayer.hurtTime == 0 && timer.hasTimeElapsed(500) || mc.thePlayer.hurtTime == 9)) {
             mc.gameSettings.keyBindUseItem.setPressed(true);
             predicted = true;
             timer.reset();
