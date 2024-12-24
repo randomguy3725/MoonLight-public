@@ -59,6 +59,15 @@ public class Moonlight {
     private long startTimeLong;
     public boolean loaded;
 
+    /**
+     * Returns the Logger instance.
+     *
+     * @return the Logger
+     */
+    public Logger getLogger() {
+        return LOGGER;
+    }
+
     public void init() {
         loaded = false;
 
@@ -97,13 +106,14 @@ public class Moonlight {
             discordRP = new DiscordInfo();
             discordRP.init();
         } catch (Throwable throwable) {
-            System.out.println("Failed to setup Discord RPC.");
+            Moonlight.LOGGER.error("Failed to setup Discord RPC.", throwable);
         }
 
         if (System.getProperties().getProperty("os.name").toLowerCase().contains("windows") && SystemTray.isSupported()) {
             try {
                 trayIcon = new TrayIcon(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/assets/minecraft/moonlight/img/logo.png"))));
             } catch (Exception var4) {
+                Moonlight.LOGGER.error("Failed to create TrayIcon.", var4);
                 var4.printStackTrace();
             }
 
@@ -113,12 +123,13 @@ public class Moonlight {
             try {
                 SystemTray.getSystemTray().add(trayIcon);
             } catch (AWTException e) {
+                Moonlight.LOGGER.error("Failed to add TrayIcon to SystemTray.", e);
                 throw new RuntimeException(e);
             }
 
             trayIcon.displayMessage("Ratted",
-                    "Sexy"
-                    , TrayIcon.MessageType.WARNING);
+                    "Sexy",
+                    TrayIcon.MessageType.WARNING);
         }
 
 

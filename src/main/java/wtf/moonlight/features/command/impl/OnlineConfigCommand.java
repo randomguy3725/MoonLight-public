@@ -48,7 +48,7 @@ public class OnlineConfigCommand extends Command {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                if (Moonlight.INSTANCE.getConfigManager().loadOnlineConfig(Moonlight.INSTANCE.getConfigManager().setting,config)) {
+                if (Moonlight.INSTANCE.getConfigManager().loadOnlineConfig(Moonlight.INSTANCE.getConfigManager().getSetting(),config)) {
                     DebugUtils.sendMessage("Loaded config: " + args[2]);
                 } else {
                     DebugUtils.sendMessage("Invalid config: " + args[2]);
