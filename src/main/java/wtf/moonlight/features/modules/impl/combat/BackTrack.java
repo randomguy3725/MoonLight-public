@@ -61,6 +61,7 @@ public class BackTrack extends Module {
                 if (spoofed) {
                     PingSpoofComponent.disable();
                     PingSpoofComponent.dispatch();
+                    spoofed = false;
                 }
                 return;
             }
@@ -69,6 +70,7 @@ public class BackTrack extends Module {
                 if (spoofed) {
                     PingSpoofComponent.disable();
                     PingSpoofComponent.dispatch();
+                    spoofed = false;
                 }
                 return;
             }
