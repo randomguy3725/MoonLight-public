@@ -39,6 +39,8 @@ import java.net.SocketAddress;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.crypto.SecretKey;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.CryptManager;
@@ -57,6 +59,7 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.impl.packet.PacketEvent;
+import wtf.moonlight.features.modules.impl.exploit.Disabler;
 
 import static net.minecraft.network.EnumPacketDirection.CLIENTBOUND;
 
@@ -161,13 +164,20 @@ public class NetworkManager extends SimpleChannelInboundHandler<Packet>
     {
         if (this.channel.isOpen())
         {
-            try
-            {
-                p_channelRead0_2_.processPacket(this.packetListener);
-            }
-            catch (ThreadQuickExitException var4)
-            {
-                ;
+            try {
+                if (Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).isEnabled() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).options.isEnabled("GrimAC") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).grim.isEnabled("Post") && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getPost() && Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).postDelay(p_channelRead0_2_)) {
+                    Minecraft.getMinecraft().addScheduledTask(() -> {
+                        Moonlight.INSTANCE.getModuleManager().getModule(Disabler.class).getStoredPackets().add(p_channelRead0_2_);
+                    });
+                } else {
+                    PacketEvent event = new PacketEvent(p_channelRead0_2_, PacketEvent.State.INCOMING);
+                    Moonlight.INSTANCE.getEventManager().call(event);
+                    if (event.isCancelled()) {
+                        return;
+                    }
+                    p_channelRead0_2_.processPacket(this.packetListener);
+                }
+            } catch (final ThreadQuickExitException var4) {
             }
         }
     }
