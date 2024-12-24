@@ -52,7 +52,7 @@ public class OldServerPinger
     public void ping(final ServerData server) throws UnknownHostException
     {
         ServerAddress serveraddress = ServerAddress.fromString(server.serverIP);
-        final NetworkManager networkmanager = NetworkManager.createNetworkManagerAndConnect(InetAddress.getByName(serveraddress.getIP()), serveraddress.getPort(),  Minecraft.getMinecraft().gameSettings.isUsingNativeTransport());
+        final NetworkManager networkmanager = NetworkManager.createNetworkManagerAndConnect(InetAddress.getByName(serveraddress.getIP()), serveraddress.getPort(), false);
         this.pingDestinations.add(networkmanager);
         server.serverMOTD = "Pinging...";
         server.pingToServer = -1L;
