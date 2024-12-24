@@ -1,14 +1,11 @@
 package wtf.moonlight.features.modules.impl.combat;
 
-import lombok.val;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S14PacketEntity;
 import net.minecraft.network.play.server.S38PacketPlayerListItem;
 import net.minecraft.util.EnumChatFormatting;
 import wtf.moonlight.events.annotations.EventTarget;
@@ -21,7 +18,6 @@ import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
-import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.render.RenderUtils;
 
 import java.util.ArrayList;
@@ -37,7 +33,8 @@ public class AntiBot extends Module {
             new BoolValue("Matrix Test", false),
             new BoolValue("Matrix Armor", false),
             new BoolValue("HYT Get Name", false),
-            new BoolValue("Hypixel", false))
+            new BoolValue("Hypixel", false),
+            new BoolValue("Miniblox", false))
             , this);
     private final ModeValue hytGetNameModes = new ModeValue("GetName Mode", new String[]{"Bw4v4", "Bw1v1", "Bw32", "Bw16"}, "Bw4v4", this, () -> options.isEnabled("HYT Get Name"));
     public final ArrayList<EntityPlayer> bots = new ArrayList<>();
@@ -161,7 +158,7 @@ public class AntiBot extends Module {
 
     public boolean isBot(EntityPlayer player) {
 
-        if(!isEnabled())
+        if (!isEnabled())
             return false;
 
         if (options.isEnabled("Tab")) {
@@ -179,6 +176,12 @@ public class AntiBot extends Module {
         if (options.isEnabled("Hypixel")) {
             for (NetworkPlayerInfo info : mc.getNetHandler().getPlayerInfoMap()) {
                 return info.getGameProfile().getId().compareTo(player.getUniqueID()) != 0 || this.nameStartsWith(player, "[NPC] ") || !player.getName().matches(VALID_USERNAME_REGEX);
+            }
+        }
+
+        if (options.isEnabled("Miniblox")) {
+            for (NetworkPlayerInfo info : mc.getNetHandler().getPlayerInfoMap()) {
+                return this.nameEqualsTo(player, "BOT");
             }
         }
 
@@ -202,7 +205,12 @@ public class AntiBot extends Module {
 
         return false;
     }
+
     private boolean nameStartsWith(EntityPlayer player, String prefix) {
         return EnumChatFormatting.getTextWithoutFormattingCodes(player.getDisplayName().getUnformattedText()).startsWith(prefix);
+    }
+
+    private boolean nameEqualsTo(EntityPlayer player, String name) {
+        return EnumChatFormatting.getTextWithoutFormattingCodes(player.getDisplayName().getUnformattedText()).equals(name);
     }
 }
