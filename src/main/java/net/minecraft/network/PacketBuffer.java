@@ -1,4 +1,3 @@
-
 package net.minecraft.network;
 
 import com.google.common.base.Charsets;

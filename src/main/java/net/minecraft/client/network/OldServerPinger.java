@@ -20,7 +20,6 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -48,7 +47,7 @@ public class OldServerPinger
 {
     private static final Splitter PING_RESPONSE_SPLITTER = Splitter.on('\u0000').limit(6);
     private static final Logger logger = LogManager.getLogger();
-    private final List<NetworkManager> pingDestinations = Collections.synchronizedList(Lists.newArrayList());
+    private final List<NetworkManager> pingDestinations = Collections.<NetworkManager>synchronizedList(Lists.<NetworkManager>newArrayList());
 
     public void ping(final ServerData server) throws UnknownHostException
     {
@@ -96,7 +95,7 @@ public class OldServerPinger
 
                     if (serverstatusresponse.getPlayerCountData() != null)
                     {
-                        server.populationInfo = EnumChatFormatting.GRAY + "" + serverstatusresponse.getPlayerCountData().getOnlinePlayerCount() + EnumChatFormatting.DARK_GRAY + "/" + EnumChatFormatting.GRAY + serverstatusresponse.getPlayerCountData().getMaxPlayers();
+                        server.populationInfo = EnumChatFormatting.GRAY + "" + serverstatusresponse.getPlayerCountData().getOnlinePlayerCount() + "" + EnumChatFormatting.DARK_GRAY + "/" + EnumChatFormatting.GRAY + serverstatusresponse.getPlayerCountData().getMaxPlayers();
 
                         if (ArrayUtils.isNotEmpty(serverstatusresponse.getPlayerCountData().getPlayers()))
                         {
@@ -145,7 +144,7 @@ public class OldServerPinger
                     }
                     else
                     {
-                        server.setBase64EncodedIconData(null);
+                        server.setBase64EncodedIconData((String)null);
                     }
 
                     this.field_175092_e = Minecraft.getSystemTime();
@@ -164,8 +163,8 @@ public class OldServerPinger
             {
                 if (!this.field_147403_d)
                 {
-                    OldServerPinger.logger.error("Can't ping " + server.serverIP + ": " + reason.getUnformattedText());
-                    server.serverMOTD = EnumChatFormatting.DARK_RED + "Can't connect to server.";
+                    OldServerPinger.logger.error("Can\'t ping " + server.serverIP + ": " + reason.getUnformattedText());
+                    server.serverMOTD = EnumChatFormatting.DARK_RED + "Can\'t connect to server.";
                     server.populationInfo = "";
                     OldServerPinger.this.tryCompatibilityPing(server);
                 }
@@ -179,7 +178,7 @@ public class OldServerPinger
         }
         catch (Throwable throwable)
         {
-            logger.error(throwable);
+            logger.error((Object)throwable);
         }
     }
 
@@ -272,7 +271,6 @@ public class OldServerPinger
         })).channel(NioSocketChannel.class)).connect(serveraddress.getIP(), serveraddress.getPort());
     }
 
-
     public void pingPendingNetworks()
     {
         synchronized (this.pingDestinations)
@@ -281,7 +279,7 @@ public class OldServerPinger
 
             while (iterator.hasNext())
             {
-                NetworkManager networkmanager = iterator.next();
+                NetworkManager networkmanager = (NetworkManager)iterator.next();
 
                 if (networkmanager.isChannelOpen())
                 {
@@ -304,7 +302,7 @@ public class OldServerPinger
 
             while (iterator.hasNext())
             {
-                NetworkManager networkmanager = iterator.next();
+                NetworkManager networkmanager = (NetworkManager)iterator.next();
 
                 if (networkmanager.isChannelOpen())
                 {
