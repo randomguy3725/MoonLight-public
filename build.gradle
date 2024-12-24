@@ -44,7 +44,7 @@ compileJava {
 }
 
 dependencies {
-    implementation "io.netty:netty-all:4.0.23.Final"
+    implementation 'io.netty:netty-all:5.0.0.Alpha2'
 
     implementation "net.sf.jopt-simple:jopt-simple:4.6"
 
