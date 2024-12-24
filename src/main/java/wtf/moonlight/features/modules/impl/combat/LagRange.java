@@ -23,8 +23,8 @@ import java.awt.*;
 
 @ModuleInfo(name = "LagRange", category = ModuleCategory.Combat)
 public class LagRange extends Module {
-    private final SliderValue attackRange = new SliderValue("Search Range", 4, 4, 15, this);
-    private final SliderValue minRange = new SliderValue("Min Range", 4, 4, 15, this);
+    private final SliderValue attackRange = new SliderValue("Search Range", 4, 1, 15, this);
+    private final SliderValue minRange = new SliderValue("Min Range", 4, 1, 15, this);
     private final SliderValue maxRange = new SliderValue("Max Range", 6, 4, 15, this);
     private final SliderValue everyMS = new SliderValue("Every MS", 1, 200, 1000, this);
     private final SliderValue delayMS = new SliderValue("Delay MS", 1, 200, 1000, this);
