@@ -44,6 +44,7 @@ public class BackTrack extends Module {
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
     private int ping;
+    private boolean spoofed;
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
@@ -56,10 +57,19 @@ public class BackTrack extends Module {
         if (event.isPost()) {
             target = PlayerUtils.getTarget(9);
 
-            if (target == null)
+            if (target == null) {
+                if (spoofed) {
+                    PingSpoofComponent.disable();
+                    PingSpoofComponent.dispatch();
+                }
                 return;
+            }
 
-            if (swingCheck.get() && !mc.thePlayer.isSwingInProgress) {
+            if (swingCheck.get() && !mc.thePlayer.isSwingInProgress || mc.thePlayer.isDead) {
+                if (spoofed) {
+                    PingSpoofComponent.disable();
+                    PingSpoofComponent.dispatch();
+                }
                 return;
             }
 
@@ -72,6 +82,7 @@ public class BackTrack extends Module {
                 if (shouldActive(target)) {
                     ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
                     PingSpoofComponent.spoof(ping, true, true, true, true, cancelClientP.get(), cancelClientP.get());
+                    spoofed = true;
                 } else {
                     ping = 0;
                     PingSpoofComponent.disable();
