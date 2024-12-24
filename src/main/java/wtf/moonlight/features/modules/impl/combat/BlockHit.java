@@ -59,7 +59,7 @@ public class BlockHit extends Module {
             timer.reset();
         }*/
 
-        if ((swingCheck.get() && mc.thePlayer.isSwingInProgress || !swingCheck.get())!(packet instanceof C02PacketUseEntity)&& getModule(KillAura.class).isHoldingSword() && target != null && target.swingProgressInt > 0 && (mc.thePlayer.hurtTime == 0 && timer.hasTimeElapsed(500) || mc.thePlayer.hurtTime == 9)) {
+        if ((swingCheck.get() && mc.thePlayer.isSwingInProgress || !swingCheck.get()) && !(packet instanceof C02PacketUseEntity)&& getModule(KillAura.class).isHoldingSword() && target != null && target.swingProgressInt > 0 && (mc.thePlayer.hurtTime == 0 && timer.hasTimeElapsed(500) || mc.thePlayer.hurtTime == 9)) {
             mc.gameSettings.keyBindUseItem.setPressed(true);
             predicted = true;
             timer.reset();
