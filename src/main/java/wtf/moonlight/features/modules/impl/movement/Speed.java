@@ -357,6 +357,7 @@ public class Speed extends Module {
 
                         if(mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava() || hurtTimeCheck.get() && mc.thePlayer.hurtTime > 0) {
                             disable = true;
+                            return;
                         }
                         if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
                             disable = false;
