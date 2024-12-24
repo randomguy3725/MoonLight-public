@@ -64,7 +64,6 @@ public class GuiIngame extends Gui
     private final Minecraft mc;
     private final RenderItem itemRenderer;
     private final GuiNewChat persistantChatGUI;
-    private final GuiStreamIndicator streamIndicator;
     private int updateCounter;
     private String recordPlaying = "";
     private int recordPlayingUpFor;
@@ -93,7 +92,6 @@ public class GuiIngame extends Gui
         this.overlayDebug = new GuiOverlayDebug(mcIn);
         this.spectatorGui = new GuiSpectator(mcIn);
         this.persistantChatGUI = new GuiNewChat(mcIn);
-        this.streamIndicator = new GuiStreamIndicator(mcIn);
         this.overlayPlayerList = new GuiPlayerTabOverlay(mcIn, this);
         this.setDefaultTitlesTimes();
     }
@@ -535,10 +533,6 @@ public class GuiIngame extends Gui
         }
     }
 
-    public void renderStreamIndicator(ScaledResolution scaledRes)
-    {
-        this.streamIndicator.render(scaledRes.getScaledWidth() - 10, 10);
-    }
 
     private static final Pattern LINK_PATTERN = Pattern.compile("(http(s)?://.)?(www\\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\\.[A-z]{2,6}\\b([-a-zA-Z0-9@:%_+.~#?&//=]*)");
 
@@ -1082,7 +1076,6 @@ public class GuiIngame extends Gui
         }
 
         ++this.updateCounter;
-        this.streamIndicator.updateStreamAlpha();
 
         if (this.mc.thePlayer != null)
         {
