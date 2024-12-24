@@ -5,35 +5,53 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  workflow_dispatch:  
-    
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: 17
+  GRADLE_TASK: shadowJar
+  JAR_NAME: Moonlight.jar
+  JSON_NAME: Moonlight.json
+  BUILD_DIR: build/libs
+  JSON_DIR: json
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Java setup
+
+      - name: Set Up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: 17
-          check-latest: true
-      - uses: burrunan/gradle-cache-action@v1
-        name: Build
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Configure Gradle Cache
+        uses: actions/cache@v3
         with:
-          job-id: jdk17
-          arguments: shadowJar
-          gradle-version: wrapper
-      - name: Rename and move files to root
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper/
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Build Project with Gradle
+        run: ./gradlew ${{ env.GRADLE_TASK }} --no-daemon
+
+      - name: Rename and Move Files to Root
         run: |
-          mv build/libs/Moonlight-1.8.9-all.jar Moonlight.jar
-          mv json/MoonLight.json Moonlight.json
-      - name: Upload build artifacts
+          mv ${BUILD_DIR}/Moonlight-1.8.9-all.jar ${GITHUB_WORKSPACE}/${JAR_NAME}
+          mv ${JSON_DIR}/MoonLight.json ${GITHUB_WORKSPACE}/${JSON_NAME}
+
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Moonlight
           path: |
-            Moonlight.jar
-            Moonlight.json
+            ${{ env.JAR_NAME }}
+            ${{ env.JSON_NAME }}
