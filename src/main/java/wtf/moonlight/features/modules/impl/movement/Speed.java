@@ -39,6 +39,7 @@ public class Speed extends Module {
     private final BoolValue extraStrafe = new BoolValue("Extra Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
     private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
+    private final BoolValue hurtTimeCheck = new BoolValue("Hurt Time Check", true, this, () -> mode.is("Watchdog") && (wdMode.is("Full Strafe") || fastFall.canDisplay() && fastFall.get()));
     private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick","7 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
@@ -354,7 +355,7 @@ public class Speed extends Module {
 
                     if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
 
-                        if(mc.thePlayer.isInWater() && mc.thePlayer.isInWeb && mc.thePlayer.isInLava() ) {
+                        if(mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava() || hurtTimeCheck.get() && mc.thePlayer.hurtTime > 0) {
                             disable = true;
                         }
                         if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air) {
