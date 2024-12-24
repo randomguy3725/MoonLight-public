@@ -34,7 +34,7 @@ public class BackTrack extends Module {
     private final ModeValue esp = new ModeValue("Mode", new String[]{"Off", "Box"}, "Box", this);
     public final BoolValue cancelClientP = new BoolValue("Cancel Client Packet",false,this);
     public final BoolValue swingCheck = new BoolValue("Swing Check",false,this);;
-    private final ModeValue activeMode = new ModeValue("Active Mode", new String[]{"Hit", "Not Hit","Always"}, "Box", this);
+    private final ModeValue activeMode = new ModeValue("Active Mode", new String[]{"Hit", "Not Hit","Always"}, "Always", this);
     public final BoolValue releaseOnVelocity = new BoolValue("Release On Velocity",false,this);
     public SliderValue minMS = new SliderValue("Min MS", 50, 0, 5000, 5, this);
     public SliderValue maxMS = new SliderValue("Max MS", 200, 0, 5000, 5, this);
@@ -73,10 +73,12 @@ public class BackTrack extends Module {
                     ping = MathUtils.randomizeInt(minMS.get(), maxMS.get());
                     PingSpoofComponent.spoof(ping, true, true, true, true, cancelClientP.get(), cancelClientP.get());
                 } else {
+                    ping = 0;
                     PingSpoofComponent.disable();
                     PingSpoofComponent.dispatch();
                 }
             } else {
+                ping = 0;
                 PingSpoofComponent.disable();
                 PingSpoofComponent.dispatch();
             }
@@ -118,7 +120,7 @@ public class BackTrack extends Module {
 
     @EventTarget
     public void onRender3D(Render3DEvent event) {
-        if (target != null) {
+        if (target != null && shouldActive(target)) {
             switch (esp.get()){
                 case "Box":
                     double x = realPosition.xCoord - mc.getRenderManager().viewerPosX;
