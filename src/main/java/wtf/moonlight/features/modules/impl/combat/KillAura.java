@@ -367,21 +367,23 @@ public class KillAura extends Module {
     }
 
     private boolean preTickBlock() {
-        if (autoBlock.get().equals("Watchdog")) {
-            switch (mc.thePlayer.ticksExisted % 3) {
-                case 0:
-                    unblock();
-                    return true;
-                case 1:
-                    return false;
-                case 2:
-                    block(false);
-                    if (!BlinkComponent.blinking)
-                        BlinkComponent.blinking = true;
-                    BlinkComponent.release(true);
-                    blinked = true;
-                    return true;
-            }
+        switch (autoBlock.get()) {
+            case "Watchdog":
+                switch (mc.thePlayer.ticksExisted % 3) {
+                    case 0:
+                        unblock();
+                        return true;
+                    case 1:
+                        return false;
+                    case 2:
+                        block(false);
+                        if (!BlinkComponent.blinking)
+                            BlinkComponent.blinking = true;
+                        BlinkComponent.release(true);
+                        blinked = true;
+                        return true;
+                }
+                break;
         }
         return false;
     }
