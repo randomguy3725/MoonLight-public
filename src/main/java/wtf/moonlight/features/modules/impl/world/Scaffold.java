@@ -7,7 +7,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.potion.Potion;
@@ -28,6 +27,7 @@ import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
+import wtf.moonlight.utils.misc.DebugUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.*;
 import wtf.moonlight.utils.render.RenderUtils;
@@ -81,7 +81,7 @@ public class Scaffold extends Module {
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
-    private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && (addons.isEnabled("Keep Y") || addons.isEnabled("Speed Keep Y")));
+    private final ModeValue wdLowhop = new ModeValue("WD Fast Fall Mode", new String[]{"8 Tick","7 Tick","Disabled"}, "Opal", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && (addons.isEnabled("Keep Y") || addons.isEnabled("Speed Keep Y")));
     private final SliderValue straightSpeed = new SliderValue("Keep Y Straight Speed", 1, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
     private final SliderValue diagonalSpeed = new SliderValue("Keep Y Diagonal Speed", 0.95f, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
     public final ModeValue counter = new ModeValue("Counter", new String[]{"None", "Simple", "Normal", "Exhibition"}, "Normal", this);
@@ -348,15 +348,15 @@ public class Scaffold extends Module {
                 rotation = RotationUtils.getRotations(getVec3(data));
                 if(MovementUtils.isMovingStraight()) {
                     if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
-                        rotation[0] = (float) (MovementUtils.getRawDirection() + 115 + Math.random());
+                        rotation[0] = MovementUtils.getRawDirection() + 91;
                     } else {
-                        rotation[0] = (float) (MovementUtils.getRawDirection() - 115 - Math.random());
+                        rotation[0] = MovementUtils.getRawDirection() - 91;
                     }
                 } else {
                     if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
-                        rotation[0] = (float) (MovementUtils.getRawDirection() + 139 + Math.random());
+                        rotation[0] = MovementUtils.getRawDirection() + 139;
                     } else {
-                        rotation[0] = (float) (MovementUtils.getRawDirection() - 139 - Math.random());
+                        rotation[0] = MovementUtils.getRawDirection() - 139;
                     }
                 }
             }
@@ -478,6 +478,20 @@ public class Scaffold extends Module {
 
         if (data == null || data.blockPos == null || data.facing == null || getBlockSlot() == -1 || isEnabled(KillAura.class) && !getModule(KillAura.class).noScaffold.get() && getModule(KillAura.class).target != null && getModule(KillAura.class).shouldAttack() && !(mc.theWorld.getBlockState(getModule(Scaffold.class).targetBlock).getBlock() instanceof BlockAir)) {
             return;
+        }
+
+        if(wdLowhop.canDisplay() && wdLowhop.is("7 Tick") && placed) {
+            if (mc.thePlayer.offGroundTicks == 1) {
+                mc.thePlayer.motionY += 0.057f;
+            }
+
+            if (mc.thePlayer.offGroundTicks == 3) {
+                mc.thePlayer.motionY -= 0.1309f;
+            }
+
+            if (mc.thePlayer.offGroundTicks == 4) {
+                mc.thePlayer.motionY -= 0.2;
+            }
         }
 
         if(towerMove.is("Low")){
@@ -627,10 +641,27 @@ public class Scaffold extends Module {
                 }
             }
             if (mc.thePlayer.onGround && sprintBoost.get()) {
-                mc.thePlayer.motionX *= 1.12 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
-                mc.thePlayer.motionZ *= 1.12 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
             }
         }
+
+        if(wdLowhop.canDisplay() && wdLowhop.is("8 Tick") && placed) {
+            boolean down = false;
+            int simpleY = (int) Math.round((event.y % 1) * 10000);
+
+            if (simpleY == 13) {
+                mc.thePlayer.motionY = mc.thePlayer.motionY - 0.02483;
+            }
+
+            if (simpleY == 2000) {
+                mc.thePlayer.motionY = mc.thePlayer.motionY - 0.1913;
+            }
+
+            if (simpleY == 13) down = true;
+            if (down) event.y -= 1E-5;
+        }
+
         if (tower.canDisplay()) {
             switch (tower.get()) {
                 case "Watchdog Test":
@@ -765,7 +796,7 @@ public class Scaffold extends Module {
                 blocksPlaced += 1;
                 placed = true;
 
-                if (facing == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
+                if (facing == EnumFacing.UP && wdKeepY.canDisplay()) {
                     start = true;
                 }
             }
@@ -783,7 +814,7 @@ public class Scaffold extends Module {
                     blocksPlaced += 1;
                     placed = true;
 
-                    if (facing == EnumFacing.UP && wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
+                    if (facing == EnumFacing.UP && wdKeepY.canDisplay()) {
                         start = true;
                     }
                 }
