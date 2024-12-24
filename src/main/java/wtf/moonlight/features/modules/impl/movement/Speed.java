@@ -124,6 +124,7 @@ public class Speed extends Module {
                     mc.thePlayer.motionZ *= 1f + 0.00718;
                 }
             }
+            break;
 
             case "Intave": {
                 if (mc.thePlayer.motionY > 0.03 && mc.thePlayer.isSprinting()) {
@@ -131,6 +132,7 @@ public class Speed extends Module {
                     mc.thePlayer.motionZ *= 1f + 0.003;
                 }
             }
+            break;
 
             case "EntityCollide": {
                 couldStrafe = false;
