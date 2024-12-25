@@ -14,37 +14,22 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-/**
- * Manages the loading and saving of configurations.
- */
 @Getter
 public class ConfigManager {
 
-    // Managed configurations
     private final ModuleConfig setting = new ModuleConfig("default");
     private final WidgetConfig elements = new WidgetConfig("elements");
 
-    // Gson instance for JSON operations
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // Current active configuration
     @Getter
     @Setter
     private String currentConfig = "default";
 
-    /**
-     * Initializes the ConfigManager by loading all configurations.
-     */
     public ConfigManager() {
         loadConfigs();
     }
 
-    /**
-     * Loads a configuration from its associated file.
-     *
-     * @param config The configuration to load.
-     * @return {@code true} if the configuration was loaded successfully, {@code false} otherwise.
-     */
     public boolean loadConfig(Config config) {
         if (config == null) {
             Moonlight.LOGGER.warn("Attempted to load a null configuration.");
@@ -63,13 +48,6 @@ public class ConfigManager {
         }
     }
 
-    /**
-     * Loads a configuration from an online source represented by a JsonObject.
-     *
-     * @param config     The configuration to load.
-     * @param jsonObject The JsonObject containing the configuration data.
-     * @return {@code true} if the configuration was loaded successfully, {@code false} otherwise.
-     */
     public boolean loadOnlineConfig(Config config, JsonObject jsonObject) {
         if (config == null || jsonObject == null) {
             Moonlight.LOGGER.warn("Config or JsonObject is null. Cannot load online config.");
@@ -86,12 +64,6 @@ public class ConfigManager {
         }
     }
 
-    /**
-     * Saves a configuration to its associated file.
-     *
-     * @param config The configuration to save.
-     * @return {@code true} if the configuration was saved successfully, {@code false} otherwise.
-     */
     public boolean saveConfig(Config config) {
         if (config == null) {
             Moonlight.LOGGER.warn("Attempted to save a null configuration.");
@@ -111,9 +83,6 @@ public class ConfigManager {
         }
     }
 
-    /**
-     * Saves all managed configurations.
-     */
     public void saveConfigs() {
         if (!saveConfig(setting)) {
             Moonlight.LOGGER.warn("Failed to save setting config.");
@@ -123,9 +92,6 @@ public class ConfigManager {
         }
     }
 
-    /**
-     * Loads all managed configurations.
-     */
     public void loadConfigs() {
         if (!loadConfig(setting)) {
             Moonlight.LOGGER.warn("Failed to load setting config.");

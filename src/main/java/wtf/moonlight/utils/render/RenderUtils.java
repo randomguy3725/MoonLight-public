@@ -1,6 +1,5 @@
 package wtf.moonlight.utils.render;
 
-import lombok.val;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.gui.Gui;
@@ -11,7 +10,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.*;
 import net.minecraft.util.AxisAlignedBB;
@@ -974,5 +972,12 @@ public class RenderUtils implements InstanceAccess {
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
+    }
+
+    public static void color(int color, float alpha) {
+        float f = (float)(color >> 16 & 0xFF) / 255.0f;
+        float f1 = (float)(color >> 8 & 0xFF) / 255.0f;
+        float f2 = (float)(color & 0xFF) / 255.0f;
+        GL11.glColor4f(f, f1, f2, alpha / 255.0f);
     }
 }

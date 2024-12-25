@@ -1251,6 +1251,7 @@ public abstract class World implements IBlockAccess
         return list;
     }
 
+
     public int calculateSkylightSubtracted(float p_72967_1_)
     {
         float f = this.getCelestialAngle(p_72967_1_);

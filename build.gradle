@@ -113,7 +113,7 @@ dependencies {
     compileOnly "org.lwjgl:lwjgl"
     compileOnly "org.lwjgl:lwjgl-glfw"
     compileOnly "org.lwjgl:lwjgl-nanovg"
-    compileOnly "org.lwjgl:lwjgl-openal"
+    //compileOnly "org.lwjgl:lwjgl-openal"
     compileOnly "org.lwjgl:lwjgl-opengl"
 
     // Lombok
@@ -144,6 +144,8 @@ dependencies {
     implementation "com.paulscode.sound:codecwav:20101023"
     implementation "com.paulscode.sound:soundsystem:20120107"
     implementation "com.paulscode.sound:codecjorbis:20101023"
+
+
     implementation "com.mojang:authlib:1.5.21"
 
     implementation 'it.unimi.dsi:fastutil:8.5.13'

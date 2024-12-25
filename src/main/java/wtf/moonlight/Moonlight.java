@@ -74,26 +74,6 @@ public class Moonlight {
     // Load status
     private boolean loaded;
 
-    /**
-     * Private constructor to enforce Singleton pattern.
-     */
-    private Moonlight() {
-        // Private constructor to prevent external instantiation
-    }
-
-    /**
-     * Provides access to the Singleton instance of Moonlight.
-     *
-     * @return the single instance of Moonlight
-     */
-    public static Moonlight getInstance() {
-        return INSTANCE;
-    }
-
-    /**
-     * Initializes the Moonlight client by setting up directories, managers, event handlers,
-     * system tray, Discord RPC, and other components.
-     */
     public void init() {
         loaded = false;
 
@@ -111,9 +91,6 @@ public class Moonlight {
         LOGGER.info("{} {} initialized successfully.", clientName, version);
     }
 
-    /**
-     * Sets up the main directory for configurations and other client data.
-     */
     private void setupMainDirectory() {
         if (!mainDir.exists()) {
             boolean dirCreated = mainDir.mkdir();
@@ -128,9 +105,6 @@ public class Moonlight {
         }
     }
 
-    /**
-     * Sets up the display title for the client window.
-     */
     private void setupDisplayTitle() {
         String osVersion = Sys.getVersion();
         String title = String.format("%s %s | %s", clientName, version, osVersion);
@@ -138,9 +112,6 @@ public class Moonlight {
         LOGGER.info("Display title set to: {}", title);
     }
 
-    /**
-     * Initializes all manager and GUI components used by the client.
-     */
     private void initializeManagers() {
         eventManager = new EventManager();
         notificationManager = new NotificationManager();
@@ -154,9 +125,6 @@ public class Moonlight {
         skeetGUI = new SkeetUI();
     }
 
-    /**
-     * Registers event handlers with the EventManager.
-     */
     private void registerEventHandlers() {
         eventManager.register(new ScaffoldCounter());
         eventManager.register(new RotationUtils());
@@ -169,27 +137,18 @@ public class Moonlight {
         LOGGER.info("Event handlers registered.");
     }
 
-    /**
-     * Initializes the start time for tracking the client's uptime.
-     */
     private void initializeStartTime() {
         startTime = (int) System.currentTimeMillis();
         startTimeLong = System.currentTimeMillis();
         LOGGER.info("Start time initialized: {} ms", startTime);
     }
 
-    /**
-     * Initializes ViaMCP for handling Minecraft protocol modifications.
-     */
     private void initializeViaMCP() {
         ViaMCP.create();
         ViaMCP.INSTANCE.initAsyncSlider();
         LOGGER.info("ViaMCP initialized.");
     }
 
-    /**
-     * Sets up Discord Rich Presence for the client.
-     */
     private void setupDiscordRPC() {
         try {
             discordRP = new DiscordInfo();
@@ -200,9 +159,6 @@ public class Moonlight {
         }
     }
 
-    /**
-     * Sets up the system tray icon if supported by the operating system.
-     */
     private void setupSystemTray() {
         if (isWindows() && SystemTray.isSupported()) {
             try {
@@ -223,9 +179,6 @@ public class Moonlight {
         }
     }
 
-    /**
-     * Handles the Fast Render setting by disabling it if enabled, due to compatibility issues.
-     */
     private void handleFastRender() {
         if (Minecraft.getMinecraft().gameSettings.ofFastRender) {
             notificationManager.post(NotificationType.WARNING, "Fast Rendering has been disabled", "due to compatibility issues");
@@ -234,20 +187,11 @@ public class Moonlight {
         }
     }
 
-    /**
-     * Checks if the operating system is Windows.
-     *
-     * @return {@code true} if the OS is Windows, {@code false} otherwise.
-     */
     private boolean isWindows() {
         String osName = System.getProperty("os.name").toLowerCase();
         return osName.contains("windows");
     }
 
-    /**
-     * Stops the Moonlight client, performing necessary cleanup tasks such as stopping Discord RPC
-     * and saving configurations.
-     */
     public void onStop() {
         if (discordRP != null) {
             discordRP.stop();
