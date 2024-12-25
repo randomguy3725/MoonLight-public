@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @ModuleInfo(name = "LongJump", category = ModuleCategory.Movement, key = Keyboard.KEY_F)
 public class LongJump extends Module {
     public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball", "Watchdog","Old Matrix"}, "Watchdog Fireball", this);
+    public final ModeValue wdFBMode = new ModeValue("Fireball Mode", new String[]{"Rise","Chef","Chef High"}, "Watchdog Fireball", this);
     private final SliderValue wdSpeed = new SliderValue("Watchdog Speed", 0.5f, 0.5f, 1, 0.01f, this, () -> mode.is("Watchdog"));
     private final BoolValue detectSpeedPot = new BoolValue("Detect Speed Pot Boost", true,this, () -> mode.is("Watchdog"));
     private final SliderValue oMatrixTimer = new SliderValue("Matrix Timer", 0.3f, 0.1f, 1, 0.01f, this, () -> mode.is("Old Matrix"));
@@ -56,7 +57,7 @@ public class LongJump extends Module {
     //bow
     private int bowState = 0;
     private final Queue<Packet<?>> delayedPackets = new ConcurrentLinkedQueue<>();
-    
+
     //matrix
     private boolean packet;
     private int matrixTimer = 0;
@@ -96,6 +97,7 @@ public class LongJump extends Module {
             ticks = lastSlot = -1;
             setSpeed = stopModules = sentPlace = false;
             initTicks = 0;
+            ticksSinceVelocity = 0;
         }
         if (Objects.equals(mode.get(), "Old Matrix")) {
             packet = false;
@@ -110,13 +112,13 @@ public class LongJump extends Module {
         ticksSinceVelocity++;
         switch (mode.get()) {
             case "Old Matrix":
-                if(!packet) {
-                    if(mc.thePlayer.onGround)
+                if (!packet) {
+                    if (mc.thePlayer.onGround)
                         mc.thePlayer.jump();
                     sendPacketNoEvent(new C03PacketPlayer(false));
                     packet = true;
                 }
-                if(packet) {
+                if (packet) {
                     mc.timer.timerSpeed = oMatrixTimer.get();
                     mc.thePlayer.motionX = 1.97 * -Math.sin(MovementUtils.getDirection());
                     mc.thePlayer.motionZ = 1.97 * Math.cos(MovementUtils.getDirection());
@@ -139,32 +141,52 @@ public class LongJump extends Module {
         }
         switch (mode.get()) {
             case "Watchdog Fireball":
-
                 if(event.isPre()){
-                    if (mc.thePlayer.hurtTime == 10){
-                        mc.thePlayer.motionY =1.1f;
+
+                    if(thrown && mc.thePlayer.onGround){
+                        toggle();
                     }
 
-                    if (ticksSinceVelocity <= 80 && ticksSinceVelocity >= 1) {
-                        mc.thePlayer.motionY += 0.028f;
-                    }
+                    switch (wdFBMode.get()) {
+                        case "Rise":
+                            if (mc.thePlayer.hurtTime == 10) {
+                                mc.thePlayer.motionY = 1.1f;
+                            }
 
-                    if(ticksSinceVelocity==28){
-                        if (boost.get()){
-                            MovementUtils.strafe(0.42);
-                        }
-                        mc.thePlayer.motionY = 0.16f;
-                    }
-                    if(ticksSinceVelocity >= 35 && ticksSinceVelocity <= 50){
-                        MovementUtils.strafe();
-                        mc.thePlayer.posY = mc.thePlayer.posY+ .029f;
+                            if (ticksSinceVelocity <= 80 && ticksSinceVelocity >= 1) {
+                                mc.thePlayer.motionY += 0.028f;
+                            }
 
-                    }
+                            if (ticksSinceVelocity == 28) {
+                                if (boost.get()) {
+                                    MovementUtils.strafe(0.42);
+                                }
+                                mc.thePlayer.motionY = 0.16f;
+                            }
+                            if (ticksSinceVelocity >= 35 && ticksSinceVelocity <= 50) {
+                                MovementUtils.strafe();
+                                mc.thePlayer.posY = mc.thePlayer.posY + .029f;
 
-                    if(ticksSinceVelocity >= 3 && ticksSinceVelocity <= 50){
-                        MovementUtils.strafe();
+                            }
 
-
+                            if (ticksSinceVelocity >= 3 && ticksSinceVelocity <= 50) {
+                                MovementUtils.strafe();
+                            }
+                            break;
+                        case "Chef":
+                            if (thrown) {
+                                if (ticksSinceVelocity >= 1 && ticksSinceVelocity <= 33) {
+                                    mc.thePlayer.motionY = 0.7 - ticksSinceVelocity * 0.015;
+                                }
+                            }
+                            break;
+                        case "Chef high":
+                            if (thrown) {
+                                if (ticksSinceVelocity >= 1 && ticksSinceVelocity <= 28) {
+                                    mc.thePlayer.motionY = ticksSinceVelocity * 0.016;
+                                }
+                            }
+                            break;
                     }
 
                     if (initTicks == 0) {
