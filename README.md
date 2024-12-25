@@ -2,8 +2,6 @@
 
 Welcome to the **Moonlight-public** repository, a fully structured client project.
 
-Moving to 1.21
-
 ## Contact Info
 - **Discord Server** https://discord.gg/BrXGxGeY8r
 - **QQ Group** 713315328
