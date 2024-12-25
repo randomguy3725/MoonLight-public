@@ -31,8 +31,8 @@ import static org.lwjgl.opengl.GL11.glTranslated;
 @ModuleInfo(name = "LineGlyphs", category = ModuleCategory.Visual)
 public class LineGlyphs extends Module {
 
-    public final BoolValue SlowSpeed = new BoolValue("Slow Speed", false, this);
-    public final SliderValue GlyphsCount = new SliderValue("Glyphs Count", 70, 0, 200, 1, this);
+    public final BoolValue slowSpeed = new BoolValue("Slow Speed", false, this);
+    public final SliderValue glyphsCount = new SliderValue("Glyphs Count", 70, 0, 200, 1, this);
     private final Random RAND = new Random(93882L);
     private final List<Vec3> temp3dVecs = new ArrayList<>();
     private static final Tessellator tessellator = Tessellator.getInstance();
@@ -51,7 +51,7 @@ public class LineGlyphs extends Module {
     }
 
     private int maxObjCount() {
-        return (int) this.GlyphsCount.get();
+        return (int) this.glyphsCount.get();
     }
 
     private int getR360X() {
@@ -199,7 +199,7 @@ public class LineGlyphs extends Module {
                 this.alphaPC.to = 0.0f;
             }
             if (this.currentStepTicks > 0) {
-                this.currentStepTicks -= LineGlyphs.this.SlowSpeed.get() ? 1 : 2;
+                this.currentStepTicks -= LineGlyphs.this.slowSpeed.get() ? 1 : 2;
                 if (this.currentStepTicks < 0) {
                     this.currentStepTicks = 0;
                 }
@@ -281,7 +281,7 @@ public class LineGlyphs extends Module {
             int index = 0;
             for (Vec3 vec3d : gliphVecGen.getPosVectors(pTicks)) {
                 aPC = alphaPC * (0.25f + (float) index / (float) gliphVecGen.vecGens.size() / 1.75f);
-                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
+                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex), aPC).endVertex();
                 colorIndex += 180;
                 ++index;
             }
@@ -292,7 +292,7 @@ public class LineGlyphs extends Module {
             index = 0;
             for (Vec3 vec3d : gliphVecGen.getPosVectors(pTicks)) {
                 aPC = alphaPC * (0.25f + (float) index / (float) gliphVecGen.vecGens.size() / 1.75f);
-                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex, (int) aPC * 255)).endVertex();
+                tessellator.getWorldRenderer().pos(vec3d).color(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).color(colorIndex), aPC).endVertex();
                 colorIndex += 180;
                 ++index;
             }

@@ -24,6 +24,7 @@ import org.lwjglx.input.Mouse;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
+import wtf.moonlight.events.impl.player.StrafeEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
@@ -49,6 +50,8 @@ import wtf.moonlight.utils.render.RenderUtils;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 @ModuleInfo(name = "KillAura", category = ModuleCategory.Combat, key = Keyboard.KEY_R)
 public class KillAura extends Module {
@@ -98,6 +101,9 @@ public class KillAura extends Module {
     public final BoolValue preSwingWithRotationRange = new BoolValue("Pre Swing With Rotation Range", true, this);
     public final MultiBoolValue addons = new MultiBoolValue("Addons", Arrays.asList(new BoolValue("Movement Fix", false), new BoolValue("Perfect Hit", false), new BoolValue("Ray Cast", true), new BoolValue("Hit Select", false)), this);
     public final SliderValue attackRange = new SliderValue("Attack Range", 3.0F, 2.0F, 6F, .1f, this);
+    public final SliderValue hitSelectRange = new SliderValue("Hit Select Range", 3.0F, 2.0F, 6F, .1f, this,() -> addons.isEnabled("Hit Select"));
+    public final BoolValue auto = new BoolValue("Auto", false, this,() -> addons.isEnabled("Hit Select"));
+    public final BoolValue sprintCheck = new BoolValue("Sprint Check", false, this,() -> addons.isEnabled("Hit Select") && auto.get());
     public final SliderValue wallAttackRange = new SliderValue("Wall Attack Range", 0.0F, 0.0F, 6F, .1f, this);
     public final SliderValue blockRange = new SliderValue("Block Range", 5.0F, 2.0F, 16F, .1f, this);
     public final ModeValue autoBlock = new ModeValue("AutoBlock", new String[]{"None", "Vanilla", "HYT", "Watchdog", "Release", "Interact"}, "Fake", this);
@@ -122,6 +128,7 @@ public class KillAura extends Module {
     private final TimerUtils attackTimer = new TimerUtils();
     private final TimerUtils switchTimer = new TimerUtils();
     private final TimerUtils perfectHitTimer = new TimerUtils();
+    private final TimerUtils afterHitSelectTimer = new TimerUtils();
     private final Random random = new Random();
     private int index;
     private int clicks;
@@ -134,7 +141,8 @@ public class KillAura extends Module {
     public Vec3 prevVec;
     public Vec3 currentVec;
     public Vec3 targetVec;
-    public boolean damaged = false;
+    public boolean doHitSelect = false;
+    public boolean autoHitSelect;
     private final ContinualAnimation animatedX = new ContinualAnimation();
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
@@ -303,14 +311,13 @@ public class KillAura extends Module {
     }
 
     @EventTarget
-    public void onPacket(PacketEvent event) {
-
-        Packet packet = event.getPacket();
-
-        if (target != null && packet instanceof S12PacketEntityVelocity && ((S12PacketEntityVelocity) packet).getEntityID() == mc.thePlayer.getEntityId()) {
-            this.damaged = true;
-        } else if (target == null) {
-            this.damaged = false;
+    public void onStrafe(StrafeEvent event) {
+        if (auto.get() && target != null && shouldAttack() && target.hurtTime < 6 && !mc.gameSettings.keyBindJump.isKeyDown() && !checks() && mc.thePlayer.onGround && (sprintCheck.get() && MovementUtils.canSprint(true) || !sprintCheck.get())) {
+            mc.thePlayer.jump();
+            if (mc.thePlayer.offGroundTicks >= 4)
+                autoHitSelect = true;
+        } else {
+            autoHitSelect = false;
         }
     }
 
@@ -497,11 +504,38 @@ public class KillAura extends Module {
     }
 
     public boolean canAttack(EntityLivingBase entity) {
-        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime <= 2 || perfectHitTimer.hasTimeElapsed(1000L));
+        if(addons.isEnabled("Hit Select")) {
+            if (mc.thePlayer.hurtTime < 5 || autoHitSelect) {
+                if (this.getDistanceToEntity(this.target) < this.hitSelectRange.get()) {
+                    this.doHitSelect = true;
+                }
+            } else {
+                this.doHitSelect = false;
+            }
+            if (this.getDistanceToEntity(this.target) > this.hitSelectRange.get()) {
+                this.doHitSelect = false;
+            } else if (this.afterHitSelectTimer.hasTimeElapsed(900L)) {
+                this.doHitSelect = false;
+                this.afterHitSelectTimer.reset();
+            }
+
+            if(!doHitSelect)
+                return false;
+        }
+
+        if(addons.isEnabled("Perfect Hit"))
+            return (entity.hurtTime <= 2 || perfectHitTimer.hasTimeElapsed(900));
+
+        return true;
     }
 
     public boolean isHoldingSword() {
         return mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemSword;
+    }
+
+    private boolean checks() {
+        return Stream.<Supplier<Boolean>>of(mc.thePlayer::isInLava, mc.thePlayer::isBurning, mc.thePlayer::isInWater,
+                () -> mc.thePlayer.isInWeb).map(Supplier::get).anyMatch(Boolean.TRUE::equals);
     }
 
     public List<EntityLivingBase> getTargets() {
@@ -552,7 +586,7 @@ public class KillAura extends Module {
     }
 
     public boolean shouldAttack() {
-        return PlayerUtils.getDistanceToEntityBox(target) <= (!mc.thePlayer.canEntityBeSeen(target) ? wallAttackRange.get() : attackRange.get()) && (!addons.isEnabled("Hit Select") || addons.isEnabled("Hit Select") && damaged);
+        return PlayerUtils.getDistanceToEntityBox(target) <= (!mc.thePlayer.canEntityBeSeen(target) ? wallAttackRange.get() : attackRange.get());
     }
 
     public boolean shouldBlock() {
