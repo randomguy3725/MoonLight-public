@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
@@ -60,8 +62,12 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal"
     implementation "org.lwjgl:lwjgl-opengl"
 
+    /**
+     * Block for OS specific dependencies.
+     * If you want to use this: import org.apache.tools.ant.taskdefs.condition.Os
+     */
+
     /*
-    // Block of OS-specific dependencies
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
         implementation "org.lwjgl:lwjgl::natives-windows"
         implementation "org.lwjgl:lwjgl-glfw::natives-windows"
