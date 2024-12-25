@@ -355,7 +355,7 @@ public class Speed extends Module {
                             break;
                     }
 
-                    if (fastFall.canDisplay() && fastFall.get() || wdMode.is("Full Strafe")) {
+                    if (fastFall.canDisplay() && fastFall.get() || wdMode.canDisplay() && wdMode.is("Full Strafe")) {
 
                         if(mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava() || hurtTimeCheck.get() && mc.thePlayer.hurtTime > 0) {
                             disable = true;
