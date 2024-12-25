@@ -38,6 +38,7 @@ import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.modules.impl.world.Scaffold;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
+import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.InventoryUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
@@ -55,7 +56,8 @@ import java.util.stream.Collectors;
 
 @ModuleInfo(name = "Stealer", category = ModuleCategory.Player, key = Keyboard.KEY_L)
 public final class Stealer extends Module {
-    private final SliderValue delay = new SliderValue("Delay", 1, 0, 5, 1, this);
+    private final SliderValue minDelay = new SliderValue("Min Delay", 1, 0, 5, 1, this);
+    private final SliderValue maxDelay = new SliderValue("Max Delay", 1, 0, 5, 1, this);
     public final BoolValue menuCheck = new BoolValue("Menu Check", true, this);
     public final BoolValue silent = new BoolValue("Silent", false, this);
     public final BoolValue silentChestView = new BoolValue("Silent View", true, this);
@@ -103,7 +105,7 @@ public final class Stealer extends Module {
 
     @EventTarget
     public void onMotion(MotionEvent event) {
-        setTag(String.valueOf(delay.get()));
+        setTag(String.valueOf(MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get())));
         rotation = null;
         if (aura.get() && !(isEnabled(Scaffold.class) || getModule(KillAura.class).isBlocking)) {
             if (event.isPre()) {
@@ -257,7 +259,7 @@ public final class Stealer extends Module {
                         }
 
                         for (int i = 0; i < container.getLowerChestInventory().getSizeInventory(); ++i) {
-                            if (container.getLowerChestInventory().getStackInSlot(i) != null && (timer.hasTimeElapsed((long) (delay.get() * 100L)) || delay.get() == 0) && InventoryUtils.isValid(container.getLowerChestInventory().getStackInSlot(i))) {
+                            if (container.getLowerChestInventory().getStackInSlot(i) != null && (timer.hasTimeElapsed((long) (MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get())) * 100L) || MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) == 0) && InventoryUtils.isValid(container.getLowerChestInventory().getStackInSlot(i))) {
                                 slot = i;
                                 mc.playerController.windowClick(container.windowId, i, 0, 1, mc.thePlayer);
                                 timer.reset();
@@ -274,7 +276,7 @@ public final class Stealer extends Module {
                     if (mc.thePlayer.openContainer instanceof ContainerFurnace container) {
                         if (isStealing) {
                             for (index = 0; index < container.tileFurnace.getSizeInventory(); ++index) {
-                                if (container.tileFurnace.getStackInSlot(index) != null || (timer.hasTimeElapsed((long) (delay.get() * 100L)) || delay.get() == 0)) {
+                                if (container.tileFurnace.getStackInSlot(index) != null || (timer.hasTimeElapsed((long) (MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) * 100L)) || MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) == 0)) {
                                     mc.playerController.windowClick(container.windowId, index, 0, 1, mc.thePlayer);
                                     timer.reset();
                                 }
@@ -292,7 +294,7 @@ public final class Stealer extends Module {
                     if (mc.thePlayer.openContainer instanceof ContainerBrewingStand container) {
                         if (isStealing) {
                             for (index = 0; index < container.tileBrewingStand.getSizeInventory(); ++index) {
-                                if (container.tileBrewingStand.getStackInSlot(index) != null || (timer.hasTimeElapsed((long) (delay.get() * 100L)) || delay.get() == 0)) {
+                                if (container.tileBrewingStand.getStackInSlot(index) != null || (timer.hasTimeElapsed((long) (MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) * 100L)) || MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) == 0)) {
                                     mc.playerController.windowClick(container.windowId, index, 0, 1, mc.thePlayer);
                                     timer.reset();
                                 }

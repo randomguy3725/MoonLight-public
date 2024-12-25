@@ -16,6 +16,7 @@ import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
+import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.InventoryUtils;
 
@@ -24,7 +25,8 @@ import java.util.*;
 @ModuleInfo(name = "InvManager", category = ModuleCategory.Player, key = Keyboard.KEY_L)
 public class InvManager extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Open Inventory", "Spoof"}, "Open Inventory", this);
-    private final SliderValue delay = new SliderValue("Delay", 1, 0, 10, 1, this);
+    private final SliderValue minDelay = new SliderValue("Min Delay", 1, 0, 5, 1, this);
+    private final SliderValue maxDelay = new SliderValue("Max Delay", 1, 0, 5, 1, this);
     private final BoolValue dropItems = new BoolValue("Drop Items", true, this);
     private final BoolValue sortItems = new BoolValue("Sort Items", true, this);
     private final BoolValue autoArmor = new BoolValue("Auto Armor", true, this);
@@ -82,10 +84,10 @@ public class InvManager extends Module {
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
-        setTag(String.valueOf(delay.get()));
-        final long delay = (long) (this.delay.get() * 50);
+        setTag(String.valueOf(MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get())));
+        final long delay = (MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) * 50L);
         if (this.clientOpen || (mc.currentScreen == null && !Objects.equals(this.mode.get(), "Open Inventory"))) {
-            if ((this.timer.hasTimeElapsed(delay) || this.delay.get() == 0)) {
+            if ((this.timer.hasTimeElapsed(delay) || MathUtils.nextInt((int) minDelay.get(), (int) maxDelay.get()) == 0)) {
                 this.clear();
 
                 for (int slot = InventoryUtils.INCLUDE_ARMOR_BEGIN; slot < InventoryUtils.END; slot++) {
