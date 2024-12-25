@@ -38,13 +38,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 @ModuleInfo(name = "LongJump", category = ModuleCategory.Movement, key = Keyboard.KEY_F)
 public class LongJump extends Module {
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball", "Watchdog","Old Matrix"}, "Watchdog Fireball", this);
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball","Old Matrix"}, "Watchdog Fireball", this);
     public final ModeValue wdFBMode = new ModeValue("Fireball Mode", new String[]{"Rise","Chef","Chef High"}, "Watchdog Fireball", this);
-    private final SliderValue wdSpeed = new SliderValue("Watchdog Speed", 0.5f, 0.5f, 1, 0.01f, this, () -> mode.is("Watchdog"));
-    private final BoolValue detectSpeedPot = new BoolValue("Detect Speed Pot Boost", true,this, () -> mode.is("Watchdog"));
     private final SliderValue oMatrixTimer = new SliderValue("Matrix Timer", 0.3f, 0.1f, 1, 0.01f, this, () -> mode.is("Old Matrix"));
     private final BoolValue boost = new BoolValue("Boost",true,this, () -> mode.is("Watchdog Fireball"));
-    private int lastSlot = -1;
     private long lastPlayerTick = 0;
     //fb
     private int ticks = -1;
@@ -54,6 +51,7 @@ public class LongJump extends Module {
     private boolean sentPlace;
     private int initTicks;
     private boolean thrown;
+    private boolean velo;
     //bow
     private int bowState = 0;
     private final Queue<Packet<?>> delayedPackets = new ConcurrentLinkedQueue<>();
@@ -66,7 +64,6 @@ public class LongJump extends Module {
 
     @Override
     public void onEnable() {
-        lastSlot = mc.thePlayer.inventory.currentItem;
         ticks = 0;
         lastPlayerTick = -1;
         distance = 0;
@@ -79,25 +76,19 @@ public class LongJump extends Module {
             stopModules = true;
             initTicks = 0;
         }
-
-        if (mode.is("Watchdog")) {
-            bowState = 0;
-        }
     }
 
     @Override
     public void onDisable() {
         if (Objects.equals(mode.get(), "Watchdog Fireball")) {
             MovementUtils.stop();
-            if (lastSlot != -1) {
-                mc.thePlayer.inventory.currentItem = lastSlot;
-            }
 
-
-            ticks = lastSlot = -1;
+            ticks = -1;
             setSpeed = stopModules = sentPlace = false;
             initTicks = 0;
             ticksSinceVelocity = 0;
+            velo = false;
+            mc.thePlayer.inventory.currentItem = 0;
         }
         if (Objects.equals(mode.get(), "Old Matrix")) {
             packet = false;
@@ -109,7 +100,8 @@ public class LongJump extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
-        ticksSinceVelocity++;
+        if(velo)
+            ticksSinceVelocity++;
         switch (mode.get()) {
             case "Old Matrix":
                 if (!packet) {
@@ -143,7 +135,7 @@ public class LongJump extends Module {
             case "Watchdog Fireball":
                 if(event.isPre()){
 
-                    if(thrown && mc.thePlayer.onGround){
+                    if(velo && mc.thePlayer.onGround){
                         toggle();
                     }
 
@@ -174,14 +166,14 @@ public class LongJump extends Module {
                             }
                             break;
                         case "Chef":
-                            if (thrown) {
+                            if (velo) {
                                 if (ticksSinceVelocity >= 1 && ticksSinceVelocity <= 33) {
                                     mc.thePlayer.motionY = 0.7 - ticksSinceVelocity * 0.015;
                                 }
                             }
                             break;
                         case "Chef high":
-                            if (thrown) {
+                            if (velo) {
                                 if (ticksSinceVelocity >= 1 && ticksSinceVelocity <= 28) {
                                     mc.thePlayer.motionY = ticksSinceVelocity * 0.016;
                                 }
@@ -195,27 +187,18 @@ public class LongJump extends Module {
                         event.setPitch(89);
                         int fireballSlot = getFBSlot();
                         if (fireballSlot != -1 && fireballSlot != mc.thePlayer.inventory.currentItem) {
-                            lastSlot = mc.thePlayer.inventory.currentItem;
                             mc.thePlayer.inventory.currentItem = fireballSlot;
                         }
                     }
                     if (initTicks == 1) {
 
                         if (!sentPlace) {
-                            sendPacketNoEvent(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                            sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                             sentPlace = true;
 
                         }
                     } else if (initTicks == 2) {
-
-                        if (lastSlot != -1) {
-                            mc.thePlayer.inventory.currentItem = lastSlot;
-                            lastSlot = -1;
-                        }
-                    }
-                    if (ticks > 1) {
-                        this.toggle();
-                        return;
+                        mc.thePlayer.inventory.currentItem = 0;
                     }
                     if (setSpeed) {
 
@@ -240,83 +223,12 @@ public class LongJump extends Module {
                 }
 
                 break;
-
-            case "Watchdog":
-                if (bowState < 2) {
-                    if (mc.thePlayer.onGround)
-                        MovementUtils.stopXZ();
-                }
-                switch (bowState) {
-                    case 1:
-                        RotationUtils.setRotation(new float[]{mc.thePlayer.rotationYaw,-90});
-                        break;
-                }
-
-                if (bowState == 5)
-                    setEnabled(false);
-
-                break;
         }
     }
 
     @EventTarget
     public void onStrafe(StrafeEvent event) {
         switch (mode.get()) {
-
-            case "Watchdog":
-                if (bowState < 2) {
-                    event.setForward(0);
-                    event.setStrafe(0);
-                }
-                switch (bowState) {
-                    case 0:
-                        int slot = getBowSlot();
-                        if (slot < 0 || !mc.thePlayer.inventory.hasItem(Items.arrow)) {
-                            INSTANCE.getNotificationManager().post(NotificationType.WARNING, "No arrows or bow found in your inventory!", "Disabling LongJump", 2);
-                            bowState = 5;
-                            break; // nothing to shoot
-                        } else if (lastPlayerTick == -1) {
-
-                            if (lastSlot != slot) sendPacketNoEvent(new C09PacketHeldItemChange(slot));
-                            sendPacket(new C08PacketPlayerBlockPlacement(new BlockPos(-1, -1, -1), 255, mc.thePlayer.inventoryContainer.getSlot(slot + 36).getStack(), 0, 0, 0));
-
-                            lastPlayerTick = mc.thePlayer.ticksExisted;
-                            bowState = 1;
-                        }
-                        break;
-                    case 1:
-                        int reSlot = getBowSlot();
-                        if (mc.thePlayer.ticksExisted - lastPlayerTick > 2) {
-                            sendPacketNoEvent(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-
-                            if (lastSlot != reSlot)
-                                sendPacketNoEvent(new C09PacketHeldItemChange(lastSlot));
-                        }
-                        break;
-                    case 2:
-                        if (!mc.gameSettings.keyBindJump.isKeyDown() && mc.thePlayer.onGround) {
-                            MovementUtils.strafe(MovementUtils.getAllowedHorizontalDistance());
-                            mc.thePlayer.jump();
-                            bowState = 3;
-                        }
-                        break;
-                    case 3:
-                        if (mc.thePlayer.offGroundTicks >= 7) {
-                            synchronized (delayedPackets) {
-                                for (Packet p : delayedPackets) {
-                                    p.processPacket(mc.getNetHandler());
-                                }
-                                delayedPackets.clear();
-                            }
-                            bowState = 4;
-                        }
-                        break;
-                    case 4:
-                        MovementUtils.strafe(wdSpeed.get() + (detectSpeedPot.get() ? MovementUtils.getSpeedEffect() * 0.0575f : 0));
-                        bowState = 5;
-                        break;
-                }
-                break;
 
             case "Watchdog Fireball":
                 if (ticksSinceVelocity <= 70 && ticksSinceVelocity >= 1) {
@@ -362,11 +274,6 @@ public class LongJump extends Module {
     public void onPacket(PacketEvent event) {
         Packet<?> packet = event.getPacket();
 
-        if (packet instanceof S12PacketEntityVelocity s12PacketEntityVelocity) {
-            if (s12PacketEntityVelocity.getEntityID() == mc.thePlayer.getEntityId()) {
-                ticksSinceVelocity = 0;
-            }
-        }
         if (mode.is("Watchdog Fireball")) {
             if (packet instanceof C08PacketPlayerBlockPlacement c08PacketPlayerBlockPlacement && c08PacketPlayerBlockPlacement.getStack() != null && c08PacketPlayerBlockPlacement.getStack().getItem() instanceof ItemFireball) {
                 thrown = true;
@@ -378,22 +285,12 @@ public class LongJump extends Module {
             if (packet instanceof S12PacketEntityVelocity s12PacketEntityVelocity) {
                 if (s12PacketEntityVelocity.getEntityID() == mc.thePlayer.getEntityId()) {
                     if (thrown) {
+                        ticksSinceVelocity = 0;
                         ticks = 0;
                         setSpeed = true;
                         thrown = false;
                         stopModules = true;
-                    }
-                }
-            }
-        }
-        if (mode.is("Watchdog")) {
-            if (event.getState() == PacketEvent.State.INCOMING) {
-                if (packet instanceof S12PacketEntityVelocity s12) {
-                    if (s12.getEntityID() == mc.thePlayer.getEntityId() && (bowState == 1 || bowState == 2)) {
-                        delayedPackets.add(packet);
-                        bowState = 2;
-                    } else if (event.getPacket() instanceof S32PacketConfirmTransaction && (bowState == 1 || bowState == 2)) {
-                        delayedPackets.add(packet);
+                        velo = true;
                     }
                 }
             }
@@ -414,16 +311,6 @@ public class LongJump extends Module {
         for (int i = 36; i <= 44; i++) {
             ItemStack stack = mc.thePlayer.inventoryContainer.getSlot(i).getStack();
             if (stack != null && stack.getItem() instanceof ItemFireball) {
-                return i - 36;
-            }
-        }
-        return -1;
-    }
-
-    private int getBowSlot() {
-        for (int i = 36; i <= 44; i++) {
-            ItemStack stack = mc.thePlayer.inventoryContainer.getSlot(i).getStack();
-            if (stack != null && stack.getItem() instanceof ItemBow) {
                 return i - 36;
             }
         }
