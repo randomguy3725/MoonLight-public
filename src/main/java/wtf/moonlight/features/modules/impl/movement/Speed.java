@@ -70,12 +70,6 @@ public class Speed extends Module {
     @Override
     public void onEnable() {
         if (mode.is("Watchdog")) {
-            if (fastFall.canDisplay() && fastFall.get() || wdFastFallMode.is("Full Strafe")) {
-                if (mc.thePlayer.onGround) {
-                    mc.thePlayer.jump();
-                    MovementUtils.strafe();
-                }
-            }
             if (wdMode.is("Glide")) {
                 speed = 0.28;
             }
