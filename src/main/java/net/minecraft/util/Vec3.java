@@ -96,6 +96,10 @@ public class Vec3
         return distanceTo(new Vec3(vec.posX, vec.posY, vec.posZ));
     }
 
+    public double squareDistanceTo(final EntityPlayer vec) {
+        return squareDistanceTo(new Vec3(vec.posX, vec.posY, vec.posZ));
+    }
+
     public double squareDistanceTo(Vec3 vec)
     {
         double d0 = vec.xCoord - this.xCoord;

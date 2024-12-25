@@ -64,8 +64,6 @@ public class KillAura extends Module {
     private final BoolValue bruteforce = new BoolValue("Bruteforce", true, this);
     private final BoolValue smartVec = new BoolValue("Smart Vec", true, this);
     private final BoolValue smartRotation = new BoolValue("Smart Rotation", true, this);
-    private final BoolValue pauseRotations = new BoolValue("Pause Rotations", false, this);
-    private final SliderValue pauseRange = new SliderValue("Pause Range", 0.5f, 0.1f, 6, 0.1f, this, pauseRotations::get);
     private final BoolValue customRotationSetting = new BoolValue("Custom Rotation Setting", false, this);
     private final SliderValue minYawRotSpeed = new SliderValue("Min Yaw Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
     private final SliderValue minPitchRotSpeed = new SliderValue("Min Pitch Rotation Speed", 180, 0, 180, 1, this, customRotationSetting::get);
@@ -92,7 +90,10 @@ public class KillAura extends Module {
     private final SliderValue minAps = new SliderValue("Min Aps", 9, 1, 20, this);
     private final SliderValue maxAps = new SliderValue("Max Aps", 11, 1, 20, this);
     private final ModeValue apsMode = new ModeValue("Aps Mode", new String[]{"Random", "Secure Random", "Full Random"}, "Random", this);
+    public final ModeValue rangeMode = new ModeValue("Range Mode",new String[]{"Client","Client 2","Client 3","Server Test"},"Client",this);
     public final SliderValue searchRange = new SliderValue("Search Range", 6.0F, 2.0F, 16F, .1f, this);
+    private final BoolValue pauseRotations = new BoolValue("Pause Rotations", false, this);
+    private final SliderValue pauseRange = new SliderValue("Pause Range", 0.5f, 0.1f, 6, 0.1f, this, pauseRotations::get);
     public final SliderValue rotationRange = new SliderValue("Rotation Range", 3.0F, 2.0F, 16F, .1f, this);
     public final BoolValue preSwingWithRotationRange = new BoolValue("Pre Swing With Rotation Range", true, this);
     public final MultiBoolValue addons = new MultiBoolValue("Addons", Arrays.asList(new BoolValue("Movement Fix", false), new BoolValue("Perfect Hit", true), new BoolValue("Ray Cast", true), new BoolValue("Hit Select", true)), this);
@@ -476,7 +477,6 @@ public class KillAura extends Module {
             unblock();
         MovingObjectPosition rayCast = RotationUtils.rayCast(RotationUtils.currentRotation, attackRange.get());
         if (addons.isEnabled("Ray Cast") && rayCast.typeOfHit == MovingObjectPosition.MovingObjectType.ENTITY && rayCast.entityHit instanceof EntityLivingBase) {
-            //if ((((EntityLivingBase) rayCast.entityHit).hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
             if (canAttack((EntityLivingBase) rayCast.entityHit)) {
                 if (getModule(AutoGap.class).isEnabled() && getModule(AutoGap.class).alwaysAttack.get() && getModule(AutoGap.class).eating) {
                     AttackOrder.sendFixedAttackNoPacketEvent(mc.thePlayer, rayCast.entityHit);
@@ -485,7 +485,6 @@ public class KillAura extends Module {
                 }
             }
         } else {
-            //if ((target.hurtTime <= 2 || mc.thePlayer.hurtTime != 0) && addons.isEnabled("Perfect Hit") || !addons.isEnabled("Perfect Hit"))
             if (canAttack(target)) {
                 if (getModule(AutoGap.class).isEnabled() && getModule(AutoGap.class).alwaysAttack.get() && getModule(AutoGap.class).eating) {
                     AttackOrder.sendFixedAttackNoPacketEvent(mc.thePlayer, target);
@@ -498,7 +497,7 @@ public class KillAura extends Module {
     }
 
     public boolean canAttack(EntityLivingBase entity) {
-        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime == 0 || entity.hurtTime == 1 || perfectHitTimer.hasTimeElapsed(1000L));
+        return !addons.isEnabled("Perfect Hit") || addons.isEnabled("Perfect Hit") && (entity.hurtTime <= 2 || perfectHitTimer.hasTimeElapsed(1000L));
     }
 
     public boolean isHoldingSword() {
@@ -516,6 +515,23 @@ public class KillAura extends Module {
             }
         }
         return entities;
+    }
+
+    public double getDistanceToEntity(Entity entity) {
+        switch (rangeMode.get()) {
+            case "Client":
+                return PlayerUtils.getDistanceToEntityBox(entity);
+            case "Server":
+                double x = (double) entity.serverPosX / 32.0D;
+                double y = (double) entity.serverPosY / 32.0D;
+                double z = (double) entity.serverPosZ / 32.0D;
+                return new Vec3(x, y, z).getDistanceAtEyeByVec(mc.thePlayer, mc.thePlayer.posX + mc.thePlayer.getCollisionBorderSize(), mc.thePlayer.posY, mc.thePlayer.posZ + mc.thePlayer.getCollisionBorderSize());
+            case "Client 2":
+                return entity.getDistance(mc.thePlayer.getPositionEyes(1));
+            case "Client 3":
+                return PlayerUtils.calculatePerfectRangeToEntity(entity);
+        }
+        return 0;
     }
 
     public boolean isValid(Entity entity) {

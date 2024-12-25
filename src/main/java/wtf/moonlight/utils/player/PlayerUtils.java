@@ -7,7 +7,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
 import net.minecraft.entity.monster.EntityGhast;
 import net.minecraft.entity.monster.EntityGolem;
@@ -21,10 +20,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.*;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.combat.AntiBot;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
@@ -329,7 +325,7 @@ public class PlayerUtils implements InstanceAccess {
                 || entity instanceof EntityGolem
                 || entity instanceof EntityBat;
     }
-    public static List<EntityPlayer> getLivingEntities(Predicate<EntityPlayer> validator) {
+    public static List<EntityPlayer> getLivingPlayers(Predicate<EntityPlayer> validator) {
         List<EntityPlayer> entities = new ArrayList<>();
         if(mc.theWorld == null) return entities;
         for (Entity entity : mc.theWorld.playerEntities) {
@@ -339,5 +335,15 @@ public class PlayerUtils implements InstanceAccess {
             }
         }
         return entities;
+    }
+    public static double calculatePerfectRangeToEntity(Entity entity) {
+        double range = 1000;
+        Vec3 eyes = mc.thePlayer.getPositionEyes(1);
+        float[] rotations = RotationUtils.getRotations(entity.getPositionVector());
+        final Vec3 rotationVector = mc.thePlayer.getVectorForRotation(rotations[1], rotations[0]);
+        MovingObjectPosition movingObjectPosition = entity.getEntityBoundingBox().expand(0.1, 0.1, 0.1).calculateIntercept(eyes,
+                eyes.addVector(rotationVector.xCoord * range, rotationVector.yCoord * range, rotationVector.zCoord * range));
+
+        return movingObjectPosition.hitVec.distanceTo(eyes);
     }
 }
