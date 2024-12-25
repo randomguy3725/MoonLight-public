@@ -145,7 +145,7 @@ public class BedNuker extends Module {
             barAnim.animate(width * percentage, 40);
             textAnim.animate(percentage * 100f,10);
 
-            RoundedUtils.drawRoundOutline(x - half, y, width, thickness, thickness / 2,0.1f, new Color(getModule(Interface.class).bgColor(),true),new Color(0,0,0,150));
+            RoundedUtils.drawRound(x - half, y, width, thickness, thickness / 2, new Color(getModule(Interface.class).bgColor(),true));
 
             RoundedUtils.drawGradientHorizontal(x - half, y, barAnim.getOutput(), thickness, thickness / 2, new Color(getModule(Interface.class).color(0)), new Color(getModule(Interface.class).color(90)));
 
