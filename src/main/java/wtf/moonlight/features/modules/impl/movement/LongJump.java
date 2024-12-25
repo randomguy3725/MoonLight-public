@@ -42,7 +42,7 @@ public class LongJump extends Module {
     public final ModeValue wdFBMode = new ModeValue("Fireball Mode", new String[]{"Rise","Chef","Chef High"}, "Watchdog Fireball", this);
     private final SliderValue oMatrixTimer = new SliderValue("Matrix Timer", 0.3f, 0.1f, 1, 0.01f, this, () -> mode.is("Old Matrix"));
     private final BoolValue boost = new BoolValue("Boost",true,this, () -> mode.is("Watchdog Fireball"));
-    private long lastPlayerTick = 0;
+    private int lastSlot = -1;
     //fb
     private int ticks = -1;
     private boolean setSpeed;
@@ -52,9 +52,6 @@ public class LongJump extends Module {
     private int initTicks;
     private boolean thrown;
     private boolean velo;
-    //bow
-    private int bowState = 0;
-    private final Queue<Packet<?>> delayedPackets = new ConcurrentLinkedQueue<>();
 
     //matrix
     private boolean packet;
@@ -64,13 +61,13 @@ public class LongJump extends Module {
 
     @Override
     public void onEnable() {
+        lastSlot = mc.thePlayer.inventory.currentItem;
         ticks = 0;
-        lastPlayerTick = -1;
         distance = 0;
         if (mode.is("Watchdog Fireball")) {
             int fbSlot = getFBSlot();
             if (fbSlot == -1) {
-                setEnabled(false);
+                toggle();
             }
 
             stopModules = true;
@@ -81,14 +78,16 @@ public class LongJump extends Module {
     @Override
     public void onDisable() {
         if (Objects.equals(mode.get(), "Watchdog Fireball")) {
-            MovementUtils.stop();
+            if (lastSlot != -1) {
+                mc.thePlayer.inventory.currentItem = lastSlot;
+            }
 
-            ticks = -1;
+
+            ticks = lastSlot = -1;
             setSpeed = stopModules = sentPlace = false;
             initTicks = 0;
             ticksSinceVelocity = 0;
             velo = false;
-            mc.thePlayer.inventory.currentItem = 0;
         }
         if (Objects.equals(mode.get(), "Old Matrix")) {
             packet = false;
@@ -198,7 +197,11 @@ public class LongJump extends Module {
 
                         }
                     } else if (initTicks == 2) {
-                        mc.thePlayer.inventory.currentItem = 0;
+
+                        if (lastSlot != -1) {
+                            mc.thePlayer.inventory.currentItem = lastSlot;
+                            lastSlot = -1;
+                        }
                     }
                     if (setSpeed) {
 
