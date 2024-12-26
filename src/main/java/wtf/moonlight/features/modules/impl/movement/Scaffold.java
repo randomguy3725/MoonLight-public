@@ -646,6 +646,7 @@ public class Scaffold extends Module {
                 case "Watchdog":
                     if (!mc.thePlayer.isPotionActive(Potion.jump) && placed) {
                         if (towering()) {
+                            MovementUtils.stopXZ();
                             int valY = (int) Math.round((event.y % 1) * 10000);
                             if (valY == 0) {
                                 mc.thePlayer.motionY = 0.42F;
