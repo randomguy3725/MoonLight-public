@@ -1,6 +1,7 @@
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -36,9 +37,10 @@ public class Speed extends Module {
     private final BoolValue fallStrafe = new BoolValue("Fall Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue frictionOverride = new BoolValue("Friction Override", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue extraStrafe = new BoolValue("Extra Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
+    private final BoolValue slabCheck = new BoolValue("Slab Check", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
     private final BoolValue fastFall = new BoolValue("Fast Fall", true, this, () -> mode.is("Watchdog") && wdMode.is("Basic"));
-    private final BoolValue hurtTimeCheck = new BoolValue("Hurt Time Check", true, this, () -> mode.is("Watchdog") && (wdMode.is("Full Strafe") || fastFall.canDisplay() && fastFall.get()));
+    private final BoolValue hurtTimeCheck = new BoolValue("Hurt Time Check", false, this, () -> mode.is("Watchdog") && (wdMode.is("Full Strafe") || fastFall.canDisplay() && fastFall.get()));
     private final ModeValue wdFastFallMode = new ModeValue("Fast Fall Mode", new String[]{"Normal","Test 1","Test 2","Test 3","Test 4","Test 5","Predict", "Predict 2","8 Tick","7 Tick"}, "8 Tick", this, () -> mode.is("Watchdog") && fastFall.canDisplay() && fastFall.get());
     private final SliderValue predictTicks = new SliderValue("Predict Ticks",5,4,6,1,this,() -> fastFall.canDisplay() && fastFall.get() && wdFastFallMode.is("Predict"));
     private final BoolValue expand = new BoolValue("More Expand", false, this, () -> Objects.equals(mode.get(), "EntityCollide"));
@@ -350,7 +352,7 @@ public class Speed extends Module {
 
                     if (fastFall.canDisplay() && fastFall.get() || wdMode.canDisplay() && wdMode.is("Full Strafe")) {
 
-                        if(mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava() || hurtTimeCheck.get() && mc.thePlayer.hurtTime > 0) {
+                        if(mc.thePlayer.isInWater() || mc.thePlayer.isInWeb || mc.thePlayer.isInLava() || hurtTimeCheck.get() && mc.thePlayer.hurtTime > 0 || slabCheck.canDisplay() && slabCheck.get() && PlayerUtils.getBlock(mc.thePlayer.getPosition().add(0,-1,0)) instanceof BlockSlab) {
                             disable = true;
                             return;
                         }
