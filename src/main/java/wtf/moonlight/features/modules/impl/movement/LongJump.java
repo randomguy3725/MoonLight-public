@@ -99,6 +99,7 @@ public class LongJump extends Module {
             jumped = false;
             currentTimer = 0;
             pauseTimes = 0;
+            MovementUtils.stop();
         }
     }
 
@@ -144,28 +145,32 @@ public class LongJump extends Module {
                 }
 
                 if (jumped) {
+                    int maxTimer = 0;
+
                     switch (pauseTimes) {
                         case 0:
                             mc.thePlayer.motionX = 1.9 * -Math.sin(MovementUtils.getDirection());
                             mc.thePlayer.motionZ = 1.9 * Math.cos(MovementUtils.getDirection());
+                            maxTimer = 10;
                             break;
                         case 1:
                             mc.thePlayer.motionX = 1.185 * -Math.sin(MovementUtils.getDirection());
                             mc.thePlayer.motionZ = 1.185 * Math.cos(MovementUtils.getDirection());
+                            maxTimer = 15;
                             break;
                         case 2:
-                            mc.thePlayer.motionX = 0.4625 * -Math.sin(MovementUtils.getDirection());
-                            mc.thePlayer.motionZ = 0.4625 * Math.cos(MovementUtils.getDirection());
+                            mc.thePlayer.motionX = 0.5625 * -Math.sin(MovementUtils.getDirection());
+                            mc.thePlayer.motionZ = 0.5625 * Math.cos(MovementUtils.getDirection());
+                            maxTimer = 5;
                             break;
                     }
 
                     mc.thePlayer.motionY = 0.29;
                     currentTimer++;
 
-                    if (Range.between(4, 10).contains(currentTimer)) {
-                        sendPacketNoEvent(new C03PacketPlayer(true));
+                    if (Range.between(4, maxTimer).contains(currentTimer)) {
                         MovementUtils.stop();
-                    } else if (currentTimer > 10) {
+                    } else if (currentTimer > maxTimer) {
                         pauseTimes++;
                         currentTimer = 0;
                         jumped = false;
