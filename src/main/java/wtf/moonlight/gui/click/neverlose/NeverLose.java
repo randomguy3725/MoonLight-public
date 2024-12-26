@@ -139,10 +139,10 @@ public class NeverLose extends GuiScreen {
         Fonts.interBold.get(36).drawCenteredStringWithOutline(Moonlight.INSTANCE.getModuleManager().getModule(Interface.class).clientName.getText(),posX + 65,posY + 12,textRGB,outlineTextRGB);
         //user info
         RoundedUtils.drawRound(posX,posY + 384,134,.8f,0,lineColor);
-        RenderUtils.drawCircle(posX + 21,posY + 403,0,360,13,1,true,new Color(0x0b0d13).getRGB());
-        Fonts.interSemiBold.get(16).drawString("Unknown",posX + 40,posY + 396,textRGB);
-        Fonts.interSemiBold.get(16).drawString(EnumChatFormatting.GRAY + "Till: ",posX + 40,posY + 406,-1);
-        Fonts.interSemiBold.get(16).drawString("Lifetime",posX + 40 + Fonts.interSemiBold.get(16).getStringWidth(EnumChatFormatting.GRAY + "Till: "),posY + 406,iconRGB);
+        RenderUtils.renderPlayer2D(mc.thePlayer, posX + 5, posY + 389, 27, 27, -1);
+        Fonts.interSemiBold.get(16).drawString(mc.thePlayer.getNameClear(),posX + 37,posY + 396,textRGB);
+        Fonts.interSemiBold.get(16).drawString(EnumChatFormatting.GRAY + "Till: ",posX + 37,posY + 406,-1);
+        Fonts.interSemiBold.get(16).drawString("Lifetime",posX + 37 + Fonts.interSemiBold.get(16).getStringWidth(EnumChatFormatting.GRAY + "Till: "),posY + 406,iconRGB);
         //panel
         Fonts.interSemiBold.get(14).drawString("Rage",posX + 14,posY + 42,Color.GRAY.getRGB());
         Fonts.interSemiBold.get(14).drawString("Common",posX + 14,posY + 103,Color.GRAY.getRGB());
