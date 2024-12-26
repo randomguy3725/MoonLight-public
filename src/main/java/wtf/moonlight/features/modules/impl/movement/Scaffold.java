@@ -643,7 +643,7 @@ public class Scaffold extends Module {
 
         if (tower.canDisplay()) {
             switch (tower.get()) {
-                case "Watchdog Test":
+                case "Watchdog":
                     if (!mc.thePlayer.isPotionActive(Potion.jump) && placed) {
                         if (towering()) {
                             int valY = (int) Math.round((event.y % 1) * 10000);
@@ -663,7 +663,7 @@ public class Scaffold extends Module {
 
         if (towerMove.canDisplay()) {
             switch (towerMove.get()) {
-                case "Watchdog Test":
+                case "Watchdog":
                     if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
                         if (towerMoving()) {
                             int valY = (int) Math.round((event.y % 1) * 10000);
