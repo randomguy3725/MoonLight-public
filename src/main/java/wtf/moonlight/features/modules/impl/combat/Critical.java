@@ -11,6 +11,7 @@ import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.movement.Freeze;
 import wtf.moonlight.features.modules.impl.movement.Speed;
 import wtf.moonlight.features.values.impl.ModeValue;
+import wtf.moonlight.utils.player.MovementUtils;
 
 @ModuleInfo(name = "Critical", category = ModuleCategory.Combat)
 public class Critical extends Module {
@@ -49,6 +50,10 @@ public class Critical extends Module {
                 if (getModule(KillAura.class).target != null) {
                     if (isDisabled(Speed.class)) {
                         getModule(Speed.class).setEnabled(true);
+                    } else {
+                        if (!MovementUtils.isMoving() && mc.thePlayer.onGround) {
+                            mc.thePlayer.jump();
+                        }
                     }
                 } else {
                     if (isEnabled(Speed.class)) {
