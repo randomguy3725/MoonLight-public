@@ -186,7 +186,7 @@ public class PotionHUDWidget extends Widget {
 
             Fonts.interSemiBold.get(13).drawString("Potions", renderX + 8, renderY + 7 + 2, -1);
 
-            Fonts.nursultan.get(14).drawString("E", renderX + width - 16, renderY + 7, setting.color(0));
+            Fonts.nursultan.get(14).drawString("E", renderX + width - 16, renderY + 9, setting.color(0));
 
             float offset = renderY + 21;
             for (PotionEffect potion : potions) {
