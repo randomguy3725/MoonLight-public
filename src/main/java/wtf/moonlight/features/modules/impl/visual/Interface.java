@@ -336,17 +336,17 @@ public class Interface extends Module {
 
                     if (background.get()) {
                         if (cFont.get()) {
-                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), getFr().getStringWidth(module.getName() + module.getTag()) + 1, textHeight.get(), bgColor(count));
                         } else {
-                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()) + 1, textHeight.get(), bgColor(count));
                         }
                     }
 
                     if (line.get()) {
                         if (cFont.get()) {
-                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
+                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
                         } else {
-                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
+                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
                         }
                     }
 
@@ -385,17 +385,17 @@ public class Interface extends Module {
 
                     if (background.get()) {
                         if (cFont.get()) {
-                            RenderUtils.drawRect(x, y - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                            RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                         } else {
-                            RenderUtils.drawRect(x, y - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                            RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                         }
                     }
 
                     if (line.get()) {
                         if (cFont.get()) {
-                            RenderUtils.drawRect(x + moduleWidth + 1, y - 0.5f, 1, textHeight.get(), color(count));
+                            RenderUtils.drawRect(x + moduleWidth, y ,1, textHeight.get(), color(count));
                         } else {
-                            RenderUtils.drawRect(x + moduleWidth + 1, y - 0.5f, 1, textHeight.get(), color(count));
+                            RenderUtils.drawRect(x + moduleWidth, y, 1, textHeight.get(), color(count));
                         }
                     }
 
@@ -543,9 +543,9 @@ public class Interface extends Module {
                     if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
                         if (background.get()) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             } else {
-                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() , mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             }
                         }
                     }
@@ -553,9 +553,9 @@ public class Interface extends Module {
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                         if (line.get()) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
                             } else {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth) + 1, (float) (translate.getY() - 0.5f), 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
                             }
                         }
 
@@ -594,16 +594,16 @@ public class Interface extends Module {
                     if (background.get()) {
                         if(event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect(x, y - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                                RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             } else {
-                                RenderUtils.drawRect(x, y - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
+                                RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
                             }
                         }
                         if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect(x, y - 0.5f, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
+                                RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
                             } else {
-                                RenderUtils.drawRect(x, y - 0.5f, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
+                                RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
                             }
                         }
                     }
@@ -611,9 +611,9 @@ public class Interface extends Module {
                     if (line.get()) {
                         if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                             if (cFont.get()) {
-                                RenderUtils.drawRect(x + moduleWidth + 1, y - 0.5f, 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect(x + moduleWidth, y, 1, textHeight.get(), color(count));
                             } else {
-                                RenderUtils.drawRect(x + moduleWidth + 1, y - 0.5f, 1, textHeight.get(), color(count));
+                                RenderUtils.drawRect(x + moduleWidth, y - 0.5f, 1, textHeight.get(), color(count));
                             }
                         }
                     }

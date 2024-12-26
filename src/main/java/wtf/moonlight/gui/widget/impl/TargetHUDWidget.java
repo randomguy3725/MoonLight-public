@@ -201,7 +201,7 @@ class TargetHUD implements InstanceAccess {
                     }
 
                 } else {
-                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.bgColor(),true));
+                    RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.color(90)));
                 }
             }
             break;
