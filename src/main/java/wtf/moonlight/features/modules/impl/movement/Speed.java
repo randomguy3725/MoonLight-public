@@ -143,6 +143,7 @@ public class Speed extends Module {
                     break;
                 }
             }
+            break;
 
             case "NCP": {
                 if (mc.thePlayer.offGroundTicks == onTick.get() && pullDown.get()) {
