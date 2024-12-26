@@ -110,7 +110,6 @@ public class Speed extends Module {
 
                 switch (mc.thePlayer.offGroundTicks) {
                     case 1: {
-                        MovementUtils.strafe();
                         switch ((int) mTicks.get()) {
                             case 1:
                                 mc.thePlayer.motionY -= 0.76;
@@ -119,28 +118,28 @@ public class Speed extends Module {
                                 mc.thePlayer.motionY -= 0.52;
                                 break;
                             case 3:
-                                mc.thePlayer.motionY -= 0.3;
+                                mc.thePlayer.motionY -= 0.452335182447;
                                 break;
                             case 4:
-                                mc.thePlayer.motionY -= 0.17;
+                                mc.thePlayer.motionY -= 0.322335182447;
                                 break;
                             case 5:
-                                mc.thePlayer.motionY -= 0.08;
+                                mc.thePlayer.motionY -= 0.232335182447;
                                 break;
                             case 6:
-                                mc.thePlayer.motionY -= 0.01;
+                                mc.thePlayer.motionY -= 0.162335182447;
                                 break;
                         }
                     }
                     break;
 
                     case 3: {
-                        MovementUtils.strafe();
                         mc.thePlayer.motionY -= 0.1523351824467155;
                     }
                     break;
                 }
             }
+            break;
 
             case "NCP": {
                 if (mc.thePlayer.offGroundTicks == onTick.get() && pullDown.get()) {
@@ -326,7 +325,26 @@ public class Speed extends Module {
             case "MinibloxHop": {
                 if (MovementUtils.isMoving()) {
                     if (mc.thePlayer.onGround) {
-                        MovementUtils.strafe(0.26f);
+                        switch ((int) mTicks.get()) {
+                            case 1:
+                                MovementUtils.strafe(0.07);
+                                break;
+                            case 2:
+                                MovementUtils.strafe(0.08);
+                                break;
+                            case 3:
+                                MovementUtils.strafe(0.09);
+                                break;
+                            case 4:
+                                MovementUtils.strafe(0.1);
+                                break;
+                            case 5:
+                                MovementUtils.strafe(0.115);
+                                break;
+                            case 6:
+                                MovementUtils.strafe(0.13);
+                                break;
+                        }
                     } else {
                         MovementUtils.strafe(0.35f);
                     }
