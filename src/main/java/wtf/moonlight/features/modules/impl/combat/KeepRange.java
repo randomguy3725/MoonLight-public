@@ -11,7 +11,7 @@ import wtf.moonlight.events.impl.player.MoveInputEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
@@ -20,7 +20,7 @@ import wtf.moonlight.utils.player.MovementUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 import wtf.moonlight.utils.player.RotationUtils;
 
-@ModuleInfo(name = "KeepRange", category = ModuleCategory.Combat)
+@ModuleInfo(name = "KeepRange", category = ModuleCategory.Legit)
 public class KeepRange extends Module {
     private final SliderValue range = new SliderValue("Range", 3, 0, 6, 0.1f, this);
     private final BoolValue disableNearEdge = new BoolValue("Disable Near Edge", true, this);

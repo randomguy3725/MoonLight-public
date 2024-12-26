@@ -1,4 +1,4 @@
-package wtf.moonlight.features.modules.impl.world;
+package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.*;
 import net.minecraft.client.settings.KeyBinding;
@@ -20,28 +20,26 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
-import wtf.moonlight.features.modules.impl.movement.Speed;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
-import wtf.moonlight.utils.misc.DebugUtils;
 import wtf.moonlight.utils.misc.SpoofSlotUtils;
 import wtf.moonlight.utils.player.*;
 import wtf.moonlight.utils.render.RenderUtils;
 
 import java.util.*;
 
-@ModuleInfo(name = "Scaffold", category = ModuleCategory.World)
+@ModuleInfo(name = "Scaffold", category = ModuleCategory.Movement)
 public class Scaffold extends Module {
     private final ModeValue switchBlock = new ModeValue("Switch Block", new String[]{"Silent", "Switch", "Spoof"}, "Spoof", this);
     private final BoolValue biggestStack = new BoolValue("Biggest Stack", false, this);
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Normal", "Telly", "Watchdog"}, "Normal", this);
     private final SliderValue minTellyTicks = new SliderValue("Min Telly Ticks", 2, 1, 5, this, () -> mode.is("Telly"));
     private final SliderValue maxTellyTicks = new SliderValue("Max Telly Ticks", 4, 1, 5, this, () -> mode.is("Telly"));
-    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "God Bridge", "Reverse", "Custom", "Unfair Pitch","Hypixel Test"}, "Normal", this);
+    private final ModeValue rotations = new ModeValue("Rotations", new String[]{"Normal", "God Bridge", "Reverse", "Custom", "Unfair Pitch","Hypixel","Hypixel 2"}, "Normal", this);
     private final ModeValue rotationsHitVec = new ModeValue("Rotation Hit Vec", new String[]{"Centre","Closest"}, "Centre", this,() -> rotations.is("Normal"));
     private final ModeValue godBridgePitch = new ModeValue("God Bridge Pitch Mode", new String[]{"Normal", "Custom"}, "Custom", this, () -> rotations.is("God Bridge") && !mode.is("Grim 1.17"));
     private final SliderValue customYaw = new SliderValue("Custom Yaw", 180, 0, 180, 1, this, () -> rotations.is("Custom"));
@@ -80,6 +78,7 @@ public class Scaffold extends Module {
     private final ModeValue towerMove = new ModeValue("Tower Move", new String[]{"Jump", "Vanilla","Watchdog","Watchdog Test","Low"}, "Jump", this,() -> !mode.is("Telly"));
     private final ModeValue wdSprint = new ModeValue("WD Sprint Mode", new String[]{"Beside", "Bottom","Offset"}, "Bottom", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
     private final BoolValue sprintBoost = new BoolValue("Sprint Boost Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y"));
+    private final BoolValue extra = new BoolValue("Extra", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && !addons.isEnabled("Keep Y") && sprintBoost.get());
     private final ModeValue wdKeepY = new ModeValue("WD Keep Y Mode", new String[]{"Normal", "Opal", "None"}, "Opal", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
     private final ModeValue wdLowhop = new ModeValue("WD Fast Fall Mode", new String[]{"8 Tick","7 Tick","Disabled"}, "Opal", this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));private final BoolValue unPatch = new BoolValue("Un Patch Test", true, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && (addons.isEnabled("Keep Y") || addons.isEnabled("Speed Keep Y")));
     private final SliderValue straightSpeed = new SliderValue("Keep Y Straight Speed", 1, 0.5f, 1f, 0.01f, this, () -> mode.is("Watchdog") && addons.isEnabled("Sprint") && addons.isEnabled("Keep Y"));
@@ -207,7 +206,7 @@ public class Scaffold extends Module {
             onGroundY = posY = mc.thePlayer.getEntityBoundingBox().minY;
         }
 
-        if (wdKeepY.canDisplay() &&  wdKeepY.is("Opal") && !towering() && !towering()) {
+        if (wdKeepY.canDisplay() && wdKeepY.is("Opal") && !towering() && !towering()) {
             if (FallDistanceComponent.distance > 0 && !start) {
                 posY = mc.thePlayer.getEntityBoundingBox().minY;
                 start = true;
@@ -217,7 +216,7 @@ public class Scaffold extends Module {
         targetBlock = new BlockPos(mc.thePlayer.posX, posY - 1, mc.thePlayer.posZ);
 
 
-        if (wdKeepY.canDisplay() &&  wdKeepY.is("Opal")) {
+        if (wdKeepY.canDisplay() && wdKeepY.is("Opal")) {
             if (start && !towering() && !towerMoving()) {
                 targetBlock = targetBlock.add(0, -1, 0);
                 if (mc.thePlayer.fallDistance > 0 && groundDistance() > 0 && MovementUtils.isMoving()) {
@@ -256,7 +255,7 @@ public class Scaffold extends Module {
             blocksPlaced = 0;
         }
 
-        if(!MovementUtils.isMoving()){
+        if (!MovementUtils.isMoving()) {
             start = false;
         }
 
@@ -344,9 +343,9 @@ public class Scaffold extends Module {
                 rotation = new float[]{MovementUtils.getRawDirection() + 180, getYawBasedPitch(data.blockPos, data.facing, MovementUtils.getRawDirection() + 180, previousRotation[1], 50, RotationUtils.getRotations(getVec3(data))[1])};
             }
             break;
-            case "Hypixel Test": {
+            case "Hypixel": {
                 rotation = RotationUtils.getRotations(getVec3(data));
-                if(MovementUtils.isMovingStraight()) {
+                if (MovementUtils.isMovingStraight()) {
                     if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
                         rotation[0] = MovementUtils.getRawDirection() + 91;
                     } else {
@@ -358,6 +357,16 @@ public class Scaffold extends Module {
                     } else {
                         rotation[0] = MovementUtils.getRawDirection() - 139;
                     }
+                }
+            }
+            break;
+            case "Hypixel 2": {
+                rotation = RotationUtils.getRotations(getVec3(data));
+
+                if (Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() - 102)) < Math.abs(MathHelper.wrapAngleTo180_double(RotationUtils.getRotations(getVec3(data))[0] - MovementUtils.getRawDirection() + 102))) {
+                    rotation[0] = MovementUtils.getRawDirection() + 139;
+                } else {
+                    rotation[0] = MovementUtils.getRawDirection() - 139;
                 }
             }
             break;
@@ -378,7 +387,7 @@ public class Scaffold extends Module {
         }
 
         if (tower.canDisplay() && (tower.is("Watchdog") || tower.is("Watchdog Test")) && towering()
-               // || towerMoving() && (towerMove.is("Watchdog") || towerMove.is("Watchdog Test"))
+            // || towerMoving() && (towerMove.is("Watchdog") || towerMove.is("Watchdog Test"))
         ) {
             rotation = RotationUtils.getRotations(getVec3(data));
         }
@@ -388,7 +397,7 @@ public class Scaffold extends Module {
         if (addons.isEnabled("Snap") && PlayerUtils.getBlock(targetBlock) instanceof BlockAir || !addons.isEnabled("Snap") && !mode.is("Telly") || mode.is("Telly") && mc.thePlayer.offGroundTicks >= tellyTicks) {
 
             if (customRotationSetting.get()) {
-                RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF, MathUtils.randomizeInt(minYawRotSpeed.get(), maxYawRotSpeed.get()), MathUtils.randomizeInt(minPitchRotSpeed.get(), maxPitchRotSpeed.get()) , maxYawAcceleration.get(), maxPitchAcceleration.get(), accelerationError.get(), constantError.get(), smoothlyResetRotation.get());
+                RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF, MathUtils.randomizeInt(minYawRotSpeed.get(), maxYawRotSpeed.get()), MathUtils.randomizeInt(minPitchRotSpeed.get(), maxPitchRotSpeed.get()), maxYawAcceleration.get(), maxPitchAcceleration.get(), accelerationError.get(), constantError.get(), smoothlyResetRotation.get());
             } else {
                 RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? MovementCorrection.SILENT : MovementCorrection.OFF);
             }
@@ -641,8 +650,13 @@ public class Scaffold extends Module {
                 }
             }
             if (mc.thePlayer.onGround && sprintBoost.get()) {
-                mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
-                mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                if (extra.get()) {
+                    mc.thePlayer.motionX *= 1.13 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                    mc.thePlayer.motionZ *= 1.13 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                } else {
+                    mc.thePlayer.motionX *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                    mc.thePlayer.motionZ *= 1.114 - MovementUtils.getSpeedEffect() * .01 - Math.random() * 1E-4;
+                }
             }
         }
 
@@ -720,11 +734,11 @@ public class Scaffold extends Module {
     }
 
     public boolean towering() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !MovementUtils.isMoving();
+        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !isEnabled(Speed.class) && !MovementUtils.isMoving();
     }
 
     public boolean towerMoving() {
-        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && MovementUtils.isMoving();
+        return Keyboard.isKeyDown(mc.gameSettings.keyBindJump.getKeyCode()) && !isEnabled(Speed.class) && MovementUtils.isMoving();
     }
 
     public int getBlockSlot() {

@@ -15,7 +15,7 @@ import wtf.moonlight.features.friend.FriendManager;
 import wtf.moonlight.features.modules.ModuleManager;
 import wtf.moonlight.features.modules.impl.visual.ScaffoldCounter;
 import wtf.moonlight.gui.click.dropdown.DropdownGUI;
-import wtf.moonlight.gui.click.menu.MenuGUI;
+import wtf.moonlight.gui.click.neverlose.NeverLose;
 import wtf.moonlight.gui.click.skeet.SkeetUI;
 import wtf.moonlight.gui.notification.NotificationManager;
 import wtf.moonlight.gui.notification.NotificationType;
@@ -59,7 +59,7 @@ public class Moonlight {
     private WidgetManager widgetManager;
     private CommandManager commandManager;
     private FriendManager friendManager;
-    private MenuGUI menuGUI;
+    private NeverLose neverLose;
     private DropdownGUI dropdownGUI;
     private SkeetUI skeetGUI;
     private DiscordInfo discordRP;
@@ -120,7 +120,7 @@ public class Moonlight {
         configManager = new ConfigManager();
         commandManager = new CommandManager();
         friendManager = new FriendManager();
-        menuGUI = new MenuGUI();
+        neverLose = new NeverLose();
         dropdownGUI = new DropdownGUI();
         skeetGUI = new SkeetUI();
     }

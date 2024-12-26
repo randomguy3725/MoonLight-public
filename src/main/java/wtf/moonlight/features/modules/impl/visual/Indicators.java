@@ -1,6 +1,5 @@
 package wtf.moonlight.features.modules.impl.visual;
 
-import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
@@ -144,6 +143,8 @@ public class Indicators extends Module {
                     {
                         addTriangleVertices(arrowSize);
                     }
+
+                    RenderUtils.resetColor();
                     glEnd();
                 }
 
@@ -158,6 +159,8 @@ public class Indicators extends Module {
                 {
                     addTriangleVertices(arrowSize);
                 }
+
+                RenderUtils.resetColor();
                 glEnd();
 
                 glDisable(GL_POLYGON_SMOOTH);
@@ -189,9 +192,5 @@ public class Indicators extends Module {
         glVertex2d(0, -size / 2);
         glVertex2d(-size / 2, size / 2);
         glVertex2d(size / 2, size / 2);
-    }
-
-    private boolean validatePlayer(final EntityPlayer player) {
-        return player instanceof EntityOtherPlayerMP && player.isEntityAlive() && !player.isInvisible();
     }
 }

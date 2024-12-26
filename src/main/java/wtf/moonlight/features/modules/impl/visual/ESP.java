@@ -10,7 +10,9 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumChatFormatting;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
-import wtf.moonlight.events.impl.render.*;
+import wtf.moonlight.events.impl.render.Render2DEvent;
+import wtf.moonlight.events.impl.render.Render3DEvent;
+import wtf.moonlight.events.impl.render.RenderNameTagEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
@@ -19,7 +21,9 @@ import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ColorValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
-import wtf.moonlight.utils.render.*;
+import wtf.moonlight.utils.render.ColorUtils;
+import wtf.moonlight.utils.render.GLUtils;
+import wtf.moonlight.utils.render.RenderUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -159,6 +163,7 @@ public class ESP extends Module {
                             glVertex2f(x + armorBarWidth - 0.5F, y2 + 2);
                             glVertex2f(x + armorBarWidth - 0.5F, y2 + 1);
                         }
+                        RenderUtils.resetColor();
                     }
 
                     if (!healthBar.get())
@@ -204,6 +209,8 @@ public class ESP extends Module {
                         glVertex2f(healthBarRight, topOfHealthBar);
                     }
 
+                    RenderUtils.resetColor();
+
 
                     final float absorption = player.getAbsorptionAmount();
 
@@ -225,6 +232,8 @@ public class ESP extends Module {
                         glVertex2f(healthBarRight, y2 - 0.5F);
                         glVertex2f(healthBarRight, topOfAbsorptionBar);
                     }
+
+                    RenderUtils.resetColor();
 
                     if (!box.get())
                         glEnd();
@@ -291,8 +300,9 @@ public class ESP extends Module {
                         glVertex2f(x2 - 0.5F, y2 - 1);
                     }
 
-                    glEnd();
+                    RenderUtils.resetColor();
 
+                    glEnd();
                 }
 
                 glEnable(GL_TEXTURE_2D);
@@ -317,6 +327,7 @@ public class ESP extends Module {
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_TEXTURE_2D);
             glDepthMask(false);
+            RenderUtils.resetColor();
         }
 
         final float partialTicks = event.getPartialTicks();

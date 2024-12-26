@@ -9,7 +9,6 @@ import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.utils.packet.BlinkComponent;
 

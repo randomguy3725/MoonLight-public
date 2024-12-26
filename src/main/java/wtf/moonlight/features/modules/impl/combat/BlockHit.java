@@ -16,7 +16,7 @@ import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.PlayerUtils;
 
-@ModuleInfo(name = "BlockHit",category = ModuleCategory.Combat)
+@ModuleInfo(name = "BlockHit",category = ModuleCategory.Legit)
 public class BlockHit extends Module {
 
     public final BoolValue swingCheck = new BoolValue("Swing Check",true,this);

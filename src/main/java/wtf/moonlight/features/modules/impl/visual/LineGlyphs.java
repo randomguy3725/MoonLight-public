@@ -25,8 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import static org.lwjgl.opengl.GL11.glTranslated;
-
 
 @ModuleInfo(name = "LineGlyphs", category = ModuleCategory.Visual)
 public class LineGlyphs extends Module {

@@ -1,9 +1,7 @@
 package wtf.moonlight.gui.click.dropdown;
 
 import lombok.Getter;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjglx.input.Keyboard;
 import org.lwjglx.input.Mouse;
@@ -28,7 +26,7 @@ public class DropdownGUI extends GuiScreen {
     public DropdownGUI() {
         openingAnimation.setDirection(Direction.BACKWARDS);
         for (ModuleCategory category : ModuleCategory.values()) {
-            if (category == ModuleCategory.Search)
+            if (category == ModuleCategory.Search || category == ModuleCategory.Config)
                 continue;
             panels.add(new CategoryPanel(category));
             float width = 0;

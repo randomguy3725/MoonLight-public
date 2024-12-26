@@ -9,7 +9,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.movement.Freeze;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
@@ -23,7 +23,7 @@ import wtf.moonlight.utils.render.RenderUtils;
 
 import java.util.Objects;
 
-@ModuleInfo(name = "AutoRod", category = ModuleCategory.Combat)
+@ModuleInfo(name = "AutoRod", category = ModuleCategory.Legit)
 public class AutoRod extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Silent", "Always"}, "Silent", this);
     private final SliderValue fov = new SliderValue("FOV",180,1,180,this);

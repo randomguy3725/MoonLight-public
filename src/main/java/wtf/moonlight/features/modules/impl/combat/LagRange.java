@@ -3,16 +3,13 @@ package wtf.moonlight.features.modules.impl.combat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.AxisAlignedBB;
 import wtf.moonlight.events.annotations.EventTarget;
-import wtf.moonlight.events.impl.player.AttackEvent;
 import wtf.moonlight.events.impl.player.UpdateEvent;
 import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
-import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
-import wtf.moonlight.utils.animations.ContinualAnimation;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.packet.PingSpoofComponent;
@@ -21,7 +18,7 @@ import wtf.moonlight.utils.render.RenderUtils;
 
 import java.awt.*;
 
-@ModuleInfo(name = "LagRange", category = ModuleCategory.Combat)
+@ModuleInfo(name = "LagRange", category = ModuleCategory.Legit)
 public class LagRange extends Module {
     private final SliderValue attackRange = new SliderValue("Search Range", 4, 1, 15, this);
     private final SliderValue minRange = new SliderValue("Min Range", 4, 1, 15, this);

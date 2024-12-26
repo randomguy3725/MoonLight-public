@@ -12,7 +12,7 @@ import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.math.TimerUtils;
 
-@ModuleInfo(name = "AutoClicker", category = ModuleCategory.Combat)
+@ModuleInfo(name = "AutoClicker", category = ModuleCategory.Legit)
 public class AutoClicker extends Module {
     private final SliderValue minAps = new SliderValue("Min Aps", 10, 1, 20, this);
     private final SliderValue maxAps = new SliderValue("Max Aps", 12, 1, 20, this);

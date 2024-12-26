@@ -2,7 +2,6 @@ package wtf.moonlight.gui.widget.impl;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -152,12 +151,12 @@ class TargetHUD implements InstanceAccess {
             break;
             case "Type 1": {
                 target.healthAnimation.animate((width - 52) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
-                double hurtTime = (target.hurtTime == 0 ? 0 :
-                        target.hurtTime - mc.timer.renderPartialTicks) * 0.5;
+                float hurtTime = (target.hurtTime == 0 ? 0 :
+                        target.hurtTime - mc.timer.renderPartialTicks) * 0.5f;
                 if (!shader) {
                     //RoundedUtils.drawRoundOutline(x,y,width,height,6,.1f,ColorUtils.applyOpacity(Color.BLACK, (float) (.3f * animation.getOutput())),ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).color(1)), (float) (1f * animation.getOutput())));
                     RoundedUtils.drawRound(x, y, width, height, 6, ColorUtils.applyOpacity(Color.BLACK, (float) (.4f * animation.getOutput())));
-                    RenderUtils.renderPlayer2D(target, x + 4 + (hurtTime) / 2D, y + 4 + (hurtTime) / 2D, 34 - hurtTime, 8f, ColorUtils.interpolateColor2(Color.WHITE, Color.RED, (float) (hurtTime / 7)));
+                    RenderUtils.renderPlayer2D(target, x + 4 + (hurtTime) / 2, y + 4 + (hurtTime) / 2, 34 - hurtTime, 8f, ColorUtils.interpolateColor2(Color.WHITE, Color.RED, (float) (hurtTime / 7)));
                     Fonts.interBold.get(18).drawString(target.getName(), x + 43, y + 10, ColorUtils.applyOpacity(Color.WHITE, (float) animation.getOutput()).getRGB());
                     Fonts.interBold.get(14).drawString("HP: " + String.format("%.1f", target.healthAnimation.getOutput() / (width - 52) * target.getMaxHealth()), x + 43, y + 20, ColorUtils.applyOpacity(Color.WHITE, (float) animation.getOutput()).getRGB());
                     RoundedUtils.drawRound(x + 44, y + 30, width - 52, 6, 3, ColorUtils.applyOpacity(Color.BLACK, (float) (.47f * animation.getOutput())));
@@ -173,7 +172,7 @@ class TargetHUD implements InstanceAccess {
                 if (!shader) {
                     target.healthAnimation.animate((width - (5 * 4 + 26.5f)) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
                     RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor(),true));
-                    RenderUtils.renderPlayer2D(target, x + 5, y + 6.8, 26.5, 2, -1);
+                    RenderUtils.renderPlayer2D(target, x + 5, y + 6.8f, 26.5f, 2, -1);
 
                     RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(30, 30, 30));
 
@@ -303,13 +302,13 @@ class TargetHUD implements InstanceAccess {
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
-                    RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 10, -1);
                     RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(),true));
 
                     RoundedUtils.drawRound(x + 40, y + 26.5f, (100 * space), 8, 4, new Color(0, 0, 0, 150));
                     String text = String.format("%.1f", target.getHealth());
 
                     RoundedUtils.drawRound(x + 40, y + 26.5f, target.healthAnimation.getOutput(), 8.5f, 4, new Color(setting.color(0)));
+                    RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 10, -1);
                     Fonts.interSemiBold.get(13).drawStringWithShadow(text + "HP", x + 40, y + 17, -1);
                     Fonts.interSemiBold.get(18).drawStringWithShadow(target.getName(), x + 40, y + 6, -1);
                 } else {
@@ -347,10 +346,9 @@ class TargetHUD implements InstanceAccess {
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
-                    RenderUtils.renderPlayer2D(target, (x + 1.5 + 1), (float) (y + 0.4), 35, 0, -1);
-
                     RenderUtils.drawBorderedRect(x, y, width, height, 1f, new Color(0, 0, 0, 50).getRGB(), new Color(40, 40, 40, 180).getRGB());
                     RenderUtils.drawRect(x, y, width, height, new Color(40, 40, 40, 180).getRGB());
+                    RenderUtils.renderPlayer2D(target, (x + 1.5f + 1), (float) (y + 0.4), 35, 0, -1);
                     String text = String.format("%.1f", target.getHealth());
                     mc.fontRendererObj.drawStringWithShadow("❤", x + 62 + 1, y + 26.6f, setting.color(0));
                     RenderUtils.drawRect(x + 40 + 1, y + 16.5f, target.healthAnimation.getOutput(), 8.8f, setting.color(0));
@@ -368,12 +366,12 @@ class TargetHUD implements InstanceAccess {
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
-                    RenderUtils.renderPlayer2D(target, (x + 1.5 + 1), (float) (y + 0.4), 35, 0, -1);
 
                     RenderUtils.drawBorderedRect(x, y, width, height, 1f, new Color(0, 0, 0, 50).getRGB(), new Color(29, 29, 29, 130).getRGB());
                     RenderUtils.drawRect(x, y, width, height, new Color(40, 40, 40, 130).getRGB());
                     RenderUtils.drawRect(x + 40 + 1, y + 16.5f, 100 * space + 1, 10.8f, new Color(0, 0, 0, 50).getRGB());
                     RenderUtils.drawRect(x + 40 + 1, y + 16.5f, target.healthAnimation.getOutput(), 10.8f, setting.color());
+                    RenderUtils.renderPlayer2D(target, (x + 1.5f + 1f), (float) (y + 0.4), 35, 0, -1);
                     String text = String.format("%.1f", healthPercentage * 100) + "%";
                     mc.fontRendererObj.drawStringWithShadow(text, x + 1 + 40 + 50 * space - mc.fontRendererObj.getStringWidth(text) / 2f, y + 18f, -1);
                     mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 1 + 40, y + 4, -1);

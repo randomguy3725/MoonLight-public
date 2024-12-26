@@ -34,8 +34,8 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.modules.impl.combat.KillAura;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.features.modules.impl.visual.Interface;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.MathUtils;
@@ -43,7 +43,6 @@ import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.player.InventoryUtils;
 import wtf.moonlight.utils.player.MovementCorrection;
 import wtf.moonlight.utils.player.RotationUtils;
-import wtf.moonlight.utils.render.GLUtils;
 import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 

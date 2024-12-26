@@ -19,9 +19,10 @@ import wtf.moonlight.utils.render.RoundedUtils;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+
+import static wtf.moonlight.gui.click.neverlose.NeverLose.*;
 
 public class PotionHUDWidget extends Widget {
 
@@ -42,22 +43,34 @@ public class PotionHUDWidget extends Widget {
             potions.sort(Comparator.comparingDouble(effect -> -Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName())))));
             float yOffset = 0;
             heightAnimation.animate(potions.size() * 13 - 14, 18);
-            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), Fonts.interBold.get(15).getHeight() + 12f + heightAnimation.getOutput() + 4 + 2, 4, new Color(setting.bgColor(),true));
+            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), Fonts.interBold.get(15).getHeight() + 12f + heightAnimation.getOutput() + 4 + 2, 4, new Color(setting.bgColor(), true));
             Fonts.interBold.get(15).drawString("Potions Status", renderX + 5, renderY + 5.5, setting.color());
             width = (MathHelper.clamp_int(!potions.isEmpty() ? Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(potions.stream().max(Comparator.comparingDouble(effect -> Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName()))))).stream().findFirst().orElse(null)).getEffectName()) + 20 : 0, 80, 999));
             height = ((Fonts.interRegular.get(15).getHeight() + 2 + (12 + heightAnimation.getOutput())));
         }
-        if(setting.potionHudMode.is("Sexy")){
+        if (setting.potionHudMode.is("Sexy")) {
             width = 92;
             height = heightAnimation.getOutput();
 
-            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor(),true));
+            RoundedUtils.drawRound(renderX, renderY, width, height, 6, new Color(setting.bgColor(), true));
 
-            heightAnimation.animate(20 + potions.size() * 10,20);
+            heightAnimation.animate(20 + potions.size() * 10, 20);
         }
 
-        if(setting.potionHudMode.is("Type 1")){
-            RoundedUtils.drawRound(renderX, renderY, width, height, 4,new Color(setting.bgColor(),true));
+        if (setting.potionHudMode.is("Type 1")) {
+            RoundedUtils.drawRound(renderX, renderY, width, height, 4, new Color(setting.bgColor(), true));
+        }
+
+        if (setting.potionHudMode.is("NeverLose")) {
+
+            height = (15);
+            width = MathHelper.clamp_float(!potions.isEmpty() ? Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(potions.stream().max(Comparator.comparingDouble(effect -> Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName()))))).stream().findFirst().orElse(null)).getEffectName()) + 20 : 0, 80, 999);
+            widthAnimation.animate(width, 18);
+            potions.sort(Comparator.comparingDouble(effect -> -Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName())))));
+
+            float yOffset = 18;
+            RoundedUtils.drawRound(renderX, renderY, widthAnimation.getOutput(), 14f, 4, bgColor);
+            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), 12f + heightAnimation.getOutput(), 4, ColorUtils.applyOpacity(bgColor, 1f));
         }
     }
     @Override
@@ -68,7 +81,7 @@ public class PotionHUDWidget extends Widget {
             potions.sort(Comparator.comparingDouble(effect -> -Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName())))));
             float yOffset = 0;
             heightAnimation.animate(potions.size() * 13 - 14, 18);
-            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), Fonts.interBold.get(15).getHeight() + 12f + heightAnimation.getOutput() + 4 + 2, 4, new Color(setting.bgColor(),true));
+            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), Fonts.interBold.get(15).getHeight() + 12f + heightAnimation.getOutput() + 4 + 2, 4, new Color(setting.bgColor(), true));
             Fonts.interBold.get(15).drawString("Potions Status", renderX + 5, renderY + 5.5, setting.color());
             width = (MathHelper.clamp_int(!potions.isEmpty() ? Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(potions.stream().max(Comparator.comparingDouble(effect -> Fonts.interRegular.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName()))))).stream().findFirst().orElse(null)).getEffectName()) + 20 : 0, 80, 999));
             height = ((Fonts.interRegular.get(15).getHeight() + 2 + (12 + heightAnimation.getOutput())));
@@ -92,13 +105,13 @@ public class PotionHUDWidget extends Widget {
             }
         }
 
-        if(setting.potionHudMode.is("Nursultan")){
+        if (setting.potionHudMode.is("Nursultan")) {
 
             int maxWidth = calculateMaxPotionWidth();
             int offset = calculatePotionOffset();
 
-            heightAnimation.animate(offset,200);
-            widthAnimation.animate(maxWidth,200);
+            heightAnimation.animate(offset, 200);
+            widthAnimation.animate(maxWidth, 200);
 
             width = (maxWidth);
             height = (8 + offset);
@@ -106,7 +119,7 @@ public class PotionHUDWidget extends Widget {
             float posX = renderX;
             float posY = renderY;
 
-            RoundedUtils.drawRound(posX + 1.3F, posY + 4.5F, widthAnimation.getOutput(), 13F, 2.5F,new Color(setting.bgColor(),true));
+            RoundedUtils.drawRound(posX + 1.3F, posY + 4.5F, widthAnimation.getOutput(), 13F, 2.5F, new Color(setting.bgColor(), true));
             RenderUtils.drawRect(posX + 16F, 5.5F + 1f, 0.7F, 9.0F, new Color(75, 75, 75).getRGB());
 
             Fonts.nursultan.get(16).drawString("E", posX + 5F, posY + 10F, Color.WHITE.getRGB());
@@ -127,7 +140,7 @@ public class PotionHUDWidget extends Widget {
                 float height = 9F;
                 float radius = 2.5F;
 
-                RoundedUtils.drawRound(xPos, yPos, width + 5, height, radius,new Color(setting.bgColor(),true));
+                RoundedUtils.drawRound(xPos, yPos, width + 5, height, radius, new Color(setting.bgColor(), true));
 
                 float nameX = posX + 5.5f;
                 float nameY = posY + 23.5f + itemOffset;
@@ -164,16 +177,16 @@ public class PotionHUDWidget extends Widget {
             }
         }
 
-        if(setting.potionHudMode.is("Sexy")){
+        if (setting.potionHudMode.is("Sexy")) {
 
             width = 92;
             height = heightAnimation.getOutput();
-            
-            RoundedUtils.drawRound(renderX,renderY,width,height,6,new Color(setting.bgColor(),true));
-            
+
+            RoundedUtils.drawRound(renderX, renderY, width, height, 6, new Color(setting.bgColor(), true));
+
             Fonts.interSemiBold.get(13).drawString("Potions", renderX + 8, renderY + 7 + 2, -1);
 
-            Fonts.nursultan.get(14).drawString("E",renderX + width - 16,renderY + 7, setting.color(0));
+            Fonts.nursultan.get(14).drawString("E", renderX + width - 16, renderY + 7, setting.color(0));
 
             float offset = renderY + 21;
             for (PotionEffect potion : potions) {
@@ -187,10 +200,10 @@ public class PotionHUDWidget extends Widget {
                 offset += 10;
             }
 
-            heightAnimation.animate(20 + potions.size() * 10,20);
+            heightAnimation.animate(20 + potions.size() * 10, 20);
         }
-        
-        if(setting.potionHudMode.is("Type 1")){
+
+        if (setting.potionHudMode.is("Type 1")) {
 
             float posX = renderX;
             float posY = renderY;
@@ -200,7 +213,7 @@ public class PotionHUDWidget extends Widget {
 
             String name = "Potions";
 
-            RoundedUtils.drawRound(posX, posY, width, height, 4,new Color(setting.bgColor(),true));
+            RoundedUtils.drawRound(posX, posY, width, height, 4, new Color(setting.bgColor(), true));
             Fonts.interMedium.get(fontSize).drawCenteredString(name, posX - 22 + width / 2, posY + padding + 0.5f + 2, -1);
 
             float imagePosX = posX + width - iconSizeX - padding;
@@ -211,7 +224,7 @@ public class PotionHUDWidget extends Widget {
             float maxWidth = Fonts.interMedium.get(fontSize).getStringWidth(name) + padding * 2;
             float localHeight = Fonts.interMedium.get(fontSize).getHeight() + padding * 2;
 
-            RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(ColorUtils.darker(setting.color(),0.4f)));
+            RoundedUtils.drawRound(posX + 0.5f, posY, width - 1, 1.25f, 3, new Color(ColorUtils.darker(setting.color(), 0.4f)));
             posY += 3f;
 
             for (PotionEffect effect : potions) {
@@ -237,6 +250,47 @@ public class PotionHUDWidget extends Widget {
             }
             width = Math.max(maxWidth, 80);
             height = localHeight + 2.5f;
+        }
+
+        if (setting.potionHudMode.is("NeverLose")) {
+
+            height = (15);
+            width = MathHelper.clamp_float(!potions.isEmpty() ? Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(potions.stream().max(Comparator.comparingDouble(effect -> Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName()))))).stream().findFirst().orElse(null)).getEffectName()) + 20 : 0, 80, 999);
+            widthAnimation.animate(width, 18);
+            potions.sort(Comparator.comparingDouble(effect -> -Fonts.interSemiBold.get(16).getStringWidth(Objects.requireNonNull(I18n.format(Potion.potionTypes[effect.getPotionID()].getName())))));
+
+            float yOffset = 18;
+            RoundedUtils.drawRound(renderX, renderY, widthAnimation.getOutput(), 14f, 4, ColorUtils.applyOpacity(bgColor, 1f));
+            Fonts.nursultan.get(15).drawString("E ", renderX + 5, renderY + 5.5f, iconRGB);
+            Fonts.interSemiBold.get(15).drawString("Potions Status", renderX + 5 + Fonts.nursultan.get(15).getStringWidth("E "), renderY + 5.5, textRGB);
+
+            heightAnimation.animate(potions.size() * 13 - 14, 18);
+
+            RoundedUtils.drawRound(renderX, renderY + yOffset, widthAnimation.getOutput(), 12f + heightAnimation.getOutput(), 4, ColorUtils.applyOpacity(bgColor, 1f));
+
+            for (PotionEffect potion : potions) {
+                String potionString = I18n.format(Potion.potionTypes[potion.getPotionID()].getName()) + " " + (potion.getAmplifier() > 0 ? I18n.format("enchantment.level." + (potion.getAmplifier() + 1)) : "");
+
+                String durationString = Potion.getDurationString(potion);
+
+                if (Potion.potionTypes[potion.getPotionID()].hasStatusIcon()) {
+                    GL11.glPushMatrix();
+                    RenderUtils.resetColor();
+                    RenderHelper.enableGUIStandardItemLighting();
+                    int i1 = Potion.potionTypes[potion.getPotionID()].getStatusIconIndex();
+                    GL11.glScaled(0.5, 0.5, 0.5);
+                    mc.getTextureManager().bindTexture(GuiContainer.inventoryBackground);
+                    drawTexturedModalRect((renderX + 4) * 9 / 4.5f, (renderY + yOffset + 3f + potions.indexOf(potion) * 13) * 9 / 4.5f, i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
+                    GL11.glScaled(2, 2, 2);
+                    RenderHelper.disableStandardItemLighting();
+                    GL11.glPopMatrix();
+                }
+
+                Fonts.interSemiBold.get(16).drawString(potionString, (renderX + 15), (renderY + yOffset + 4) + potions.indexOf(potion) * 13, textRGB);
+                Fonts.interSemiBold.get(14).drawCenteredString(durationString, (renderX - 6 + widthAnimation.getOutput() - Fonts.interSemiBold.get(16).getStringWidth(durationString)) + Fonts.interSemiBold.get(16).getStringWidth(durationString) / 2f + 3, (renderY + yOffset + 4) + potions.indexOf(potion) * 13, iconRGB);
+                //yOffset += (float) (16);
+            }
+
         }
     }
 

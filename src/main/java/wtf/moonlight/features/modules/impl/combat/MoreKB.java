@@ -12,7 +12,7 @@ import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.utils.player.MovementUtils;
 
-@ModuleInfo(name = "MoreKB", category = ModuleCategory.Combat)
+@ModuleInfo(name = "MoreKB", category = ModuleCategory.Legit)
 public class MoreKB extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Legit Fast", "Packet"}, "Legit Test", this);
     private final BoolValue onlyGround = new BoolValue("Only Ground", true, this);

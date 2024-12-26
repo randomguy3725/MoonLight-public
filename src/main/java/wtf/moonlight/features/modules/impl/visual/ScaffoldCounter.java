@@ -7,7 +7,7 @@ import org.lwjgl.opengl.GL11;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.events.impl.render.Shader2DEvent;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
 import wtf.moonlight.utils.animations.Animation;

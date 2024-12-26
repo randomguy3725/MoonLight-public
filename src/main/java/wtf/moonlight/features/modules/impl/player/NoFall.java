@@ -1,18 +1,14 @@
 package wtf.moonlight.features.modules.impl.player;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.network.handshake.client.C00Handshake;
-import net.minecraft.network.login.client.C00PacketLoginStart;
-import net.minecraft.network.play.client.C00PacketKeepAlive;
 import net.minecraft.network.play.client.C03PacketPlayer;
-import net.minecraft.network.play.client.C0FPacketConfirmTransaction;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.player.MotionEvent;
 import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.packet.BlinkComponent;

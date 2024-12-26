@@ -1,4 +1,4 @@
-package wtf.moonlight.features.modules.impl.world;
+package wtf.moonlight.features.modules.impl.player;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -21,6 +21,7 @@ import wtf.moonlight.events.impl.render.Render3DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
+import wtf.moonlight.features.modules.impl.movement.Scaffold;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
@@ -34,7 +35,7 @@ import wtf.moonlight.utils.render.RoundedUtils;
 import java.awt.*;
 import java.text.DecimalFormat;
 
-@ModuleInfo(name = "BedNuker", category = ModuleCategory.World)
+@ModuleInfo(name = "BedNuker", category = ModuleCategory.Player)
 public class BedNuker extends Module {
     public final SliderValue breakRange = new SliderValue("Break Range", 4, 1, 5, 1, this);
     public final BoolValue breakSurroundings = new BoolValue("Break Top", true, this);

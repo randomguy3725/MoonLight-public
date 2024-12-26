@@ -8,12 +8,13 @@ import lombok.Getter;
 public enum ModuleCategory {
 
     Combat("Combat"),
+    Legit("Legit"),
     Movement("Movement"),
     Player("Player"),
-    World("World"),
-    Visual("Visual"),
     Misc("Misc"),
     Exploit("Exploit"),
+    Visual("Visuals"),
+    Config("Configs"),
     Search("Search");
 
     private final String name;

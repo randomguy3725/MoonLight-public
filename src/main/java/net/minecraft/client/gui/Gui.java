@@ -243,7 +243,7 @@ public class Gui
         tessellator.draw();
     }
 
-    public static void drawScaledCustomSizeModalRect(int x, int y, float u, float v, int uWidth, int vHeight, int width, int height, float tileWidth, float tileHeight)
+    public static void drawScaledCustomSizeModalRect(float x, float y, float u, float v, int uWidth, int vHeight, float width, float height, float tileWidth, float tileHeight)
     {
         float f = 1.0F / tileWidth;
         float f1 = 1.0F / tileHeight;

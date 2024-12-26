@@ -527,19 +527,17 @@ public class RenderUtils implements InstanceAccess {
         GL11.glColor4f(1, 1, 1, 1);
     }
 
-    public static void renderPlayer2D(EntityLivingBase abstractClientPlayer, final double x, final double y, final double size, float radius, int color) {
+    public static void renderPlayer2D(EntityLivingBase abstractClientPlayer, final float x, final float y, final float size, float radius, int color) {
         if (abstractClientPlayer instanceof AbstractClientPlayer player) {
-            GL11.glPushMatrix();
             StencilUtils.initStencilToWrite();
-            RenderUtils.drawRoundedRect((float) x, (float) y, (float) size, (float) size, radius, -1);
+            RenderUtils.drawRoundedRect(x, y, size, size, radius, -1);
             StencilUtils.readStencilBuffer(1);
+            RenderUtils.color(color);
+            GLUtils.startBlend();
             mc.getTextureManager().bindTexture(player.getLocationSkin());
-            setColor(color);
-            Gui.drawScaledCustomSizeModalRect((int) x, (int) y, 4F, 4F, 4, 4, (int) size, (int) size, 32, 32);
-            RenderUtils.resetColor();
+            Gui.drawScaledCustomSizeModalRect(x, y, (float) 8.0, (float) 8.0, 8, 8, size, size, 64.0F, 64.0F);
+            GLUtils.endBlend();
             StencilUtils.uninitStencilBuffer();
-            GlStateManager.disableBlend();
-            GL11.glPopMatrix();
         }
     }
 

@@ -5,14 +5,12 @@ import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.features.modules.impl.combat.*;
-import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.exploit.Timer;
+import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.misc.*;
 import wtf.moonlight.features.modules.impl.movement.*;
 import wtf.moonlight.features.modules.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.*;
-import wtf.moonlight.features.modules.impl.world.BedNuker;
-import wtf.moonlight.features.modules.impl.world.Scaffold;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,25 +29,27 @@ public class ModuleManager {
                 //combat
                 Annoy.class,
                 AntiBot.class,
-                AutoClicker.class,
                 AutoGap.class,
                 AutoPot.class,
                 AutoProjectile.class,
-                AutoRod.class,
                 AutoWeapon.class,
                 BackTrack.class,
-                BlockHit.class,
                 BowAimBot.class,
                 Critical.class,
-                KeepRange.class,
                 KeepSprint.class,
                 KillAura.class,
-                LagRange.class,
-                MoreKB.class,
                 Reach.class,
                 TargetStrafe.class,
                 TickBase.class,
                 Velocity.class,
+
+                //legit
+                AutoClicker.class,
+                AutoRod.class,
+                MoreKB.class,
+                LagRange.class,
+                BlockHit.class,
+                KeepRange.class,
 
                 //exploit,
                 Blink.class,
@@ -81,6 +81,7 @@ public class ModuleManager {
                 Step.class,
                 Strafe.class,
                 Fly.class,
+                Scaffold.class,
 
                 //player
                 AntiFireball.class,
@@ -90,6 +91,7 @@ public class ModuleManager {
                 InvManager.class,
                 NoFall.class,
                 Stealer.class,
+                BedNuker.class,
 
                 //visual
                 Atmosphere.class,
@@ -120,12 +122,7 @@ public class ModuleManager {
                 Rotation.class,
                 Shaders.class,
                 Trajectories.class,
-                TargetESP.class,
-
-                //world
-                BedNuker.class,
-                Scaffold.class
-
+                TargetESP.class
         );
 
         modules.sort(Comparator.comparing(Module::getName));

@@ -21,7 +21,8 @@ public enum Fonts {
     noti("others/noti"),
     noti2("others/noti2"),
     session("others/session"),
-    session2("others/session2");
+    session2("others/session2"),
+    neverlose("others/nlicon");
     private final String file;
     private final Float2ObjectMap<FontRenderer> fontMap = new Float2ObjectArrayMap<>();
 
