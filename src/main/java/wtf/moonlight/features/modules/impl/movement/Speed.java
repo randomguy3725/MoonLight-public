@@ -32,7 +32,7 @@ import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP"}, "Watchdog", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP", "MinibloxHop"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue fallStrafe = new BoolValue("Fall Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue frictionOverride = new BoolValue("Friction Override", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
@@ -50,6 +50,7 @@ public class Speed extends Module {
     private final BoolValue onHurt = new BoolValue("On Hurt", true, this, () -> Objects.equals(mode.get(), "NCP") && pullDown.get());
     private final BoolValue airBoost = new BoolValue("Air Boost", true, this, () -> Objects.equals(mode.get(), "NCP"));
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false, this, () -> Objects.equals(mode.get(), "NCP"));
+    private final SliderValue mTicks = new SliderValue("Ticks", 5, 1, 6, 1, this, () -> Objects.equals(mode.get(), "MinibloxHop"));
     public final BoolValue noBob = new BoolValue("No Bob", true, this);
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
@@ -104,6 +105,45 @@ public class Speed extends Module {
             DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
+            case "MinibloxHop": {
+                if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
+                    mc.thePlayer.jump();
+                }
+
+                switch (mc.thePlayer.offGroundTicks) {
+                    case 1: {
+                        MovementUtils.strafe();
+                        switch ((int) mTicks.get()) {
+                            case 1:
+                                mc.thePlayer.motionY -= 0.76;
+                                break;
+                            case 2:
+                                mc.thePlayer.motionY -= 0.52;
+                                break;
+                            case 3:
+                                mc.thePlayer.motionY -= 0.3;
+                                break;
+                            case 4:
+                                mc.thePlayer.motionY -= 0.17;
+                                break;
+                            case 5:
+                                mc.thePlayer.motionY -= 0.08;
+                                break;
+                            case 6:
+                                mc.thePlayer.motionY -= 0.01;
+                                break;
+                        }
+                    }
+                    break;
+
+                    case 3: {
+                        MovementUtils.strafe();
+                        mc.thePlayer.motionY -= 0.1523351824467155;
+                    }
+                    break;
+                }
+            }
+
             case "NCP": {
                 if (mc.thePlayer.offGroundTicks == onTick.get() && pullDown.get()) {
                     MovementUtils.strafe();
@@ -285,6 +325,16 @@ public class Speed extends Module {
             return;
 
         switch (mode.get()) {
+            case "MinibloxHop": {
+                if (MovementUtils.isMoving()) {
+                    if (mc.thePlayer.onGround) {
+                        MovementUtils.strafe(0.26f);
+                    } else {
+                        MovementUtils.strafe(0.35f);
+                    }
+                }
+            }
+            break;
 
             case "NCP": {
                 if (MovementUtils.isMoving()) {
