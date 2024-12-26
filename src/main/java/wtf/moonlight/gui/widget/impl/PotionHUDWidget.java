@@ -280,7 +280,7 @@ public class PotionHUDWidget extends Widget {
                     int i1 = Potion.potionTypes[potion.getPotionID()].getStatusIconIndex();
                     GL11.glScaled(0.5, 0.5, 0.5);
                     mc.getTextureManager().bindTexture(GuiContainer.inventoryBackground);
-                    drawTexturedModalRect((renderX + 4) * 9 / 4.5f, (renderY + yOffset + 3f + potions.indexOf(potion) * 13) * 9 / 4.5f, i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
+                    drawTexturedModalRect((renderX + 4) * 9 / 4.5f, (renderY + yOffset + 1f + potions.indexOf(potion) * 13) * 9 / 4.5f, i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
                     GL11.glScaled(2, 2, 2);
                     RenderHelper.disableStandardItemLighting();
                     GL11.glPopMatrix();
