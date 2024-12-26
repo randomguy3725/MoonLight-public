@@ -135,17 +135,35 @@ public class LongJump extends Module {
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
 
                 if (!jumped) {
-                    if (mc.thePlayer.onGround) mc.thePlayer.jump();
+                    if (mc.thePlayer.onGround) {
+                        MovementUtils.stop();
+                        mc.thePlayer.jump();
+                    }
+
                     jumped = true;
                 }
 
                 if (jumped) {
-                    mc.thePlayer.motionX = 1.95 * -Math.sin(MovementUtils.getDirection());
-                    mc.thePlayer.motionZ = 1.95 * Math.cos(MovementUtils.getDirection());
-                    mc.thePlayer.motionY = 0.42;
+                    switch (pauseTimes) {
+                        case 0:
+                            mc.thePlayer.motionX = 1.9 * -Math.sin(MovementUtils.getDirection());
+                            mc.thePlayer.motionZ = 1.9 * Math.cos(MovementUtils.getDirection());
+                            break;
+                        case 1:
+                            mc.thePlayer.motionX = 1.185 * -Math.sin(MovementUtils.getDirection());
+                            mc.thePlayer.motionZ = 1.185 * Math.cos(MovementUtils.getDirection());
+                            break;
+                        case 2:
+                            mc.thePlayer.motionX = 0.4625 * -Math.sin(MovementUtils.getDirection());
+                            mc.thePlayer.motionZ = 0.4625 * Math.cos(MovementUtils.getDirection());
+                            break;
+                    }
+
+                    mc.thePlayer.motionY = 0.29;
                     currentTimer++;
 
                     if (Range.between(4, 10).contains(currentTimer)) {
+                        sendPacketNoEvent(new C03PacketPlayer(true));
                         MovementUtils.stop();
                     } else if (currentTimer > 10) {
                         pauseTimes++;
@@ -154,7 +172,7 @@ public class LongJump extends Module {
                     }
                 }
 
-                if (pauseTimes >= 2) {
+                if (pauseTimes >= 3) {
                     MovementUtils.stop();
                     toggle();
                 }
