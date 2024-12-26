@@ -33,7 +33,7 @@ import java.util.Objects;
 
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
-    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP", "MinibloxHop"}, "Watchdog", this);
+    private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP", "Miniblox"}, "Watchdog", this);
     private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue fallStrafe = new BoolValue("Fall Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue frictionOverride = new BoolValue("Friction Override", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
@@ -52,7 +52,7 @@ public class Speed extends Module {
     private final BoolValue onHurt = new BoolValue("On Hurt", true, this, () -> Objects.equals(mode.get(), "NCP") && pullDown.get());
     private final BoolValue airBoost = new BoolValue("Air Boost", true, this, () -> Objects.equals(mode.get(), "NCP"));
     private final BoolValue damageBoost = new BoolValue("Damage Boost", false, this, () -> Objects.equals(mode.get(), "NCP"));
-    private final SliderValue mTicks = new SliderValue("Ticks", 5, 1, 6, 1, this, () -> Objects.equals(mode.get(), "MinibloxHop"));
+    private final SliderValue mTicks = new SliderValue("Ticks", 5, 1, 6, 1, this, () -> Objects.equals(mode.get(), "Miniblox"));
     public final BoolValue noBob = new BoolValue("No Bob", true, this);
     private final BoolValue forceStop = new BoolValue("Force Stop", true, this);
     private final BoolValue lagBackCheck = new BoolValue("Lag Back Check", true, this);
@@ -107,7 +107,7 @@ public class Speed extends Module {
             DebugUtils.sendMessage(mc.thePlayer.offGroundTicks + "Tick");
 
         switch (mode.get()) {
-            case "MinibloxHop": {
+            case "Miniblox": {
                 if (mc.thePlayer.onGround && MovementUtils.isMoving()) {
                     mc.thePlayer.jump();
                 }
@@ -326,7 +326,7 @@ public class Speed extends Module {
             return;
 
         switch (mode.get()) {
-            case "MinibloxHop": {
+            case "Miniblox": {
                 if (MovementUtils.isMoving()) {
                     if (mc.thePlayer.onGround) {
                         switch ((int) mTicks.get()) {

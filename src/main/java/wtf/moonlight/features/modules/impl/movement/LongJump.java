@@ -1,11 +1,13 @@
 package wtf.moonlight.features.modules.impl.movement;
 
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.item.ItemFireball;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.C03PacketPlayer;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
+import org.apache.commons.lang3.Range;
 import org.lwjglx.input.Keyboard;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
@@ -25,12 +27,14 @@ import wtf.moonlight.utils.player.MovementUtils;
 
 import java.util.Objects;
 
+import static java.lang.System.in;
+
 @ModuleInfo(name = "LongJump", category = ModuleCategory.Movement, key = Keyboard.KEY_F)
 public class LongJump extends Module {
-    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball","Old Matrix"}, "Watchdog Fireball", this);
-    public final ModeValue wdFBMode = new ModeValue("Fireball Mode", new String[]{"Rise","Chef","Chef High"}, "Watchdog Fireball", this);
+    public final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog Fireball", "Old Matrix", "Miniblox"}, "Watchdog Fireball", this);
+    public final ModeValue wdFBMode = new ModeValue("Fireball Mode", new String[]{"Rise", "Chef", "Chef High"}, "Watchdog Fireball", this);
     private final SliderValue oMatrixTimer = new SliderValue("Matrix Timer", 0.3f, 0.1f, 1, 0.01f, this, () -> mode.is("Old Matrix"));
-    private final BoolValue boost = new BoolValue("Boost",true,this, () -> mode.is("Watchdog Fireball"));
+    private final BoolValue boost = new BoolValue("Boost", true, this, () -> mode.is("Watchdog Fireball"));
     private int lastSlot = -1;
     //fb
     private int ticks = -1;
@@ -43,8 +47,14 @@ public class LongJump extends Module {
     private boolean velo;
 
     //matrix
-    private boolean packet;
+    private boolean mPacket;
     private int matrixTimer = 0;
+
+    //miniblox
+    private boolean jumped;
+    private int currentTimer = 0;
+    private int pauseTimes = 0;
+
     //others
     private double distance;
 
@@ -78,27 +88,34 @@ public class LongJump extends Module {
             ticksSinceVelocity = 0;
             velo = false;
         }
+
         if (Objects.equals(mode.get(), "Old Matrix")) {
-            packet = false;
+            mPacket = false;
             matrixTimer = 0;
             mc.timer.timerSpeed = 1f;
+        }
+
+        if (Objects.equals(mode.get(), "Miniblox")) {
+            jumped = false;
+            currentTimer = 0;
+            pauseTimes = 0;
         }
     }
 
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
-        if(velo)
+        if (velo)
             ticksSinceVelocity++;
         switch (mode.get()) {
             case "Old Matrix":
-                if (!packet) {
+                if (!mPacket) {
                     if (mc.thePlayer.onGround)
                         mc.thePlayer.jump();
                     sendPacketNoEvent(new C03PacketPlayer(false));
-                    packet = true;
+                    mPacket = true;
                 }
-                if (packet) {
+                if (mPacket) {
                     mc.timer.timerSpeed = oMatrixTimer.get();
                     mc.thePlayer.motionX = 1.97 * -Math.sin(MovementUtils.getDirection());
                     mc.thePlayer.motionZ = 1.97 * Math.cos(MovementUtils.getDirection());
@@ -108,6 +125,38 @@ public class LongJump extends Module {
                     if (matrixTimer >= 3) {
                         toggle();
                     }
+                }
+                break;
+
+            case "Miniblox":
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindForward.getKeyCode(), false);
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
+                KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+
+                if (!jumped) {
+                    if (mc.thePlayer.onGround) mc.thePlayer.jump();
+                    jumped = true;
+                }
+
+                if (jumped) {
+                    mc.thePlayer.motionX = 1.95 * -Math.sin(MovementUtils.getDirection());
+                    mc.thePlayer.motionZ = 1.95 * Math.cos(MovementUtils.getDirection());
+                    mc.thePlayer.motionY = 0.42;
+                    currentTimer++;
+
+                    if (Range.between(4, 10).contains(currentTimer)) {
+                        MovementUtils.stop();
+                    } else if (currentTimer > 10) {
+                        pauseTimes++;
+                        currentTimer = 0;
+                        jumped = false;
+                    }
+                }
+
+                if (pauseTimes >= 2) {
+                    MovementUtils.stop();
+                    toggle();
                 }
                 break;
         }
@@ -121,9 +170,9 @@ public class LongJump extends Module {
         }
         switch (mode.get()) {
             case "Watchdog Fireball":
-                if(event.isPre()){
+                if (event.isPre()) {
 
-                    if(velo && mc.thePlayer.onGround){
+                    if (velo && mc.thePlayer.onGround) {
                         toggle();
                     }
 
@@ -234,27 +283,27 @@ public class LongJump extends Module {
                 }
 
 
-                if (mc.thePlayer.hurtTime == 8){
+                if (mc.thePlayer.hurtTime == 8) {
                     mc.thePlayer.motionX *= 1.02;
                     mc.thePlayer.motionZ *= 1.02;
                 }
 
-                if (mc.thePlayer.hurtTime == 7){
+                if (mc.thePlayer.hurtTime == 7) {
                     mc.thePlayer.motionX *= 1.0004;
                     mc.thePlayer.motionZ *= 1.0004;
                 }
 
-                if (mc.thePlayer.hurtTime == 6){
+                if (mc.thePlayer.hurtTime == 6) {
                     mc.thePlayer.motionX *= 1.0004;
                     mc.thePlayer.motionZ *= 1.0004;
                 }
 
-                if (mc.thePlayer.hurtTime == 5){
+                if (mc.thePlayer.hurtTime == 5) {
                     mc.thePlayer.motionX *= 1.0004;
                     mc.thePlayer.motionZ *= 1.0004;
                 }
 
-                if (mc.thePlayer.hurtTime <= 4 && !(mc.thePlayer.hurtTime == 0)){
+                if (mc.thePlayer.hurtTime <= 4 && !(mc.thePlayer.hurtTime == 0)) {
                     mc.thePlayer.motionX *= 1.0004;
                     mc.thePlayer.motionZ *= 1.0004;
                 }
