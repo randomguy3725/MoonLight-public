@@ -297,17 +297,17 @@ class TargetHUD implements InstanceAccess {
             case "Moon": {
 
                 float healthPercentage = target.getHealth() / target.getMaxHealth();
-                float space = (width - 45) / 100;
+                float space = (width - 48) / 100;
 
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
                     RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(),true));
 
-                    RoundedUtils.drawRound(x + 40, y + 26.5f, (100 * space), 8, 4, new Color(0, 0, 0, 150));
+                    RoundedUtils.drawRound(x + 42, y + 26.5f, (100 * space), 8, 4, new Color(0, 0, 0, 150));
                     String text = String.format("%.1f", target.getHealth());
 
-                    RoundedUtils.drawRound(x + 40, y + 26.5f, target.healthAnimation.getOutput(), 8.5f, 4, new Color(setting.color(0)));
+                    RoundedUtils.drawRound(x + 42, y + 26.5f, target.healthAnimation.getOutput(), 8.5f, 4, new Color(setting.color(0)));
                     RenderUtils.renderPlayer2D(target, x + 2.5f, y + 2.5f, 35, 10, -1);
                     Fonts.interSemiBold.get(13).drawStringWithShadow(text + "HP", x + 40, y + 17, -1);
                     Fonts.interSemiBold.get(18).drawStringWithShadow(target.getName(), x + 40, y + 6, -1);
