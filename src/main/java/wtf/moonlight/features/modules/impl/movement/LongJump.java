@@ -54,6 +54,7 @@ public class LongJump extends Module {
     private boolean jumped;
     private int currentTimer = 0;
     private int pauseTimes = 0;
+    private int activeTicks = 0;
 
     //others
     private double distance;
@@ -99,6 +100,7 @@ public class LongJump extends Module {
             jumped = false;
             currentTimer = 0;
             pauseTimes = 0;
+            activeTicks = 0;
             MovementUtils.stop();
         }
     }
@@ -134,54 +136,57 @@ public class LongJump extends Module {
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindBack.getKeyCode(), false);
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindLeft.getKeyCode(), false);
                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindRight.getKeyCode(), false);
+                activeTicks++;
 
-                if (!jumped) {
-                    if (mc.thePlayer.onGround) {
-                        MovementUtils.stop();
-                        mc.thePlayer.jump();
-                    }
-
-                    jumped = true;
-                }
-
-                if (jumped) {
-                    int maxTimer = 0;
-
-                    switch (pauseTimes) {
-                        case 0:
-                            mc.thePlayer.motionX = 1.9 * -Math.sin(MovementUtils.getDirection());
-                            mc.thePlayer.motionZ = 1.9 * Math.cos(MovementUtils.getDirection());
-                            maxTimer = 10;
-                            break;
-                        case 1:
-                            mc.thePlayer.motionX = 1.185 * -Math.sin(MovementUtils.getDirection());
-                            mc.thePlayer.motionZ = 1.185 * Math.cos(MovementUtils.getDirection());
-                            maxTimer = 15;
-                            break;
-                        case 2:
-                            mc.thePlayer.motionX = 0.5625 * -Math.sin(MovementUtils.getDirection());
-                            mc.thePlayer.motionZ = 0.5625 * Math.cos(MovementUtils.getDirection());
-                            maxTimer = 5;
-                            break;
-                    }
-
-                    mc.thePlayer.motionY = 0.29;
-                    currentTimer++;
-
-                    if (Range.between(4, maxTimer).contains(currentTimer)) {
-                        MovementUtils.stop();
-                    } else if (currentTimer > maxTimer) {
-                        pauseTimes++;
-                        currentTimer = 0;
-                        jumped = false;
-                    }
-                }
-
-                if (pauseTimes >= 3) {
+                if (activeTicks <= 10) {
                     MovementUtils.stop();
-                    toggle();
+                } else {
+                    if (!jumped) {
+                        if (mc.thePlayer.onGround) {
+                            MovementUtils.stop();
+                            mc.thePlayer.jump();
+                        }
+
+                        jumped = true;
+                    } else {
+                        int maxTimer = 0;
+
+                        switch (pauseTimes) {
+                            case 0:
+                                mc.thePlayer.motionX = 1.9 * -Math.sin(MovementUtils.getDirection());
+                                mc.thePlayer.motionZ = 1.9 * Math.cos(MovementUtils.getDirection());
+                                maxTimer = 10;
+                                break;
+                            case 1:
+                                mc.thePlayer.motionX = 1.185 * -Math.sin(MovementUtils.getDirection());
+                                mc.thePlayer.motionZ = 1.185 * Math.cos(MovementUtils.getDirection());
+                                maxTimer = 15;
+                                break;
+                            case 2:
+                                mc.thePlayer.motionX = 0.7625 * -Math.sin(MovementUtils.getDirection());
+                                mc.thePlayer.motionZ = 0.7625 * Math.cos(MovementUtils.getDirection());
+                                maxTimer = 5;
+                                break;
+                        }
+
+                        mc.thePlayer.motionY = 0.29;
+                        currentTimer++;
+
+                        if (Range.between(4, maxTimer).contains(currentTimer)) {
+                            MovementUtils.stop();
+                        } else if (currentTimer > maxTimer) {
+                            pauseTimes++;
+                            currentTimer = 0;
+                            jumped = false;
+                        }
+                    }
+
+                    if (pauseTimes >= 3) {
+                        MovementUtils.stop();
+                        toggle();
+                    }
+                    break;
                 }
-                break;
         }
     }
 
