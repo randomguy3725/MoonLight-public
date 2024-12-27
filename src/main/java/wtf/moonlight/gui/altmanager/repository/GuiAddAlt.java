@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.gui.altmanager.repository;
 
 import lombok.Getter;
@@ -260,7 +270,7 @@ public final class GuiAddAlt extends GuiScreen {
         }
 
         int index = s.indexOf(':');
-        return index == -1 
+        return index == -1
                 ? s.endsWith("@alt.com") ? new AltCredential(s, null) : null
                 : new AltCredential(s.substring(0, index), s.substring(index + 1));
     }

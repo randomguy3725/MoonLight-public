@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.visual;
 
 import net.minecraft.client.renderer.GlStateManager;
@@ -58,13 +68,43 @@ public class DashTrail extends Module {
 
     private void addAll_DASH_CUBIC_ANIMATED_TEXTURES() {
         int[] dashGroupsNumber = new int[]{11, 23, 32, 16, 32};
-        int packageNumber = 0;
+        int /*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
+packageNumber = 0;
         for (Integer dashFragsNumber : dashGroupsNumber) {
-            ++packageNumber;
+            ++/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
+packageNumber;
             ArrayList<ResourceLocationWithSizes> animatedTexuresList = new ArrayList<>();
             int fragNumber = 0;
             while (fragNumber < dashFragsNumber) {
-                animatedTexuresList.add(new ResourceLocationWithSizes(new ResourceLocation("moonlight/texture/dashtrail/dashcubics/group_dashs/group" + packageNumber + "/dashcubic" + ++fragNumber + format)));
+                animatedTexuresList.add(new ResourceLocationWithSizes(new ResourceLocation("moonlight/texture/dashtrail/dashcubics/group_dashs/group" + /*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
+packageNumber + "/dashcubic" + ++fragNumber + format)));
             }
             if (animatedTexuresList.isEmpty()) continue;
             this.DASH_CUBIC_ANIMATED_TEXTURES.add(animatedTexuresList);

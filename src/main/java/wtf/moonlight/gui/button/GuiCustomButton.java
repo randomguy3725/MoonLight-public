@@ -1,4 +1,4 @@
-package wtf.moonlight.gui.button;
+ wtf.moonlight.gui.button;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;

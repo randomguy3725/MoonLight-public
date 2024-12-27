@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.visual.finalkills;
 
 import net.minecraft.client.Minecraft;
@@ -25,80 +35,69 @@ public class FkCounter {
     private static final String DEATHMATCH = "All withers are dead! 10 seconds till deathmatch!";
     private static final String PREP_PHASE = "Prepare your defenses!";
     public static final String MW_GAME_START_MESSAGE = "   You have 6 minutes until the walls fall down!";
-    private static final String[] KILL_MESSAGES = {
-/*Banana messages, put those messages at the top to not conflict with the other pattern (\w{1,16}) was killed by (\w{1,16})*/
+    private static final String[] KILL_MESSAGES = {/*Banana messages, put those messages at the top to not conflict with the other pattern (\w{1,16}) was killed by (\w{1,16})*/
             "(\\w{1,16}) got banana pistol'd by (\\w{1,16}).*",
             "(\\w{1,16}) was peeled by (\\w{1,16}).*",
             "(\\w{1,16}) was mushed by (\\w{1,16}).*",
             "(\\w{1,16}) was hit by a banana split from (\\w{1,16}).*",
             "(\\w{1,16}) was killed by an explosive banana from (\\w{1,16}).*",
             "(\\w{1,16}) was killed by a magic banana from (\\w{1,16}).*",
-            "(\\w{1,16}) was turned into mush by (\\w{1,16}).*",
-/*Default messages*/
+            "(\\w{1,16}) was turned into mush by (\\w{1,16}).*",/*Default messages*/
             "(\\w{1,16}) was shot and killed by (\\w{1,16}).*",
             "(\\w{1,16}) was snowballed to death by (\\w{1,16}).*",
             "(\\w{1,16}) was killed by (\\w{1,16}).*",
             "(\\w{1,16}) was killed with a potion by (\\w{1,16}).*",
             "(\\w{1,16}) was killed with an explosion by (\\w{1,16}).*",
-            "(\\w{1,16}) was killed with magic by (\\w{1,16}).*",
-/*Western messages*/
+            "(\\w{1,16}) was killed with magic by (\\w{1,16}).*",/*Western messages*/
             "(\\w{1,16}) was filled full of lead by (\\w{1,16}).*",
             "(\\w{1,16}) was iced by (\\w{1,16}).*",
             "(\\w{1,16}) met their end by (\\w{1,16}).*",
             "(\\w{1,16}) lost a drinking contest with (\\w{1,16}).*",
             "(\\w{1,16}) was killed with dynamite by (\\w{1,16}).*",
-            "(\\w{1,16}) lost the draw to (\\w{1,16}).*",
-/*Fire messages*/
+            "(\\w{1,16}) lost the draw to (\\w{1,16}).*",/*Fire messages*/
             "(\\w{1,16}) was struck down by (\\w{1,16}).*",
             "(\\w{1,16}) was turned to dust by (\\w{1,16}).*",
             "(\\w{1,16}) was turned to ash by (\\w{1,16}).*",
             "(\\w{1,16}) was melted by (\\w{1,16}).*",
             "(\\w{1,16}) was incinerated by (\\w{1,16}).*",
-            "(\\w{1,16}) was vaporized by (\\w{1,16}).*",
-/*Love messages*/
+            "(\\w{1,16}) was vaporized by (\\w{1,16}).*",/*Love messages*/
             "(\\w{1,16}) was struck with Cupid's arrow by (\\w{1,16}).*",
             "(\\w{1,16}) was given the cold shoulder by (\\w{1,16}).*",
             "(\\w{1,16}) was hugged too hard by (\\w{1,16}).*",
             "(\\w{1,16}) drank a love potion from (\\w{1,16}).*",
             "(\\w{1,16}) was hit by a love bomb from (\\w{1,16}).*",
-            "(\\w{1,16}) was no match for (\\w{1,16}).*",
-/*Paladin messages*/
+            "(\\w{1,16}) was no match for (\\w{1,16}).*",/*Paladin messages*/
             "(\\w{1,16}) was smote from afar by (\\w{1,16}).*",
             "(\\w{1,16}) was justly ended by (\\w{1,16}).*",
             "(\\w{1,16}) was purified by (\\w{1,16}).*",
             "(\\w{1,16}) was killed with holy water by (\\w{1,16}).*",
             "(\\w{1,16}) was dealt vengeful justice by (\\w{1,16}).*",
-            "(\\w{1,16}) was returned to dust by (\\w{1,16}).*",
-/*Pirate messages*/
+            "(\\w{1,16}) was returned to dust by (\\w{1,16}).*",/*Pirate messages*/
             "(\\w{1,16}) be shot and killed by (\\w{1,16}).*",
             "(\\w{1,16}) be snowballed to death by (\\w{1,16}).*",
             "(\\w{1,16}) be sent to Davy Jones' locker by (\\w{1,16}).*",
             "(\\w{1,16}) be killed with rum by (\\w{1,16}).*",
             "(\\w{1,16}) be shot with cannon by (\\w{1,16}).*",
-            "(\\w{1,16}) be killed with magic by (\\w{1,16}).*",
-/*BBQ messages*/
+            "(\\w{1,16}) be killed with magic by (\\w{1,16}).*",/*BBQ messages*/
             "(\\w{1,16}) was glazed in BBQ sauce by (\\w{1,16}).*",
             "(\\w{1,16}) was sprinkled with chilli powder by (\\w{1,16}).*",
             "(\\w{1,16}) was sliced up by (\\w{1,16}).*",
             "(\\w{1,16}) was overcooked by (\\w{1,16}).*",
             "(\\w{1,16}) was deep fried by (\\w{1,16}).*",
-            "(\\w{1,16}) was boiled by (\\w{1,16}).*",
-/*Squeak messages*/
+            "(\\w{1,16}) was boiled by (\\w{1,16}).*",/*Squeak messages*/
             "(\\w{1,16}) was squeaked from a distance by (\\w{1,16}).*",
             "(\\w{1,16}) was hit by frozen cheese from (\\w{1,16}).*",
             "(\\w{1,16}) was chewed up by (\\w{1,16}).*",
             "(\\w{1,16}) was chemically cheesed by (\\w{1,16}).*",
             "(\\w{1,16}) was turned into cheese whiz by (\\w{1,16}).*",
-            "(\\w{1,16}) was magically squeaked by (\\w{1,16}).*",
-/*Bunny messages*/
+            "(\\w{1,16}) was magically squeaked by (\\w{1,16}).*",/*Bunny messages*/
             "(\\w{1,16}) was hit by a flying bunny by (\\w{1,16}).*",
             "(\\w{1,16}) was hit by a bunny thrown by (\\w{1,16}).*",
             "(\\w{1,16}) was turned into a carrot by (\\w{1,16}).*",
             "(\\w{1,16}) was hit by a carrot from (\\w{1,16}).*",
             "(\\w{1,16}) was bitten by a bunny from (\\w{1,16}).*",
             "(\\w{1,16}) was magically turned into a bunny by (\\w{1,16}).*",
-            "(\\w{1,16}) was fed to a bunny by (\\w{1,16}).*",
-/*Natural deaths messages*/
+            "(\\w{1,16}) was fed to a bunny by (\\w{1,16}).*",/*Natural deaths messages*/
             "(\\w{1,16}) starved to death\\.",
             "(\\w{1,16}) hit the ground too hard\\.",
             "(\\w{1,16}) blew up\\.",

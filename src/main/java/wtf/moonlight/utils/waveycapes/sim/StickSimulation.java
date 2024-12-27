@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.utils.waveycapes.sim;
 
 import java.util.ArrayList;
@@ -5,7 +15,6 @@ import java.util.List;
 
 import wtf.moonlight.utils.waveycapes.config.Config;
 import wtf.moonlight.utils.waveycapes.util.Mth;
-
 /**
  * Java port of https://www.youtube.com/watch?v=PGk0rnyTa1U by Sebastian Lague
  * Has some changes like maximizing bends, only designed to simulate a single
