@@ -19,14 +19,10 @@ import lombok.NonNull;
 import net.minecraft.util.Session;
 import org.jetbrains.annotations.Nullable;
 import wtf.moonlight.gui.altmanager.repository.credential.AltCredential;
-import wtf.moonlight.gui.altmanager.utils.thealtening.TheAlteningAuthentication;
-import wtf.moonlight.gui.altmanager.utils.thealtening.service.AlteningServiceType;
 
 import java.net.Proxy;
 
 public final class AltLoginThread {
-
-    private static final TheAlteningAuthentication MOJANG = TheAlteningAuthentication.mojang();
 
     @NonNull
     public final AltCredential credentials;
@@ -36,22 +32,13 @@ public final class AltLoginThread {
     private String caller;
 
     public AltLoginThread(@NonNull AltCredential credential, @NonNull AltLoginListener handler) {
-
         this.credentials = credential;
         this.handler = handler;
-
-
-        MOJANG.updateService(AlteningServiceType.MOJANG);
     }
 
     public AltLoginThread(@NonNull AltCredential credential, @Nullable String caller) {
-
         this.credentials = credential;
         this.caller = caller;
-
-
-        MOJANG.updateService(AlteningServiceType.MOJANG);
-
     }
 
     /* methods */
