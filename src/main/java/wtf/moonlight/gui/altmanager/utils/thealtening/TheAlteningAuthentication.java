@@ -32,46 +32,27 @@ public final class TheAlteningAuthentication {
     public void updateService(@NonNull AlteningServiceType service) {
         if (this.service == service) return;
 
-        switch (service) {
-            case MOJANG:
-                sslController.enableCertificateValidation();
-                break;
-
-            case THEALTENING:
-                sslController.disableCertificateValidation();
-                break;
-        }
+        sslController.enableCertificateValidation();
 
         this.service = serviceSwitcher.switchToService(service);
     }
 
     public static TheAlteningAuthentication mojang() {
-        return withService(AlteningServiceType.MOJANG);
+        return withService();
     }
 
-    public static TheAlteningAuthentication theAltening() {
-        return withService(AlteningServiceType.THEALTENING);
-    }
-
-    private static TheAlteningAuthentication withService(@NonNull AlteningServiceType service) {
+    private static TheAlteningAuthentication withService() {
         if (instance == null) {
             try {
-                instance = new TheAlteningAuthentication(service);
+                instance = new TheAlteningAuthentication(AlteningServiceType.MOJANG);
             } catch (NoSuchAlgorithmException | KeyManagementException e) {
                 SSLController.log.warn(e);
             } catch (Throwable t) {
                 SSLController.log.warn("Unexpected error occurred while executing...", t);
             }
-        } else if (instance.getService() != service) {
-            instance.updateService(service);
         }
 
         return instance;
-    }
-
-    @NonNull
-    public AlteningServiceType getService() {
-        return this.service;
     }
 
 }

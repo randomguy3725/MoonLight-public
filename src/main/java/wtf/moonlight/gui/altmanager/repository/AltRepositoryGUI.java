@@ -13,7 +13,6 @@ package wtf.moonlight.gui.altmanager.repository;
 
 import com.google.common.base.Strings;
 import com.mojang.authlib.GameProfile;
-import com.thealtening.api.response.AccountDetails;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLists;
 import lombok.Getter;
@@ -26,7 +25,6 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.HttpUtil;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Session;
@@ -34,7 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 import org.lwjglx.input.Keyboard;
@@ -46,11 +43,7 @@ import wtf.moonlight.gui.altmanager.login.AltType;
 import wtf.moonlight.gui.altmanager.login.SessionUpdatingAltLoginListener;
 import wtf.moonlight.gui.altmanager.mslogin.Auth;
 import wtf.moonlight.gui.altmanager.repository.credential.AltCredential;
-import wtf.moonlight.gui.altmanager.repository.credential.AlteningAltCredential;
 import wtf.moonlight.gui.altmanager.repository.credential.MicrosoftAltCredential;
-import wtf.moonlight.gui.altmanager.repository.hypixel.HypixelProfile;
-import wtf.moonlight.gui.altmanager.repository.hypixel.HypixelProfileFactory;
-import wtf.moonlight.gui.altmanager.repository.tclient.TClient;
 import wtf.moonlight.gui.altmanager.utils.FakeEntityPlayer;
 import wtf.moonlight.gui.button.GuiCustomButton;
 import wtf.moonlight.gui.font.Fonts;
@@ -68,7 +61,6 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -87,7 +79,7 @@ import static net.minecraft.util.EnumChatFormatting.GREEN;
 import static net.minecraft.util.EnumChatFormatting.RED;
 
 public class AltRepositoryGUI extends GuiScreen {
-    
+
     static final int PLAYER_BOX_WIDTH = 320;
     static final int PLAYER_BOX_HEIGHT = 36;
     static final float PLAYER_BOX_SPACE = 3F;
@@ -99,8 +91,6 @@ public class AltRepositoryGUI extends GuiScreen {
 
     @NonNull
     private final Moonlight moonlight;
-    @NonNull
-    private final TClient tclient = new TClient();
     private final Logger logger = LogManager.getLogger();
     @Getter
     @Setter
@@ -130,7 +120,7 @@ public class AltRepositoryGUI extends GuiScreen {
 
         return s.toLowerCase().startsWith(this.searchField.getText().trim().toLowerCase()) ? alt : null;
     }, () -> this.sortType.getComparator());
-    
+
     private DynamicTexture viewportTexture = new DynamicTexture(256, 256);
     @Getter
     private String tokenContent = "";
@@ -174,7 +164,7 @@ public class AltRepositoryGUI extends GuiScreen {
                         }));
 
                 break;
-            case 1: 
+            case 1:
                 removeCurrentAlt();
                 break;
             case 2:
@@ -182,7 +172,7 @@ public class AltRepositoryGUI extends GuiScreen {
                         new GuiAddAlt(this, "Login", "Alt Login", "Generate and log in", (gui, credentials) -> {
                             gui.getGroupAltInfo().updateStatus(GREEN + "Logging in...");
 
-                            if (!(credentials instanceof MicrosoftAltCredential)){
+                            if (!(credentials instanceof MicrosoftAltCredential)) {
                                 new AltLoginThread(credentials, new SessionUpdatingAltLoginListener() {
 
                                     @Override
@@ -191,17 +181,7 @@ public class AltRepositoryGUI extends GuiScreen {
                                         final StringBuilder builder = new StringBuilder(
                                                 "Logged in! Username: " + session.getUsername());
 
-                                        if (credentials instanceof AlteningAltCredential) {
-                                            final AlteningAltCredential alteningCredential = (AlteningAltCredential) credentials;
-
-                                            final AccountDetails details = alteningCredential.getDetails();
-                                            final String hypixelRank = details.getHypixelRank();
-
-                                            builder.append(" | ").append(details.getHypixelLevel()).append(" Lvl")
-                                                    .append(hypixelRank != null ? " | " + hypixelRank : "");
-                                        }
-
-                                        moonlight.getNotificationManager().post(NotificationType.INFO,builder.toString());
+                                        moonlight.getNotificationManager().post(NotificationType.INFO, builder.toString());
                                         AltRepositoryGUI.this.mc.displayGuiScreen(AltRepositoryGUI.this);
                                     }
 
@@ -218,7 +198,7 @@ public class AltRepositoryGUI extends GuiScreen {
                                     String xblToken = Auth.authXBL(authRefreshTokens.getKey());
                                     Map.Entry<String, String> xstsTokenUserhash = Auth.authXSTS(xblToken);
                                     String accessToken = Auth.authMinecraft(xstsTokenUserhash.getValue(), xstsTokenUserhash.getKey());
-                                    
+
                                     if (!Alt.accountCheck(accessToken))
                                         return;
 
@@ -226,9 +206,9 @@ public class AltRepositoryGUI extends GuiScreen {
                                             microsoftAltCredential.getUUID().toString(),
                                             accessToken, "msa");
                                     AltRepositoryGUI.this.mc.displayGuiScreen(AltRepositoryGUI.this);
-                                    moonlight.getNotificationManager().post(NotificationType.OKAY,"Logged in! Username: " + microsoftAltCredential.getName());
+                                    moonlight.getNotificationManager().post(NotificationType.OKAY, "Logged in! Username: " + microsoftAltCredential.getName());
                                 } catch (Exception e) {
-                                    moonlight.getNotificationManager().post(NotificationType.WARNING,"Failed to logged in");
+                                    moonlight.getNotificationManager().post(NotificationType.WARNING, "Failed to logged in");
                                 }
                             }
                         }));
@@ -245,46 +225,6 @@ public class AltRepositoryGUI extends GuiScreen {
                 this.alts.update();
                 setScrolledAndUpdate(0);
 
-                break;
-            case 70:
-                try {
-                    JOptionPane optionPane = new JOptionPane("Minecraft accesstoken");
-                    optionPane.setWantsInput(true);
-                    JDialog dialog = optionPane.createDialog("TokenLogin Dialog");
-                    dialog.setAlwaysOnTop(true);
-                    dialog.setVisible(true);
-                    dialog.dispose();
-                    String token = (String) optionPane.getInputValue();
-                    if (!Objects.equals(token, "")) {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put("Authorization", "Bearer " + token);
-                        headers.put("User-Agent", "MojangSharp/0.1");
-                        headers.put("Charset", "UTF-8");
-                        headers.put("connection", "keep-alive");
-                        String playerStatsRaw = HttpUtil.get(new URL("https://api.minecraftservices.com/minecraft/profile"), headers);
-                        JSONObject playerStats = new JSONObject(playerStatsRaw);
-                        String name = playerStats.getString("name");
-                        String uuid = playerStats.getString("id");
-                        
-                        if (!Alt.accountCheck(token))
-                            break;
-                        
-                        Session session = new Session(name, uuid, token, "msa");
-                        mc.session = session;
-
-                        moonlight.getNotificationManager().post(NotificationType.OKAY,"Logged in! " + name);
-                    }
-                } catch (IOException e) {
-                    if (e.getMessage().indexOf("Server returned HTTP response code: 401 for URL") != -1) {
-                        moonlight.getNotificationManager().post(NotificationType.WARNING,"Oops, something went wrong. It seems that your accesstoken expired.");
-                    } else {
-                        moonlight.getNotificationManager().post(NotificationType.WARNING,"Oops, something went wrong. See logs for details.");
-                        e.printStackTrace();
-                    }
-                } catch (Throwable e) {
-                    moonlight.getNotificationManager().post(NotificationType.WARNING,"Oops, something went wrong. See logs for details.");
-                    e.printStackTrace();
-                }
                 break;
             case 71:
                 try {
@@ -306,10 +246,10 @@ public class AltRepositoryGUI extends GuiScreen {
                         Map<String, Object> headers = new HashMap<>();
 
                         if (!skinFile.getName().endsWith(".png")) {
-                            moonlight.getNotificationManager().post(NotificationType.WARNING,"Its seems that the file isn't a skin..");
+                            moonlight.getNotificationManager().post(NotificationType.WARNING, "Its seems that the file isn't a skin..");
                             break;
                         }
-                        
+
                         int result = JOptionPane.showConfirmDialog((Component) null, "Is this a slim skin?", "alert", JOptionPane.YES_NO_CANCEL_OPTION);
                         if (result == JOptionPane.CANCEL_OPTION) break;
                         String skinType;
@@ -327,14 +267,14 @@ public class AltRepositoryGUI extends GuiScreen {
 
                         HttpResponse response = HttpUtils.postFormData(url, filePathMap, keyValues, headers);
                         if (response.getCode() == 200 || response.getCode() == 204) {
-                            moonlight.getNotificationManager().post(NotificationType.OKAY,"Skin changed!");
+                            moonlight.getNotificationManager().post(NotificationType.OKAY, "Skin changed!");
                         } else {
-                            moonlight.getNotificationManager().post(NotificationType.WARNING,"Failed to change skin.");
+                            moonlight.getNotificationManager().post(NotificationType.WARNING, "Failed to change skin.");
                             logger.error(response);
                         }
                     }
                 } catch (Exception e) {
-                    moonlight.getNotificationManager().post(NotificationType.WARNING,"Failed to change skin.");
+                    moonlight.getNotificationManager().post(NotificationType.WARNING, "Failed to change skin.");
                     e.printStackTrace();
                 }
                 break;
@@ -409,7 +349,7 @@ public class AltRepositoryGUI extends GuiScreen {
         }
 
         this.searchField.mouseClicked(mouseX, mouseY, mouseButton);
-    
+
     }
 
     private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.##");
@@ -422,6 +362,7 @@ public class AltRepositoryGUI extends GuiScreen {
     private float altWidth = 0;
     @Getter
     private float altBoxAnimationStep, altBoxAlphaStep;
+
     @Override
     public void initGui() {
         Keyboard.enableRepeatEvents(true);
@@ -442,7 +383,8 @@ public class AltRepositoryGUI extends GuiScreen {
 
         this.groupPlayerBox = new GuiGroupPlayerBox(altInfoX, VERTICAL_MARGIN, PLAYER_BOX_WIDTH, altInfoH,
                 this::getSelectedAlt);
-        this.groupPlayerBox.addLine(alt -> "In-game name: " + alt.getPlayer().getName());;
+        this.groupPlayerBox.addLine(alt -> "In-game name: " + alt.getPlayer().getName());
+        ;
 
         this.sliderHeight = -VERTICAL_MARGIN + this.height + -DOWN_MARGIN;
         final int oldVisibleAltsCount = this.visibleAltsCount;
@@ -467,12 +409,12 @@ public class AltRepositoryGUI extends GuiScreen {
 
         this.buttonList.add(new GuiCustomButton("Change Skin", 71, this.width - 150, 2, 75, 20, 8, Fonts.interSemiBold.get(16)));
         //this.buttonList.add(new GuiCustomButton("TokenXGP (URL)", 72, this.width - 150, 2, 75, 20, 8, Fonts.interSemiBold.get(16)));
-        this.buttonList.add(new GuiCustomButton("TokenLogin", 70, this.width - 70, 2, 55, 20, 8, Fonts.interSemiBold.get(16)));
+        //this.buttonList.add(new GuiCustomButton("TokenLogin", 70, this.width - 70, 2, 55, 20, 8, Fonts.interSemiBold.get(16)));
         this.buttonList
                 .add(this.sortButton = new GuiCustomButton(this.sortType.getCriteria(), 5, this.width - 550, 2, 100, 20,
                         8, Fonts.interSemiBold.get(16)));
         this.buttonList.add(new GuiCustomButton("Copy IGN", 69, this.width - 445, 2, 95, 20, 8, Fonts.interSemiBold.get(16)));
-    
+
     }
 
     private static final float DOWN_MARGIN = 5;
@@ -805,24 +747,15 @@ public class AltRepositoryGUI extends GuiScreen {
     public Alt addAlt(@NonNull AltCredential credential) {
         final Alt alt;
 
-        if (credential instanceof AlteningAltCredential) {
-            final AlteningAltCredential alteningCredential = (AlteningAltCredential) credential;
-
-            final AccountDetails details = alteningCredential.getDetails();
-            alt = new Alt(credential,
-                    new FakeEntityPlayer(new GameProfile(UUID.randomUUID(), alteningCredential.getName()), null),
-                    HypixelProfileFactory.hypixelProfile(details.getHypixelRank(), Math.max(1, details.getHypixelLevel())), this, 0L, false);
-        } else if (credential instanceof MicrosoftAltCredential) {
+        if (credential instanceof MicrosoftAltCredential) {
             MicrosoftAltCredential m = (MicrosoftAltCredential) credential;
 
-            alt = new Alt(credential, new FakeEntityPlayer(new GameProfile(m.getUUID(), m.getName()), null),
-                    HypixelProfile.empty(), this, 0L, false);
+            alt = new Alt(credential, new FakeEntityPlayer(new GameProfile(m.getUUID(), m.getName()), null), this, false);
         } else {
             final String login = credential.getLogin();
             final String name = GuiAddAlt.isEmail(login) ? "<Unknown Name>" : login;
 
-            alt = new Alt(credential, new FakeEntityPlayer(new GameProfile(UUID.randomUUID(), name), null),
-                    HypixelProfile.empty(), this, 0L, false);
+            alt = new Alt(credential, new FakeEntityPlayer(new GameProfile(UUID.randomUUID(), name), null), this, false);
         }
 
         if (!hasAlt(alt)) {
@@ -833,7 +766,7 @@ public class AltRepositoryGUI extends GuiScreen {
             alt.select();
             return alt;
         } else {
-            moonlight.getNotificationManager().post(NotificationType.WARNING,"Account is already added!");
+            moonlight.getNotificationManager().post(NotificationType.WARNING, "Account is already added!");
             return null;
         }
     }
@@ -892,26 +825,9 @@ public class AltRepositoryGUI extends GuiScreen {
 
     private enum EnumSort {
 
-        DATE("Date", (o1, o2) -> 0),
-        LEVEL("Level", (o1, o2) -> {
-            if (o1.getHypixelProfile() == null) {
-                if (o2.getHypixelProfile() == null) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            } else if (o2.getHypixelProfile() == null) {
-                return -1;
-            }
-
-            return Integer.compare(o2.getHypixelProfile().getLevel(), o1.getHypixelProfile().getLevel());
-        }),
-        NAME("Name", (o1, o2) -> o1.getPlayer().getGameProfile().getName()
-                .compareTo(o2.getPlayer().getGameProfile().getName())),
-        EMAIL("Email", (o1, o2) -> o1.getCredential().getLogin().compareTo(o2.getCredential().getLogin())),
-        ;
-
+        DATE("Date", (o1, o2) -> 0);
         private final String criteria;
+        @Getter
         private final Comparator<Alt> comparator;
 
         EnumSort(String criteria, Comparator<Alt> comparator) {
@@ -924,18 +840,11 @@ public class AltRepositoryGUI extends GuiScreen {
             return "By " + this.criteria;
         }
 
-        public Comparator<Alt> getComparator() {
-            return this.comparator;
-        }
     }
 
-   
+
     public List<Alt> getAlts() {
         return (List<Alt>) this.alts.getUnfiltered();
-    }
-
-    public TClient getTClient() {
-        return this.tclient;
     }
 
 }

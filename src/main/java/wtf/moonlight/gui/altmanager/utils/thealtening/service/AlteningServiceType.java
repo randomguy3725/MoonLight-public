@@ -10,10 +10,12 @@
  */
 package wtf.moonlight.gui.altmanager.utils.thealtening.service;
 
+import lombok.Getter;
+
+@Getter
 public enum AlteningServiceType {
 
-    MOJANG("https://authserver.mojang.com/", "https://sessionserver.mojang.com/"),
-    THEALTENING("http://authserver.thealtening.com/", "http://sessionserver.thealtening.com/");
+    MOJANG("https://authserver.mojang.com/", "https://sessionserver.mojang.com/");
 
     private final String authServer;
     private final String sessionServer;
@@ -21,15 +23,6 @@ public enum AlteningServiceType {
     AlteningServiceType(String authServer, String sessionServer) {
         this.authServer = authServer;
         this.sessionServer = sessionServer;
-    }
-
-    //region Lombok
-    public String getAuthServer() {
-        return this.authServer;
-    }
-
-    public String getSessionServer() {
-        return this.sessionServer;
     }
 
 

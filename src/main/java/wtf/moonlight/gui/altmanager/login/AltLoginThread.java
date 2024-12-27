@@ -28,7 +28,6 @@ public final class AltLoginThread {
 
     private static final TheAlteningAuthentication MOJANG = TheAlteningAuthentication.mojang();
 
-    /* fields */
     @NonNull
     public final AltCredential credentials;
     @Nullable
@@ -41,11 +40,8 @@ public final class AltLoginThread {
         this.credentials = credential;
         this.handler = handler;
 
-        if (credential.getLogin().endsWith("@alt.com")) {
-            MOJANG.updateService(AlteningServiceType.THEALTENING);
-        } else {
-            MOJANG.updateService(AlteningServiceType.MOJANG);
-        }
+
+        MOJANG.updateService(AlteningServiceType.MOJANG);
     }
 
     public AltLoginThread(@NonNull AltCredential credential, @Nullable String caller) {
@@ -53,19 +49,15 @@ public final class AltLoginThread {
         this.credentials = credential;
         this.caller = caller;
 
-        if (credential.getLogin().endsWith("@alt.com")) {
-            MOJANG.updateService(AlteningServiceType.THEALTENING);
-        } else {
-            MOJANG.updateService(AlteningServiceType.MOJANG);
-        }
+
+        MOJANG.updateService(AlteningServiceType.MOJANG);
+
     }
 
     /* methods */
     @Nullable
     public Session run() {
-        final String password = !this.credentials.getLogin().endsWith("@alt.com") ?
-                this.credentials.getPassword() :
-                "1";
+        final String password = this.credentials.getPassword();
 
         if (password == null) {
             final Session crackedSession = new Session(this.credentials.getLogin(), "", "", "mojang");

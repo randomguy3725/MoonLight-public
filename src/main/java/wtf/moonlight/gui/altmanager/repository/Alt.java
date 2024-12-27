@@ -39,8 +39,6 @@ import wtf.moonlight.gui.altmanager.login.SessionUpdatingAltLoginListener;
 import wtf.moonlight.gui.altmanager.mslogin.Auth;
 import wtf.moonlight.gui.altmanager.repository.credential.AltCredential;
 import wtf.moonlight.gui.altmanager.repository.credential.MicrosoftAltCredential;
-import wtf.moonlight.gui.altmanager.repository.hypixel.HypixelProfile;
-import wtf.moonlight.gui.altmanager.repository.hypixel.HypixelProfileFactory;
 import wtf.moonlight.gui.altmanager.utils.FakeEntityPlayer;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.gui.notification.NotificationType;
@@ -66,20 +64,16 @@ public class Alt {
 
     private final AltCredential credential;
     private FakeEntityPlayer player;
-    private final HypixelProfile hypixelProfile;
     private long unbanDate;
 
     private boolean invalid;
 
     public Alt(@NotNull AltCredential credential,
                @NotNull FakeEntityPlayer player,
-               @Nullable HypixelProfile hypixelProfile,
-               @NotNull AltRepositoryGUI repository, Long unbanDate, boolean invalid) {
+               @NotNull AltRepositoryGUI repository, boolean invalid) {
         this.repository = repository;
         this.credential = credential;
         this.player = player;
-        this.hypixelProfile = hypixelProfile;
-        this.unbanDate = unbanDate;
         this.invalid = invalid;
     }
 
@@ -208,9 +202,8 @@ public class Alt {
                             setLoginProperty(true);
                             setInvalid(false);
 
-                            if (hypixelProfile != null) {
-                                Moonlight.INSTANCE.getNotificationManager().post(NotificationType.NOTIFY,"Logged in! " + Alt.this);
-                            }
+                            Moonlight.INSTANCE.getNotificationManager().post(NotificationType.NOTIFY,"Logged in! " + Alt.this);
+
                         }
                     } catch (Throwable e) {
                         setLoginProperty(false);
@@ -230,10 +223,7 @@ public class Alt {
                             setLoginProperty(true);
                             setInvalid(false);
 
-                            if (hypixelProfile != null) {
-                                Moonlight.INSTANCE.getNotificationManager().post(NotificationType.NOTIFY,"Logged in! " + Alt.this.toString());
-                            }
-
+                            Moonlight.INSTANCE.getNotificationManager().post(NotificationType.NOTIFY, "Logged in! " + Alt.this);
                         }
 
                         @Override
@@ -272,10 +262,9 @@ public class Alt {
 
             if (isLoginSuccessful() && session != null && session.getProfile() != null && session.getProfile()
                     .getId() != null) {
-                boolean wasNull = hypixelProfile == null;
 
                 try {
-                    Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Logged in! " + toString());
+                    Moonlight.INSTANCE.getNotificationManager().post(NotificationType.OKAY, "Logged in! " + this);
 
                     repository.saveAlts();
                 } catch (Throwable t) {
@@ -460,25 +449,16 @@ public class Alt {
         return mouseX >= AltRepositoryGUI.HORIZONTAL_MARGIN && mouseX <= width + AltRepositoryGUI.HORIZONTAL_MARGIN && mouseY >= y && mouseY <= y + AltRepositoryGUI.PLAYER_BOX_HEIGHT;
     }
 
+
     @NotNull
     public static Alt fromNBT(AltRepositoryGUI gui, @NotNull NBTTagCompound tagCompound) {
         String login = tagCompound.getString("login");
         String password = tagCompound.getString("password", null);
-        HypixelProfile hypixelProfile = HypixelProfileFactory.fromNBT(tagCompound.getCompoundTag("hypixel", null));
-        hypixelProfile = hypixelProfile != null ? hypixelProfile : HypixelProfile.empty();
 
         NBTTagCompound profileTag = tagCompound.getCompoundTag("profile", null);
         GameProfile profile = NBTUtil.readGameProfileFromNBT(profileTag);
         FakeEntityPlayer fakeEntityPlayer = new FakeEntityPlayer(Objects.requireNonNull(profile), null);
-        Long unbanDate = Long.parseLong(tagCompound.getString("unbanDate", null));
-        String rank = "NONE";
-        double networkLevel = 1;
-        if (tagCompound.hasKey("networkLevel")) {
-            networkLevel = Double.parseDouble(tagCompound.getString("networkLevel", null));
-        }
-        if (tagCompound.hasKey("rank")) {
-            rank = tagCompound.getString("rank", null);
-        }
+
         boolean invalid = false;
         if(tagCompound.hasKey("invalid")){
             invalid = tagCompound.getBoolean("invalid");
@@ -492,7 +472,7 @@ public class Alt {
             credential = new AltCredential(login, password);
         }
 
-        return new Alt(credential, fakeEntityPlayer, hypixelProfile, gui, unbanDate, invalid);
+        return new Alt(credential, fakeEntityPlayer, gui, invalid);
     }
 
     public NBTBase asNBTCompound() {
@@ -502,11 +482,9 @@ public class Alt {
         compound.setString("login", credential.getLogin());
         compound.setBoolean("invalid",invalid);
         if (credential.getPassword() != null) compound.setString("password", credential.getPassword());
-        if (hypixelProfile != null) compound.setTag("hypixel", hypixelProfile.asNBTCompound());
         compound.setTag("profile", NBTUtil.writeGameProfile(new NBTTagCompound(), player.getGameProfile()));
 
-        if (credential instanceof MicrosoftAltCredential) {
-            final MicrosoftAltCredential cast = (MicrosoftAltCredential) credential;
+        if (credential instanceof MicrosoftAltCredential cast) {
 
             compound.setBoolean("Microsoft", true);
             compound.setString("Name", cast.getName());
@@ -519,18 +497,7 @@ public class Alt {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder("Username: " + player.getGameProfile().getName());
-
-        if (hypixelProfile != null) {
-            String hypixelRank = hypixelProfile.getRank();
-            int hypixelLevel = hypixelProfile.getLevel();
-
-            if (hypixelLevel > 1) builder.append(" | ").append(hypixelLevel).append(" Lvl");
-            if (hypixelRank != null && !hypixelRank.equalsIgnoreCase("default"))
-                builder.append(" | ").append(hypixelRank);
-        }
-
-        return builder.toString();
+        return "Username: " + player.getGameProfile().getName();
     }
 
     public static boolean accountCheck(String token) {
