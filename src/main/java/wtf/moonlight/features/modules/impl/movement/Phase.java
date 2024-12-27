@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.BlockGlass;
@@ -24,20 +34,16 @@ public class Phase extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         setTag(mode.get());
-        switch (mode.get()) {
-            case "Watchdog Auto":
-                if (phase && !timerUtils.hasTimeElapsed(4000)) PingSpoofComponent.blink();
-                break;
+        if (mode.get().equals("Watchdog Auto")) {
+            if (phase && !timerUtils.hasTimeElapsed(4000)) PingSpoofComponent.blink();
         }
     }
 
     @EventTarget
     public void onBlockAABB(BlockAABBEvent event) {
-        switch (mode.get()) {
-            case "Watchdog Auto":
-                if (phase && PingSpoofComponent.enabled && event.getBlock() instanceof BlockGlass)
-                    event.setCancelled(true);
-                break;
+        if (mode.get().equals("Watchdog Auto")) {
+            if (phase && PingSpoofComponent.enabled && event.getBlock() instanceof BlockGlass)
+                event.setCancelled(true);
         }
     }
 

@@ -1,32 +1,49 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.KeyPressEvent;
 import wtf.moonlight.features.modules.impl.combat.*;
-import wtf.moonlight.features.modules.impl.exploit.Timer;
 import wtf.moonlight.features.modules.impl.exploit.*;
 import wtf.moonlight.features.modules.impl.misc.*;
 import wtf.moonlight.features.modules.impl.movement.*;
 import wtf.moonlight.features.modules.impl.player.*;
 import wtf.moonlight.features.modules.impl.visual.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Manages all modules within the MoonLight client.
+ * Responsible for initializing, registering, and handling modules.
+ */
 @Getter
 public class ModuleManager {
 
     private final List<Module> modules = new CopyOnWriteArrayList<>();
 
+    /**
+     * Initializes the ModuleManager by adding all available modules,
+     * sorting them by name, and registering event listeners.
+     */
     public ModuleManager() {
         addModules(
-
-                //combat
+                // Combat
                 Annoy.class,
                 AntiBot.class,
                 AutoGap.class,
@@ -43,7 +60,7 @@ public class ModuleManager {
                 TickBase.class,
                 Velocity.class,
 
-                //legit
+                // Legit
                 AutoClicker.class,
                 AutoRod.class,
                 MoreKB.class,
@@ -51,7 +68,7 @@ public class ModuleManager {
                 BlockHit.class,
                 KeepRange.class,
 
-                //exploit,
+                // Exploit
                 Blink.class,
                 ClientSpoofer.class,
                 Disabler.class,
@@ -60,14 +77,14 @@ public class ModuleManager {
                 Timer.class,
                 AntiHunger.class,
 
-                //misc
+                // Misc
                 AutoAuthenticate.class,
                 AutoPlay.class,
                 HackerDetector.class,
                 ItemAlerts.class,
                 KillSults.class,
 
-                //movement
+                // Movement
                 AntiFall.class,
                 Freeze.class,
                 InvMove.class,
@@ -83,7 +100,7 @@ public class ModuleManager {
                 Fly.class,
                 Scaffold.class,
 
-                //player
+                // Player
                 AntiFireball.class,
                 AutoPearl.class,
                 AutoTool.class,
@@ -93,7 +110,7 @@ public class ModuleManager {
                 Stealer.class,
                 BedNuker.class,
 
-                //visual
+                // Visual
                 Atmosphere.class,
                 Animations.class,
                 AspectRatio.class,
@@ -125,101 +142,95 @@ public class ModuleManager {
                 TargetESP.class
         );
 
+        // Sort modules alphabetically by name for better organization
         modules.sort(Comparator.comparing(Module::getName));
 
+        // Register the ModuleManager to listen for events
         Moonlight.INSTANCE.getEventManager().register(this);
+      //  Moonlight.LOGGER.INFO("ModuleManager initialized with {} modules.", modules.size());
     }
 
+    /**
+     * Adds multiple modules to the manager by instantiating their classes.
+     *
+     * @param moduleClasses Varargs of module classes to add.
+     */
     @SafeVarargs
     public final void addModules(Class<? extends Module>... moduleClasses) {
         for (Class<? extends Module> moduleClass : moduleClasses) {
             try {
                 Module module = moduleClass.getDeclaredConstructor().newInstance();
                 modules.add(module);
+                //  Moonlight.LOGGER.INFO("Added module: {}", module.getName());
             } catch (Exception e) {
-                e.printStackTrace();
+                //  Moonlight.LOGGER.INFO("Failed to instantiate module: {}", moduleClass.getSimpleName(), e);
             }
         }
     }
 
-    private List<Class<?>> getAllClasses(String packageName) throws ClassNotFoundException, IOException {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        String path = packageName.replace('.', '/');
-        Enumeration<URL> resources = classLoader.getResources(path);
-        List<File> dirs = new ArrayList<>();
+    /**
+     * Retrieves a module instance based on its class type.
+     *
+     * @param moduleClass The class of the module to retrieve.
+     * @param <T>         The type of the module.
+     * @return An instance of the requested module or null if not found.
+     */
+    public <T extends Module> T getModule(Class<T> moduleClass) {
+        Optional<Module> module = modules.stream()
+                .filter(m -> m.getClass().equals(moduleClass))
+                .findFirst();
 
-        while (resources.hasMoreElements()) {
-            URL resource = resources.nextElement();
-            dirs.add(new File(resource.getFile()));
-        }
-
-        List<Class<?>> classes = new ArrayList<>();
-
-        for (File directory : dirs) {
-            classes.addAll(findClasses(directory, packageName));
-        }
-
-        return classes;
+        return module.map(moduleClass::cast).orElse(null);
     }
 
-    private List<Class<?>> findClasses(File directory, String packageName) throws ClassNotFoundException {
-        List<Class<?>> classes = new ArrayList<>();
-
-        if (!directory.exists()) {
-            return classes;
-        }
-
-        File[] files = directory.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    classes.addAll(findClasses(file, packageName + "." + file.getName()));
-                } else if (file.getName().endsWith(".class")) {
-                    Class<?> clazz = Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
-                    classes.add(clazz);
-                }
-            }
-        }
-
-        return classes;
-    }
-
-    public <module extends Module> module getModule(Class<? extends module> moduleClass) {
-        Iterator<Module> var2 = this.modules.iterator();
-        Module module;
-        do {
-            if (!var2.hasNext()) {
-                return null;
-            }
-            module = var2.next();
-        } while (module.getClass() != moduleClass);
-
-        return (module) module;
-    }
-
-    @SuppressWarnings("unchecked")
+    /**
+     * Retrieves a module instance based on its name.
+     *
+     * @param name The name of the module to retrieve.
+     * @return The module instance if found, otherwise null.
+     */
     public Module getModule(String name) {
-        for (Module feature : getModules()) {
-            if (feature.getName().equalsIgnoreCase(name)) {
-                return feature;
+        return modules.stream()
+                .filter(m -> m.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Retrieves all modules that belong to a specific category.
+     *
+     * @param category The category to filter modules by.
+     * @return A list of modules within the specified category.
+     */
+    public List<Module> getModulesByCategory(ModuleCategory category) {
+        List<Module> categorizedModules = new ArrayList<>();
+        for (Module module : modules) {
+            if (module.getCategory() == category) {
+                categorizedModules.add(module);
             }
         }
-        return null;
+        return categorizedModules;
     }
 
-    public ArrayList<Module> getModulesByCategory(ModuleCategory category) {
-        ArrayList<Module> ms = new ArrayList<>();
-        for (Module m : getModules()) if (m.getCategory() == category) ms.add(m);
-        return ms;
-    }
-
+    /**
+     * Event handler for key press events.
+     * Toggles the corresponding module if its keybind matches the pressed key.
+     *
+     * @param event The key press event.
+     */
     @EventTarget
     public void onKey(KeyPressEvent event) {
-        for (Module module : getModules()) {
-            if (module.getKeyBind() == event.getKey()) {
-                module.toggle();
-            }
-        }
+        modules.stream()
+                .filter(module -> module.getKeyBind() == event.getKey())
+                .forEach(Module::toggle);
+    }
+
+    /**
+     * Retrieves all modules managed by this manager.
+     *
+     * @return An unmodifiable list of all modules.
+     */
+    public List<Module> getAllModules() {
+        return List.copyOf(modules);
     }
 }
