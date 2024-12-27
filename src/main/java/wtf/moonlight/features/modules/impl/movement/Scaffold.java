@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.*;
@@ -281,16 +291,11 @@ public class Scaffold extends Module {
 
         switch (rotations.get()) {
             case "Normal": {
-                Vec3 hitVec = null;
-
-                switch (rotationsHitVec.get()) {
-                    case "Centre":
-                        hitVec = getVec3(data);
-                        break;
-                    case "Closest":
-                        hitVec = getHitVecOptimized(data.blockPos, data.facing);
-                        break;
-                }
+                Vec3 hitVec = switch (rotationsHitVec.get()) {
+                    case "Centre" -> getVec3(data);
+                    case "Closest" -> getHitVecOptimized(data.blockPos, data.facing);
+                    default -> null;
+                };
 
                 assert hitVec != null;
                 rotation = RotationUtils.getRotations(hitVec);
@@ -559,26 +564,22 @@ public class Scaffold extends Module {
             return;
 
         if (tower.canDisplay()) {
-            switch (tower.get()) {
-                case "Vanilla":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towering()) {
-                            event.setY(mc.thePlayer.motionY = 0.42);
-                        }
+            if (tower.get().equals("Vanilla")) {
+                if (!mc.thePlayer.isPotionActive(Potion.jump)) {
+                    if (towering()) {
+                        event.setY(mc.thePlayer.motionY = 0.42);
                     }
-                    break;
+                }
             }
         }
 
         if (towerMove.canDisplay()) {
-            switch (towerMove.get()) {
-                case "Vanilla":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towerMoving()) {
-                            mc.thePlayer.motionY = 0.42f;
-                        }
+            if (towerMove.get().equals("Vanilla")) {
+                if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+                    if (towerMoving()) {
+                        mc.thePlayer.motionY = 0.42f;
                     }
-                    break;
+                }
             }
         }
     }
@@ -642,44 +643,40 @@ public class Scaffold extends Module {
         }
 
         if (tower.canDisplay()) {
-            switch (tower.get()) {
-                case "Watchdog":
-                    if (!mc.thePlayer.isPotionActive(Potion.jump) && placed) {
-                        if (towering()) {
-                            MovementUtils.stopXZ();
-                            int valY = (int) Math.round((event.y % 1) * 10000);
-                            if (valY == 0) {
-                                mc.thePlayer.motionY = 0.42F;
-                            } else if (valY > 4000 && valY < 4300) {
-                                mc.thePlayer.motionY = 0.33;
-                            } else if (valY > 7000) {
-                                mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            }
+            if (tower.get().equals("Watchdog")) {
+                if (!mc.thePlayer.isPotionActive(Potion.jump) && placed) {
+                    if (towering()) {
+                        MovementUtils.stopXZ();
+                        int valY = (int) Math.round((event.y % 1) * 10000);
+                        if (valY == 0) {
+                            mc.thePlayer.motionY = 0.42F;
+                        } else if (valY > 4000 && valY < 4300) {
+                            mc.thePlayer.motionY = 0.33;
+                        } else if (valY > 7000) {
+                            mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
                         }
-
                     }
-                    break;
+
+                }
             }
         }
 
         if (towerMove.canDisplay()) {
-            switch (towerMove.get()) {
-                case "Watchdog":
-                    if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
-                        if (towerMoving()) {
-                            int valY = (int) Math.round((event.y % 1) * 10000);
-                            if (valY == 0) {
-                                mc.thePlayer.motionY = 0.42F;
-                                MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
-                            } else if (valY > 4000 && valY < 4300) {
-                                mc.thePlayer.motionY = 0.33;
-                                MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
-                            } else if (valY > 7000) {
-                                mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
-                            }
+            if (towerMove.get().equals("Watchdog")) {
+                if (MovementUtils.isMoving() && MovementUtils.getSpeed() > 0.1 && !mc.thePlayer.isPotionActive(Potion.jump)) {
+                    if (towerMoving()) {
+                        int valY = (int) Math.round((event.y % 1) * 10000);
+                        if (valY == 0) {
+                            mc.thePlayer.motionY = 0.42F;
+                            MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
+                        } else if (valY > 4000 && valY < 4300) {
+                            mc.thePlayer.motionY = 0.33;
+                            MovementUtils.strafe((float) 0.26 + MovementUtils.getSpeedEffect() * 0.03);
+                        } else if (valY > 7000) {
+                            mc.thePlayer.motionY = 1 - mc.thePlayer.posY % 1;
                         }
                     }
-                    break;
+                }
             }
         }
     }

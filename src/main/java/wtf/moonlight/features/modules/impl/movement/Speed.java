@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.movement;
 
 import net.minecraft.block.BlockAir;
@@ -734,8 +744,9 @@ public class Speed extends Module {
     @EventTarget
     public void onMove(MoveEvent event){
 
-        if(liquidCheck.get() && (mc.thePlayer.isInWater() || mc.thePlayer.isInLava()) || guiCheck.get() && mc.currentScreen instanceof GuiContainer)
-            return;
+        if (!liquidCheck.get() || (!mc.thePlayer.isInWater() && !mc.thePlayer.isInLava())) {
+            guiCheck.get();
+        }
 
     }
 
