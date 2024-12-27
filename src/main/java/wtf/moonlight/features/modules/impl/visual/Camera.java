@@ -1,13 +1,3 @@
-/*
- * MoonLight Hacked Client
- *
- * A free and open-source hacked client for Minecraft.
- * Developed using Minecraft's resources.
- *
- * Repository: https://github.com/randomguy3725/MoonLight
- *
- * Author(s): [Randumbguy & opZywl & lucas]
- */
 package wtf.moonlight.features.modules.impl.visual;
 
 import net.minecraft.client.gui.ScaledResolution;
@@ -19,6 +9,7 @@ import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.BoolValue;
+import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.MultiBoolValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.render.ColorUtils;
@@ -35,6 +26,7 @@ public class Camera extends Module {
 
     public final MultiBoolValue setting = new MultiBoolValue("Option", Arrays.asList(
             new BoolValue("View Clip", true),
+            new BoolValue("ThirdPersonDistance", false),
             new BoolValue("No Hurt Cam", false),
             new BoolValue("FPS Hurt Cam", false),
             new BoolValue("No Fire", false),
@@ -44,6 +36,7 @@ public class Camera extends Module {
             new BoolValue("Motion Blur",false),
             new BoolValue("World Bloom", false)
     ), this);
+    public final SliderValue TPDis = new SliderValue("Distance", 4.0f, 1.0f, 8.0f, 1.0f, this, () -> setting.isEnabled("ThirdPersonDistance"));
     public final SliderValue interpolation = new SliderValue("Motion Interpolation", 0.15f, 0.05f, 0.5f, 0.05f,this, () -> setting.isEnabled("Motion Camera"));
     public final SliderValue amount = new SliderValue("Motion Blur Amount", 1, 1, 10, 1, this, () -> setting.isEnabled("Motion Blur"));
     public final SliderValue bloomAmount = new SliderValue("Bloom Amount", 1, 0.05f, 0.75f, 0.05f,this, () -> setting.isEnabled("World Bloom"));
