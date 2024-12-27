@@ -168,13 +168,13 @@ public class LongJump extends Module {
                                 maxTimer = 10;
                                 break;
                             case 1:
-                                mc.thePlayer.motionX = 1.185 * -Math.sin(MovementUtils.getDirection());
-                                mc.thePlayer.motionZ = 1.185 * Math.cos(MovementUtils.getDirection());
+                                mc.thePlayer.motionX = 1.285 * -Math.sin(MovementUtils.getDirection());
+                                mc.thePlayer.motionZ = 1.285 * Math.cos(MovementUtils.getDirection());
                                 maxTimer = 15;
                                 break;
                             case 2:
-                                mc.thePlayer.motionX = 0.7625 * -Math.sin(MovementUtils.getDirection());
-                                mc.thePlayer.motionZ = 0.7625 * Math.cos(MovementUtils.getDirection());
+                                mc.thePlayer.motionX = 1.1625 * -Math.sin(MovementUtils.getDirection());
+                                mc.thePlayer.motionZ = 1.1625 * Math.cos(MovementUtils.getDirection());
                                 maxTimer = 5;
                                 break;
                         }
