@@ -6,7 +6,7 @@
  *
  * Repository: https://github.com/randomguy3725/MoonLight
  *
- * Author(s): [RandomGuy & opZywl]
+ * Author(s): [Randumbguy & opZywl & lucas]
  */
 package wtf.moonlight.features.modules.impl.visual;
 
@@ -76,7 +76,7 @@ public class DashTrail extends Module {
  *
  * Repository: https://github.com/randomguy3725/MoonLight
  *
- * Author(s): [RandomGuy & opZywl]
+ * Author(s): [Randumbguy & opZywl & lucas]
  */
 packageNumber = 0;
         for (Integer dashFragsNumber : dashGroupsNumber) {
@@ -88,7 +88,7 @@ packageNumber = 0;
  *
  * Repository: https://github.com/randomguy3725/MoonLight
  *
- * Author(s): [RandomGuy & opZywl]
+ * Author(s): [Randumbguy & opZywl & lucas]
  */
 packageNumber;
             ArrayList<ResourceLocationWithSizes> animatedTexuresList = new ArrayList<>();
@@ -102,7 +102,7 @@ packageNumber;
  *
  * Repository: https://github.com/randomguy3725/MoonLight
  *
- * Author(s): [RandomGuy & opZywl]
+ * Author(s): [Randumbguy & opZywl & lucas]
  */
 packageNumber + "/dashcubic" + ++fragNumber + format)));
             }

@@ -6,7 +6,7 @@
  *
  * Repository: https://github.com/randomguy3725/MoonLight
  *
- * Author(s): [RandomGuy & opZywl]
+ * Author(s): [Randumbguy & opZywl & lucas]
  */
 package wtf.moonlight.gui.click.neverlose.panel.search;
 
