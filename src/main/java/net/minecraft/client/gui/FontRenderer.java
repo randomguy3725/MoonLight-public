@@ -3,16 +3,6 @@ package net.minecraft.client.gui;
 import com.ibm.icu.text.ArabicShaping;
 import com.ibm.icu.text.ArabicShapingException;
 import com.ibm.icu.text.Bidi;
-
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Random;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -32,6 +22,11 @@ import org.apache.commons.io.IOUtils;
 import org.lwjgl.opengl.GL11;
 import wtf.moonlight.gui.font.GradientApplier;
 import wtf.moonlight.utils.render.RenderUtils;
+
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 import static java.lang.String.valueOf;
 
@@ -616,7 +611,7 @@ public class FontRenderer implements IResourceManagerReloadListener
         this.posX += p_doDraw_1_;
     }
 
-    private int renderStringAligned(String text, int x, int y, int width, int color, boolean dropShadow)
+    private int renderStringAligned(String text, float x, float y, float width, int color, boolean dropShadow)
     {
         if (this.bidiFlag)
         {
@@ -624,7 +619,7 @@ public class FontRenderer implements IResourceManagerReloadListener
             x = x + width - i;
         }
 
-        return this.renderString(text, (float)x, (float)y, color, dropShadow);
+        return this.renderString(text, x, y, color, dropShadow);
     }
 
     private int renderString(String text, float x, float y, int color, boolean dropShadow)
@@ -831,7 +826,7 @@ public class FontRenderer implements IResourceManagerReloadListener
         return text;
     }
 
-    public void drawSplitString(String str, int x, int y, int wrapWidth, int textColor)
+    public void drawSplitString(String str, float x, float y, float wrapWidth, int textColor)
     {
         if (this.blend)
         {
@@ -851,7 +846,7 @@ public class FontRenderer implements IResourceManagerReloadListener
         }
     }
 
-    private void renderSplitString(String str, int x, int y, int wrapWidth, boolean addShadow)
+    private void renderSplitString(String str, float x, float y, float wrapWidth, boolean addShadow)
     {
         for (String s : this.listFormattedStringToWidth(str, wrapWidth))
         {
@@ -880,12 +875,12 @@ public class FontRenderer implements IResourceManagerReloadListener
         this.bidiFlag = bidiFlagIn;
     }
 
-    public List<String> listFormattedStringToWidth(String str, int wrapWidth)
+    public List<String> listFormattedStringToWidth(String str, float wrapWidth)
     {
         return Arrays.asList(this.wrapFormattedStringToWidth(str, wrapWidth).split("\n"));
     }
 
-    String wrapFormattedStringToWidth(String str, int wrapWidth)
+    String wrapFormattedStringToWidth(String str, float wrapWidth)
     {
         if (str.length() <= 1)
         {
@@ -910,7 +905,7 @@ public class FontRenderer implements IResourceManagerReloadListener
         }
     }
 
-    private int sizeStringToWidth(String str, int wrapWidth)
+    private int sizeStringToWidth(String str, float wrapWidth)
     {
         int i = str.length();
         float f = 0.0F;

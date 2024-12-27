@@ -45,17 +45,17 @@ public class RealmsButton
         this.proxy.setText(p_msg_1_);
     }
 
-    public int getWidth()
+    public float getWidth()
     {
         return this.proxy.getButtonWidth();
     }
 
-    public int getHeight()
+    public float getHeight()
     {
         return this.proxy.getHeight();
     }
 
-    public int y()
+    public float y()
     {
         return this.proxy.getPositionY();
     }
@@ -73,7 +73,7 @@ public class RealmsButton
     {
     }
 
-    public void blit(int p_blit_1_, int p_blit_2_, int p_blit_3_, int p_blit_4_, int p_blit_5_, int p_blit_6_)
+    public void blit(float p_blit_1_, float p_blit_2_, int p_blit_3_, int p_blit_4_, int p_blit_5_, int p_blit_6_)
     {
         this.proxy.drawTexturedModalRect(p_blit_1_, p_blit_2_, p_blit_3_, p_blit_4_, p_blit_5_, p_blit_6_);
     }

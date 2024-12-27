@@ -4,30 +4,20 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.net.ServerSocket;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.server.MinecraftServer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.*;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class HttpUtil
 {
@@ -309,4 +299,47 @@ public class HttpUtil
         bufferedreader.close();
         return stringbuilder.toString();
     }
+
+    public static String get(URL url, String ua) throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put("User-Agent", ua);
+        return get(url, headers);
+    }
+
+    public static String get(URL url, Map<String, String> heads) throws IOException {
+        final HttpURLConnection httpurlconnection = (HttpURLConnection) url.openConnection();
+        try {
+            httpurlconnection.setRequestMethod("GET");
+            httpurlconnection.addRequestProperty("Accept", "*/*");
+            for (Entry<String, String> key : heads.entrySet()) {
+                httpurlconnection.addRequestProperty(key.getKey(), key.getValue());
+            }
+            final BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(httpurlconnection.getInputStream()));
+            final StringBuilder stringbuilder = new StringBuilder();
+            String s;
+
+            while ((s = bufferedreader.readLine()) != null) {
+                stringbuilder.append(s);
+            }
+
+            bufferedreader.close();
+            return stringbuilder.toString();
+        } catch (IOException e) {
+            String s;
+            final StringBuilder stringbuilder = new StringBuilder();
+            try {
+                final BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(httpurlconnection.getErrorStream()));
+
+                while ((s = bufferedreader.readLine()) != null) {
+                    stringbuilder.append(s);
+                }
+
+                bufferedreader.close();
+            } catch (Exception ignore) {
+                throw e;
+            }
+            throw new IOException(e.getMessage() + "\n" + stringbuilder.toString());
+        }
+    }
+
 }

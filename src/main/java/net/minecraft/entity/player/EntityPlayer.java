@@ -119,7 +119,7 @@ public abstract class EntityPlayer extends EntityLivingBase {
     protected float speedOnGround = 0.1F;
     protected float speedInAir = 0.02F;
     private int lastXPSound;
-    private final GameProfile gameProfile;
+    public final GameProfile gameProfile;
     private boolean hasReducedDebug = false;
     public EntityFishHook fishEntity;
     public final StickSimulation stickSimulation = new StickSimulation();

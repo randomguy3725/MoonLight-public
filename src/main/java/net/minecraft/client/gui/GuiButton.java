@@ -1,5 +1,6 @@
 package net.minecraft.client.gui;
 
+import lombok.Setter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
@@ -9,10 +10,11 @@ import net.minecraft.util.ResourceLocation;
 public class GuiButton extends Gui
 {
     protected static final ResourceLocation buttonTextures = new ResourceLocation("textures/gui/widgets.png");
-    protected int width;
-    protected int height;
-    public int xPosition;
-    public int yPosition;
+    protected float width;
+    @Setter
+    protected float height;
+    public float xPosition;
+    public float yPosition;
     public String displayString;
     public int id;
     public boolean enabled;
@@ -24,7 +26,7 @@ public class GuiButton extends Gui
         this(buttonId, x, y, 200, 20, buttonText);
     }
 
-    public GuiButton(int buttonId, int x, int y, int widthIn, int heightIn, String buttonText)
+    public GuiButton(int buttonId, float x, float y, float widthIn, float heightIn, String buttonText)
     {
         this.width = 200;
         this.height = 20;
@@ -111,12 +113,12 @@ public class GuiButton extends Gui
         soundHandlerIn.playSound(PositionedSoundRecord.create(new ResourceLocation("gui.button.press"), 1.0F));
     }
 
-    public int getButtonWidth()
+    public float getButtonWidth()
     {
         return this.width;
     }
 
-    public void setWidth(int width)
+    public void setWidth(float width)
     {
         this.width = width;
     }

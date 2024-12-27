@@ -37,7 +37,9 @@ import static org.lwjgl.opengl.GL11.*;
 public class ESP extends Module {
     public final BoolValue tags = new BoolValue("Tags", true, this);
     public final SliderValue tagsSize = new SliderValue("Tags Size", 0.5f, 0.1f, 2, 0.05f, this, tags::get);
+    public final BoolValue tagsHealth = new BoolValue("Tags Health", true, this, tags::get);
     public final BoolValue tagsBackground = new BoolValue("Tags Background", true, this, tags::get);
+    public final BoolValue tagsHealthBar = new BoolValue("Tags Health Bar", true, this, tags::get);
     public final BoolValue item = new BoolValue("Item", true, this, tags::get);
     public final BoolValue esp2d = new BoolValue("2D ESP", true, this);
     public final BoolValue box = new BoolValue("Box", true, this, esp2d::get);
@@ -96,7 +98,8 @@ public class ESP extends Module {
                 final FontRenderer fontRenderer = mc.fontRendererObj;
 
                 final String hacker = getModule(HackerDetector.class).isHacker(player) ? EnumChatFormatting.RED + "[Hacker] " + EnumChatFormatting.RESET : "";
-                final String name = hacker + player.getDisplayName().getFormattedText() + " " + (MathUtils.roundToHalf(player.getHealth())) + EnumChatFormatting.RED + "❤";
+                final String healthString = tagsHealth.get() ? " " + (MathUtils.roundToHalf(player.getHealth())) + EnumChatFormatting.RED + "❤" :"";
+                final String name = hacker + player.getDisplayName().getFormattedText() + healthString;
                 float halfWidth = (float) fontRenderer.getStringWidth(name) / 2 * tagsSize.get();
                 final float xDif = x2 - x;
                 final float middle = x + (xDif / 2);
@@ -108,6 +111,10 @@ public class ESP extends Module {
 
                 if (tagsBackground.get()) {
                     Gui.drawRect(left, renderY - 1, right, renderY + textHeight + 1, 0x96000000);
+                }
+
+                if(tagsHealthBar.get()){
+                    RenderUtils.drawRect(left, renderY + textHeight, (halfWidth + halfWidth + 1) * healthPercentage,0.5f, ColorUtils.getHealthColor(player));
                 }
 
                 fontRenderer.drawScaledString(name, middle - halfWidth, renderY + 0.5F, tagsSize.get(), -1);

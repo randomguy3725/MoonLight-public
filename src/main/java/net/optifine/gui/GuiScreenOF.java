@@ -1,10 +1,11 @@
 package net.optifine.gui;
 
-import java.io.IOException;
-import java.util.List;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiVideoSettings;
+
+import java.io.IOException;
+import java.util.List;
 
 public class GuiScreenOF extends GuiScreen
 {
@@ -36,8 +37,8 @@ public class GuiScreenOF extends GuiScreen
 
             if (guibutton.visible)
             {
-                int j = GuiVideoSettings.getButtonWidth(guibutton);
-                int k = GuiVideoSettings.getButtonHeight(guibutton);
+                float j = GuiVideoSettings.getButtonWidth(guibutton);
+                float k = GuiVideoSettings.getButtonHeight(guibutton);
 
                 if (x >= guibutton.xPosition && y >= guibutton.yPosition && x < guibutton.xPosition + j && y < guibutton.yPosition + k)
                 {

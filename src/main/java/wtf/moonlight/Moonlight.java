@@ -14,6 +14,7 @@ import wtf.moonlight.features.config.ConfigManager;
 import wtf.moonlight.features.friend.FriendManager;
 import wtf.moonlight.features.modules.ModuleManager;
 import wtf.moonlight.features.modules.impl.visual.ScaffoldCounter;
+import wtf.moonlight.gui.altmanager.repository.AltRepositoryGUI;
 import wtf.moonlight.gui.click.dropdown.DropdownGUI;
 import wtf.moonlight.gui.click.neverlose.NeverLose;
 import wtf.moonlight.gui.click.skeet.SkeetUI;
@@ -32,6 +33,8 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 
 @Getter
@@ -62,6 +65,7 @@ public class Moonlight {
     private NeverLose neverLose;
     private DropdownGUI dropdownGUI;
     private SkeetUI skeetGUI;
+    private AltRepositoryGUI altRepositoryGUI;
     private DiscordInfo discordRP;
 
     // System Tray icon
@@ -73,6 +77,8 @@ public class Moonlight {
 
     // Load status
     private boolean loaded;
+
+    private Path dataFolder;
 
     public void init() {
         loaded = false;
@@ -88,6 +94,8 @@ public class Moonlight {
         handleFastRender();
 
         loaded = true;
+
+        dataFolder = Paths.get(Minecraft.getMinecraft().mcDataDir.getAbsolutePath()).resolve(clientName);
         LOGGER.info("{} {} initialized successfully.", clientName, version);
     }
 
@@ -103,6 +111,8 @@ public class Moonlight {
         } else {
             LOGGER.info("Main directory already exists at {}", mainDir.getAbsolutePath());
         }
+
+        this.dataFolder = Paths.get(Minecraft.getMinecraft().mcDataDir.getAbsolutePath()).resolve(clientName);
     }
 
     private void setupDisplayTitle() {
@@ -123,6 +133,7 @@ public class Moonlight {
         neverLose = new NeverLose();
         dropdownGUI = new DropdownGUI();
         skeetGUI = new SkeetUI();
+        altRepositoryGUI = new AltRepositoryGUI(this);
     }
 
     private void registerEventHandlers() {

@@ -107,7 +107,7 @@ public class GuiShaderOptions extends GuiScreenOF
         this.buttonList.add(new GuiButton(200, this.width / 2 + 20, this.height / 6 + 168 + 11, i1, j1, I18n.format("gui.done")));
     }
 
-    public static String getButtonText(ShaderOption so, int btnWidth)
+    public static String getButtonText(ShaderOption so, float btnWidth)
     {
         String s = so.getNameText();
 

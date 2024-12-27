@@ -3006,4 +3006,13 @@ public class Minecraft implements IThreadListener, IPlayerUsage
     {
         this.connectedToRealms = isConnected;
     }
+
+    public PropertyMap fillSessionProfileProperties() {
+        profileProperties.clear();
+
+        GameProfile gameProfile = getSessionService().fillProfileProperties(session.getProfile(), false);
+        profileProperties.putAll(gameProfile.getProperties());
+
+        return profileProperties;
+    }
 }

@@ -1,12 +1,13 @@
 package net.minecraft.client.resources;
 
-import java.util.UUID;
 import net.minecraft.util.ResourceLocation;
+
+import java.util.UUID;
 
 public class DefaultPlayerSkin
 {
-    private static final ResourceLocation TEXTURE_STEVE = new ResourceLocation("textures/entity/steve.png");
-    private static final ResourceLocation TEXTURE_ALEX = new ResourceLocation("textures/entity/alex.png");
+    public static final ResourceLocation TEXTURE_STEVE = new ResourceLocation("textures/entity/steve.png");
+    public static final ResourceLocation TEXTURE_ALEX = new ResourceLocation("textures/entity/alex.png");
 
     public static ResourceLocation getDefaultSkinLegacy()
     {

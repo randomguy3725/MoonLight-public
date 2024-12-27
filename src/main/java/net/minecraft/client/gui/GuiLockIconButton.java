@@ -7,7 +7,7 @@ public class GuiLockIconButton extends GuiButton
 {
     private boolean field_175231_o = false;
 
-    public GuiLockIconButton(int p_i45538_1_, int p_i45538_2_, int p_i45538_3_)
+    public GuiLockIconButton(int p_i45538_1_, float p_i45538_2_, float p_i45538_3_)
     {
         super(p_i45538_1_, p_i45538_2_, p_i45538_3_, 20, 20, "");
     }

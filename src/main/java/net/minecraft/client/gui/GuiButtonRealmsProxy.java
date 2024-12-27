@@ -39,12 +39,12 @@ public class GuiButtonRealmsProxy extends GuiButton
         super.displayString = text;
     }
 
-    public int getButtonWidth()
+    public float getButtonWidth()
     {
         return super.getButtonWidth();
     }
 
-    public int getPositionY()
+    public float getPositionY()
     {
         return super.yPosition;
     }
@@ -84,7 +84,7 @@ public class GuiButtonRealmsProxy extends GuiButton
         return super.getHoverState(p_154312_1_);
     }
 
-    public int getHeight()
+    public float getHeight()
     {
         return this.height;
     }

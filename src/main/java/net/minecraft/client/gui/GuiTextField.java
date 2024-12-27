@@ -12,24 +12,24 @@ import net.minecraft.util.MathHelper;
 public class GuiTextField extends Gui
 {
     private final int id;
-    private final FontRenderer fontRendererInstance;
+    public final FontRenderer fontRendererInstance;
     public int xPosition;
     public int yPosition;
-    private final int width;
-    private final int height;
-    private String text = "";
+    public final int width;
+    public final int height;
+    public String text = "";
     private int maxStringLength = 32;
-    private int cursorCounter;
-    private boolean enableBackgroundDrawing = true;
-    private boolean canLoseFocus = true;
-    private boolean isFocused;
-    private boolean isEnabled = true;
-    private int lineScrollOffset;
-    private int cursorPosition;
-    private int selectionEnd;
-    private int enabledColor = 14737632;
-    private int disabledColor = 7368816;
-    private boolean visible = true;
+    public int cursorCounter;
+    public boolean enableBackgroundDrawing = true;
+    public boolean canLoseFocus = true;
+    public boolean isFocused;
+    public boolean isEnabled = true;
+    public int lineScrollOffset;
+    public int cursorPosition;
+    public int selectionEnd;
+    public int enabledColor = 14737632;
+    public int disabledColor = 7368816;
+    public boolean visible = true;
     private GuiPageButtonList.GuiResponder field_175210_x;
     private Predicate<String> validator = Predicates.alwaysTrue();
 
@@ -518,7 +518,7 @@ public class GuiTextField extends Gui
         }
     }
 
-    private void drawCursorVertical(int p_146188_1_, int p_146188_2_, int p_146188_3_, int p_146188_4_)
+    public void drawCursorVertical(int p_146188_1_, int p_146188_2_, int p_146188_3_, int p_146188_4_)
     {
         if (p_146188_1_ < p_146188_3_)
         {

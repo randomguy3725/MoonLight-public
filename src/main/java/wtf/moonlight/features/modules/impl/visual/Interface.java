@@ -10,6 +10,7 @@ import net.minecraft.client.gui.inventory.GuiChest;
 import net.minecraft.client.gui.inventory.GuiContainerCreative;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.BossStatus;
@@ -22,6 +23,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.MathHelper;
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.events.annotations.EventTarget;
@@ -90,7 +92,7 @@ public class Interface extends Module {
     public final ModeValue outline = new ModeValue("Outline", new String[]{"Right","Left","None"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
-    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1","NeverLose"}, "Default", this,() -> elements.isEnabled("Potion HUD"));
+    public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1","NeverLose","Mod"}, "Default", this,() -> elements.isEnabled("Potion HUD"));
     public final ModeValue targetHudMode = new ModeValue("TargetHUD Mode", new String[]{"Astolfo", "Type 1", "Type 2","Exhi","Adjust","Moon","Novo 1","Novo 2","Novo 3"}, "Astolfo", this,() -> elements.isEnabled("Target HUD"));
     public final ModeValue notificationMode = new ModeValue("Notification Mode", new String[]{"Default", "Type 1","Type 2","Type 3", "Test2","Exhi"}, "Default", this,() -> elements.isEnabled("Notification"));
     public final ModeValue keyBindMode = new ModeValue("Key Bind Mode", new String[]{"Type 1"}, "Type 1", this,() -> elements.isEnabled("Key Bind"));
@@ -444,11 +446,55 @@ public class Interface extends Module {
             }
         }
 
+        if (elements.isEnabled("Potion HUD") && potionHudMode.is("Mod")) {
+            GL11.glPushMatrix();
+            GL11.glTranslatef(25, event.getScaledResolution().getScaledHeight() / 2f, 0F);
+            float yPos = 0F;
+            float width = 0F;
+            for (final PotionEffect effect : mc.thePlayer.getActivePotionEffects()) {
+                final Potion potion = Potion.potionTypes[effect.getPotionID()];
+                final String number = intToRomanByGreedy(effect.getAmplifier());
+                final String name = I18n.format(potion.getName()) + " " + number;
+                final float stringWidth = mc.fontRendererObj.getStringWidth(name)
+                        + mc.fontRendererObj.getStringWidth("§7" + Potion.getDurationString(effect));
+
+                if (width < stringWidth)
+                    width = stringWidth;
+                final float finalY = yPos;
+                mc.fontRendererObj.drawString(name, 2f, finalY - 7f, potion.getLiquidColor(), true);
+                mc.fontRendererObj.drawStringWithShadow("§7" + Potion.getDurationString(effect), 2f, finalY + 4, -1);
+                if (potion.hasStatusIcon()) {
+                    GL11.glPushMatrix();
+                    final boolean is2949 = GL11.glIsEnabled(2929);
+                    final boolean is3042 = GL11.glIsEnabled(3042);
+                    if (is2949)
+                        GL11.glDisable(2929);
+                    if (!is3042)
+                        GL11.glEnable(3042);
+                    GL11.glDepthMask(false);
+                    OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+                    GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                    final int statusIconIndex = potion.getStatusIconIndex();
+                    mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/container/inventory.png"));
+                    drawTexturedModalRect(-20F, finalY - 5, statusIconIndex % 8 * 18, 198 + statusIconIndex / 8 * 18, 18, 18);
+                    GL11.glDepthMask(true);
+                    if (!is3042)
+                        GL11.glDisable(3042);
+                    if (is2949)
+                        GL11.glEnable(2929);
+                    GL11.glPopMatrix();
+                }
+
+                yPos += mc.fontRendererObj.FONT_HEIGHT + 15;
+            }
+            GL11.glPopMatrix();
+        }
+
         if(elements.isEnabled("Health")){
             renderHealth();
         }
 
-        if (elements.isEnabled("Session Info") && potionHudMode.is("Exhi")) {
+        if (elements.isEnabled("Session Info") && sessionInfoMode.is("Exhi")) {
             mc.fontRendererObj.drawStringWithShadow(RenderUtils.sessionTime(), event.getScaledResolution().getScaledWidth() / 2.0f - mc.fontRendererObj.getStringWidth(RenderUtils.sessionTime()) / 2.0f,BossStatus.bossName != null && BossStatus.statusBarTime > 0 ? 47 : 30.0f, -1);
         }
     }
@@ -543,13 +589,13 @@ public class Interface extends Module {
                     final float bottom = textHeight.get();
 
                     if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
-
                         if (background.get()) {
                             RenderUtils.drawRect(leftSide, (float) translate.getY(), moduleWidth + 3, bottom, bgColor(count));
                         }
                     }
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+
                         if (outline.is("Left")) {
                             RenderUtils.drawRect(leftSide - 1, (float) translate.getY(), 1, bottom, color(count));
                         }
@@ -594,11 +640,12 @@ public class Interface extends Module {
                     final float bottom = textHeight.get();
 
                     if (background.get()) {
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
-                            RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, bgColor(count));
+                        if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
+                            RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, color(count));
                         }
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
-                            RenderUtils.drawRect(leftSide, y, moduleWidth, bottom + 3, color(count));
+                        if (event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                            RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, bgColor(count));
+
                         }
                     }
 
@@ -607,9 +654,10 @@ public class Interface extends Module {
                             RenderUtils.drawRect(leftSide - 1, y, 1, bottom, color(count));
                         }
 
-                        if (outline.is("Right")) {
-                            RenderUtils.drawRect(x + moduleWidth, y, 1, bottom, color(count));
+                        if(outline.is("Right")){
+                            RenderUtils.drawRect(x + moduleWidth, y, 1, bottom,  color(count));
                         }
+
                     }
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
@@ -797,6 +845,21 @@ public class Interface extends Module {
             Gui.drawTexturedModalRect(renX, renY, xOffset + 45, 9 * yOffset, 9, 9);
         }
         GL11.glPopMatrix();
+    }
+
+    private String intToRomanByGreedy(int num) {
+        int[] values = { 1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1 };
+        String[] symbols = { "M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I" };
+        StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;
+        while (i < values.length && num >= 0) {
+            while (values[i] <= num) {
+                num -= values[i];
+                stringBuilder.append(symbols[i]);
+            }
+            i++;
+        }
+        return stringBuilder.toString();
     }
 
     public FontRenderer getFr() {

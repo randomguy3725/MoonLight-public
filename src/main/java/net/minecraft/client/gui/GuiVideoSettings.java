@@ -1,21 +1,13 @@
 package net.minecraft.client.gui;
 
-import java.io.IOException;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.src.Config;
 import net.optifine.Lang;
-import net.optifine.gui.GuiAnimationSettingsOF;
-import net.optifine.gui.GuiDetailSettingsOF;
-import net.optifine.gui.GuiOptionButtonOF;
-import net.optifine.gui.GuiOptionSliderOF;
-import net.optifine.gui.GuiOtherSettingsOF;
-import net.optifine.gui.GuiPerformanceSettingsOF;
-import net.optifine.gui.GuiQualitySettingsOF;
-import net.optifine.gui.GuiScreenOF;
-import net.optifine.gui.TooltipManager;
-import net.optifine.gui.TooltipProviderOptions;
+import net.optifine.gui.*;
 import net.optifine.shaders.gui.GuiShaders;
+
+import java.io.IOException;
 
 public class GuiVideoSettings extends GuiScreenOF
 {
@@ -213,12 +205,12 @@ public class GuiVideoSettings extends GuiScreenOF
         this.tooltipManager.drawTooltips(mouseX, mouseY, this.buttonList);
     }
 
-    public static int getButtonWidth(GuiButton p_getButtonWidth_0_)
+    public static float getButtonWidth(GuiButton p_getButtonWidth_0_)
     {
         return p_getButtonWidth_0_.width;
     }
 
-    public static int getButtonHeight(GuiButton p_getButtonHeight_0_)
+    public static float getButtonHeight(GuiButton p_getButtonHeight_0_)
     {
         return p_getButtonHeight_0_.height;
     }

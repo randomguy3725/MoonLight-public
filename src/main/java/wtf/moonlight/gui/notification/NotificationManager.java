@@ -5,7 +5,6 @@ import lombok.Setter;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
-import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
@@ -17,9 +16,6 @@ import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
 import java.awt.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Getter
@@ -35,6 +31,9 @@ public class NotificationManager implements InstanceAccess {
 
     public void post(NotificationType type, String title, String description, float time) {
         post(new Notification(type, title, description, time));
+    }
+    public void post(NotificationType type, String title) {
+        post(new Notification(type, title, title));
     }
 
     private void post(Notification notification) {

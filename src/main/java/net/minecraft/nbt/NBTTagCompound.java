@@ -1,16 +1,17 @@
 package net.minecraft.nbt;
 
 import com.google.common.collect.Maps;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
+import net.minecraft.util.ReportedException;
+
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.Callable;
-import net.minecraft.crash.CrashReport;
-import net.minecraft.crash.CrashReportCategory;
-import net.minecraft.util.ReportedException;
 
 public class NBTTagCompound extends NBTBase
 {
@@ -193,6 +194,15 @@ public class NBTTagCompound extends NBTBase
         }
     }
 
+
+    public Integer getInteger(String key, Integer def) {
+        final NBTBase base = this.tagMap.get(key);
+        if (base == null || base.getId() != 3) return def;
+
+        return ((NBTTagInt) base).getInt();
+    }
+
+
     public long getLong(String key)
     {
         try
@@ -203,6 +213,13 @@ public class NBTTagCompound extends NBTBase
         {
             return 0L;
         }
+    }
+
+    public Long getLong(String key, Long def) {
+        final NBTBase base = this.tagMap.get(key);
+        if (base == null || base.getId() != 4) return def;
+
+        return ((NBTTagLong) base).getLong();
     }
 
     public float getFloat(String key)
@@ -241,6 +258,13 @@ public class NBTTagCompound extends NBTBase
         }
     }
 
+    public String getString(String key, String def) {
+        final NBTBase base = this.tagMap.get(key);
+        if (base == null || base.getId() != 8) return def;
+
+        return base.getString();
+    }
+
     public byte[] getByteArray(String key)
     {
         try
@@ -276,6 +300,15 @@ public class NBTTagCompound extends NBTBase
             throw new ReportedException(this.createCrashReport(key, 10, classcastexception));
         }
     }
+
+    public NBTTagCompound getCompoundTag(String key, NBTTagCompound def) {
+        final NBTBase base = this.tagMap.get(key);
+
+        if (base == null || base.getId() != 10) return def;
+
+        return (NBTTagCompound) base;
+    }
+
 
     public NBTTagList getTagList(String key, int type)
     {

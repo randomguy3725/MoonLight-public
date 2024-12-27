@@ -7,10 +7,8 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiSelectWorld;
 import net.minecraft.util.EnumChatFormatting;
 import wtf.moonlight.Moonlight;
-import wtf.moonlight.gui.altmanager.GuiAltManager;
 import wtf.moonlight.gui.button.MenuButton;
 import wtf.moonlight.gui.font.Fonts;
-import wtf.moonlight.utils.render.ColorUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 import wtf.moonlight.utils.render.shader.impl.Blur;
 import wtf.moonlight.utils.render.shader.impl.MainMenu;
@@ -75,7 +73,7 @@ public class GuiMainMenu extends GuiScreen {
                 switch (button.text) {
                     case "Singleplayer" -> mc.displayGuiScreen(new GuiSelectWorld(this));
                     case "Multiplayer" -> mc.displayGuiScreen(new GuiMultiplayer(this));
-                    case "Alts" -> mc.displayGuiScreen(new GuiAltManager(this));
+                    case "Alts" -> mc.displayGuiScreen(Moonlight.INSTANCE.getAltRepositoryGUI());
                     case "Options" -> mc.displayGuiScreen(new GuiOptions(this, mc.gameSettings));
                     case "Shutdown" -> mc.shutdown();
                 }

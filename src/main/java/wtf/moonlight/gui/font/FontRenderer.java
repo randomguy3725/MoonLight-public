@@ -458,4 +458,51 @@ public class FontRenderer {
             x += getStringWidth(character);
         }
     }
+
+    public String trimStringToWidth(final String p_trimStringToWidth_1_, final int p_trimStringToWidth_2_) {
+        return trimStringToWidth(p_trimStringToWidth_1_,p_trimStringToWidth_2_,false);
+    }
+
+    public String trimStringToWidth(final String p_trimStringToWidth_1_, final int p_trimStringToWidth_2_, final boolean p_trimStringToWidth_3_) {
+        final StringBuilder stringbuilder = new StringBuilder();
+        int i = 0;
+        final int j = p_trimStringToWidth_3_ ? (p_trimStringToWidth_1_.length() - 1) : 0;
+        final int k = p_trimStringToWidth_3_ ? -1 : 1;
+        boolean flag = false;
+        boolean flag2 = false;
+        for (int l = j; l >= 0 && l < p_trimStringToWidth_1_.length() && i < p_trimStringToWidth_2_; l += k) {
+            final char c0 = p_trimStringToWidth_1_.charAt(l);
+            final int i2 = this.getStringWidth(String.valueOf(c0));
+            if (flag) {
+                flag = false;
+                if (c0 != 'l' && c0 != 'L') {
+                    if (c0 == 'r' || c0 == 'R') {
+                        flag2 = false;
+                    }
+                }
+                else {
+                    flag2 = true;
+                }
+            }
+            else if (i2 < 0) {
+                flag = true;
+            }
+            else {
+                i += i2;
+                if (flag2) {
+                    ++i;
+                }
+            }
+            if (i > p_trimStringToWidth_2_) {
+                break;
+            }
+            if (p_trimStringToWidth_3_) {
+                stringbuilder.insert(0, c0);
+            }
+            else {
+                stringbuilder.append(c0);
+            }
+        }
+        return stringbuilder.toString();
+    }
 }

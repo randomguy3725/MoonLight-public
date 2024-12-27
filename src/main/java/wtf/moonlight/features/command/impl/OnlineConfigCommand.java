@@ -1,21 +1,13 @@
 package wtf.moonlight.features.command.impl;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import lombok.SneakyThrows;
-import net.optifine.http.HttpUtils;
 import wtf.moonlight.Moonlight;
 import wtf.moonlight.features.command.Command;
-import wtf.moonlight.features.config.impl.ModuleConfig;
 import wtf.moonlight.utils.misc.DebugUtils;
-import wtf.moonlight.utils.misc.RequestUtils;
+import wtf.moonlight.utils.misc.HttpUtils;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 public class OnlineConfigCommand extends Command {
@@ -42,7 +34,7 @@ public class OnlineConfigCommand extends Command {
             case "load":
                 JsonObject config;
                 try {
-                    config = new JsonParser().parse(RequestUtils.get(
+                    config = new JsonParser().parse(HttpUtils.get(
                             url + "/configs/" + args[2].toLowerCase(Locale.getDefault())
                     )).getAsJsonObject();
                 } catch (IOException e) {
