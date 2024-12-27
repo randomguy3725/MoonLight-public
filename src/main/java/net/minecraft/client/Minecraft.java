@@ -903,8 +903,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             {
                 String s = GLU.gluErrorString(i);
                 logger.error("########## GL ERROR ##########");
-                logger.error("@ " + message);
-                logger.error(i + ": " + s);
+                logger.error("@ {}", message);
+                logger.error("{}: {}", i, s);
             }
         }
     }
@@ -921,8 +921,8 @@ public class Minecraft implements IThreadListener, IPlayerUsage
             {
                 this.loadWorld(null);
             }
-            catch (Throwable var5)
-            {
+            catch (Throwable var5) {
+                throw new RuntimeException(var5);
             }
 
             this.mcSoundHandler.unloadSounds();
