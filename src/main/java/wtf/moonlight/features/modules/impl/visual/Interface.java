@@ -87,7 +87,7 @@ public class Interface extends Module {
     public final SliderValue textHeight = new SliderValue("Text Height", 9, 8, 12, this, () -> elements.isEnabled("Module List"));
     public final ModeValue tags = new ModeValue("Suffix", new String[]{"None", "Simple", "Bracket", "Dash"}, "None", this, () -> elements.isEnabled("Module List"));
     public final BoolValue background = new BoolValue("Background",true,this, () -> elements.isEnabled("Module List"));
-    public final BoolValue line = new BoolValue("Line",true,this, () -> elements.isEnabled("Module List"));
+    public final ModeValue outline = new ModeValue("Outline", new String[]{"Right","Left","None"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
     public final ModeValue potionHudMode = new ModeValue("Potion Mode", new String[]{"Default","Nursultan","Exhi","Sexy","Type 1","NeverLose"}, "Default", this,() -> elements.isEnabled("Potion HUD"));
@@ -334,26 +334,25 @@ public class Interface extends Module {
                         continue;
                     }
 
+                    final float leftSide = (float) (translate.getX() - 2f);
+                    final float bottom = textHeight.get();
+
                     if (background.get()) {
-                        if (cFont.get()) {
-                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), getFr().getStringWidth(module.getName() + module.getTag()) + 1, textHeight.get(), bgColor(count));
-                        } else {
-                            RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()) + 1, textHeight.get(), bgColor(count));
-                        }
+                        RenderUtils.drawRect(leftSide, (float) translate.getY(), moduleWidth + 3, bottom, bgColor(count));
                     }
 
-                    if (line.get()) {
-                        if (cFont.get()) {
-                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
-                        } else {
-                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
-                        }
+                    if (outline.is("Left")) {
+                        RenderUtils.drawRect(leftSide - 1, (float) translate.getY(), 1, bottom, color(count));
+                    }
+
+                    if(outline.is("Right")){
+                        RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY(), 1, bottom,  color(count));
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
                     }
 
                     count -= 1;
@@ -383,26 +382,25 @@ public class Interface extends Module {
                         }
                     }
 
+                    final float leftSide = x - 2f;
+                    final float bottom = textHeight.get();
+
                     if (background.get()) {
-                        if (cFont.get()) {
-                            RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                        } else {
-                            RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                        }
+                        RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, bgColor(count));
                     }
 
-                    if (line.get()) {
-                        if (cFont.get()) {
-                            RenderUtils.drawRect(x + moduleWidth, y ,1, textHeight.get(), color(count));
-                        } else {
-                            RenderUtils.drawRect(x + moduleWidth, y, 1, textHeight.get(), color(count));
-                        }
+                    if (outline.is("Left")) {
+                        RenderUtils.drawRect(leftSide - 1, y, 1, bottom, color(count));
+                    }
+
+                    if(outline.is("Right")){
+                        RenderUtils.drawRect(x + moduleWidth, y, 1, bottom,  color(count));
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     }
 
                     if (animation.get().equals("ScaleIn")) {
@@ -540,29 +538,30 @@ public class Interface extends Module {
                         continue;
                     }
 
+
+                    final float leftSide = (float) (translate.getX() - 2f);
+                    final float bottom = textHeight.get();
+
                     if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
+
                         if (background.get()) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY(), getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                            } else {
-                                RenderUtils.drawRect((float) translate.getX(), (float) translate.getY() , mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                            }
+                            RenderUtils.drawRect(leftSide, (float) translate.getY(), moduleWidth + 3, bottom, bgColor(count));
                         }
                     }
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
-                        if (line.get()) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
-                            } else {
-                                RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) (translate.getY()), 1, textHeight.get(), color(count));
-                            }
+                        if (outline.is("Left")) {
+                            RenderUtils.drawRect(leftSide - 1, (float) translate.getY(), 1, bottom, color(count));
+                        }
+
+                        if(outline.is("Right")){
+                            RenderUtils.drawRect((float) (translate.getX() + moduleWidth), (float) translate.getY(), 1, bottom,  color(count));
                         }
 
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX(), (float) translate.getY() - 1, color(count));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
                         }
                     }
 
@@ -591,38 +590,33 @@ public class Interface extends Module {
                         }
                     }
 
+                    final float leftSide = x - 2f;
+                    final float bottom = textHeight.get();
+
                     if (background.get()) {
                         if(event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                            } else {
-                                RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), bgColor(count));
-                            }
+                            RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, bgColor(count));
                         }
                         if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect(x, y, getFr().getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
-                            } else {
-                                RenderUtils.drawRect(x, y, mc.fontRendererObj.getStringWidth(module.getName() + module.getTag()), textHeight.get(), color(count));
-                            }
+                            RenderUtils.drawRect(leftSide, y, moduleWidth, bottom + 3, color(count));
                         }
                     }
 
-                    if (line.get()) {
-                        if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
-                            if (cFont.get()) {
-                                RenderUtils.drawRect(x + moduleWidth, y, 1, textHeight.get(), color(count));
-                            } else {
-                                RenderUtils.drawRect(x + moduleWidth, y - 0.5f, 1, textHeight.get(), color(count));
-                            }
+                    if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
+                        if (outline.is("Left")) {
+                            RenderUtils.drawRect(leftSide - 1, y, 1, bottom, color(count));
+                        }
+
+                        if (outline.is("Right")) {
+                            RenderUtils.drawRect(x + moduleWidth, y, 1, bottom, color(count));
                         }
                     }
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), 255));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), 255));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x, y + 1, ColorUtils.swapAlpha(color(count), 255));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), 255));
                         }
                     }
 
