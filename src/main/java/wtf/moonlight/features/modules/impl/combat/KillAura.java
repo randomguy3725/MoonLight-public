@@ -1,3 +1,13 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight-public
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.combat;
 
 import com.viaversion.viarewind.protocol.protocol1_8to1_9.Protocol1_8To1_9;
@@ -43,7 +53,6 @@ import wtf.moonlight.utils.math.TimerUtils;
 import wtf.moonlight.utils.packet.BlinkComponent;
 import wtf.moonlight.utils.player.*;
 import wtf.moonlight.utils.render.RenderUtils;
-
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.*;

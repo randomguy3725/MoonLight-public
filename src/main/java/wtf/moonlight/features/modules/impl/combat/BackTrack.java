@@ -1,15 +1,21 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight-public
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.combat;
 
-import net.minecraft.client.entity.EntityOtherPlayerMP;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S14PacketEntity;
 import net.minecraft.network.play.server.S18PacketEntityTeleport;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import org.lwjgl.opengl.GL11;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;

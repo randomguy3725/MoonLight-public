@@ -1,21 +1,27 @@
+/*
+ * MoonLight Hacked Client
+ *
+ * A free and open-source hacked client for Minecraft.
+ * Developed using Minecraft's resources.
+ *
+ * Repository: https://github.com/randomguy3725/MoonLight-public
+ *
+ * Author(s): [RandomGuy & opZywl]
+ */
 package wtf.moonlight.features.modules.impl.misc;
 
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.play.server.S02PacketChat;
 import org.apache.commons.lang3.StringUtils;
 import wtf.moonlight.events.annotations.EventTarget;
 import wtf.moonlight.events.impl.misc.WorldEvent;
 import wtf.moonlight.events.impl.packet.PacketEvent;
 import wtf.moonlight.events.impl.player.MotionEvent;
-import wtf.moonlight.events.impl.render.Render2DEvent;
 import wtf.moonlight.features.modules.Module;
 import wtf.moonlight.features.modules.ModuleCategory;
 import wtf.moonlight.features.modules.ModuleInfo;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.features.values.impl.TextValue;
-import wtf.moonlight.utils.animations.Direction;
+
 @ModuleInfo(name = "AutoAuthenticate", category = ModuleCategory.Misc)
 public class AutoAuthenticate extends Module {
     public final TextValue password = new TextValue("Password","12341234",this);
