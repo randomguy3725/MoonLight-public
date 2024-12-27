@@ -204,6 +204,7 @@ public abstract class Module implements InstanceAccess {
      * @param volume The volume of the sound.
      */
     private void playClickSound(float volume) {
+        Moonlight.INSTANCE.getNotificationManager().post(NotificationType.WARNING, "Module", getName() + EnumChatFormatting.RED + " disabled");
         if (mc.thePlayer != null) {
             mc.getSoundHandler().playSound(PositionedSoundRecord.create(new ResourceLocation("random.click"), volume));
         }
