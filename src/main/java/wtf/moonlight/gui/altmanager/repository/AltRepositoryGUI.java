@@ -469,7 +469,7 @@ public class AltRepositoryGUI extends GuiScreen {
                 }
 
                 final Alt selectedAlt = getSelectedAlt();
-                if (selectedAlt != null) selectedAlt.drawEntity(mouseX, mouseY);
+                //if (selectedAlt != null) selectedAlt.drawEntity(mouseX, mouseY);
             }
 
             super.drawScreen(mouseX, mouseY, partialTicks);
@@ -755,7 +755,7 @@ public class AltRepositoryGUI extends GuiScreen {
             final String login = credential.getLogin();
             final String name = GuiAddAlt.isEmail(login) ? "<Unknown Name>" : login;
 
-            alt = new Alt(credential, new FakeEntityPlayer(new GameProfile(UUID.randomUUID(), name), null), this, false);
+            alt = new Alt(credential, null, this, false);
         }
 
         if (!hasAlt(alt)) {

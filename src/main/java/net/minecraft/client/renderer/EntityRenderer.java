@@ -709,7 +709,7 @@ public class EntityRenderer implements IResourceManagerReloadListener
         }
         else if (this.mc.gameSettings.thirdPersonView > 0)
         {
-            double d3 = Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled()?Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).TPDis.get():4.0;
+            double d3 = Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).isEnabled()?Moonlight.INSTANCE.getModuleManager().getModule(Camera.class).cameraDistance.get():4.0;
 
 
             if (this.mc.gameSettings.debugCamEnable)
