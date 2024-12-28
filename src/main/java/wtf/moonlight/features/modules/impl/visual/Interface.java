@@ -174,6 +174,12 @@ public class Interface extends Module {
                             "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
                     mc.fontRendererObj.drawStringWithShadow(text, 2.0f, 2.0f, color());
                     break;
+                case "ExhiNew":
+                    boolean shouldChange = RenderUtils.COLOR_PATTERN.matcher(clientName.get()).find();
+                    String text = shouldChange ? "§r" + clientName.get() : clientName.get().charAt(0) + "§r§f" + clientName.get().substring(1) +
+                            "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
+                    Fonts.Tahoma.get(15).drawString
+                    break;
                 case "Type 1":
                     float posX = 4.0F;
                     float posY = 4.0F;
@@ -894,7 +900,7 @@ public class Interface extends Module {
                 break;
 
             case "Astolfo":
-                fr = Fonts.Astolfo.get(15);
+                fr = Fonts.Astolfo.get(20);
                 break;
 
         }
