@@ -91,7 +91,7 @@ public class Interface extends Module {
 
     public final BoolValue cFont = new BoolValue("C Fonts",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue fontMode = new ModeValue("C Fonts Mode", new String[]{"Bold","Semi Bold","Regular","Tahoma","Astolfo"}, "Semi Bold", this,() -> cFont.canDisplay() && cFont.get());
-    public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi","Type 1","NeverLose"}, "Text", this,() -> elements.isEnabled("Watermark"));
+    public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi","ExhiNew","Type 1","NeverLose"}, "Text", this,() -> elements.isEnabled("Watermark"));
     public final ModeValue animation = new ModeValue("Animation", new String[]{"ScaleIn", "MoveIn","Slide In"}, "ScaleIn", this, () -> elements.isEnabled("Module List"));
     public final ModeValue arrayPosition = new ModeValue("Position", new String[]{"Right","Left"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final SliderValue x = new SliderValue("Module List X", 0, -50, 50, this, () -> elements.isEnabled("Module List"));
@@ -174,9 +174,11 @@ public class Interface extends Module {
                             "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
                     mc.fontRendererObj.drawStringWithShadow(text, 2.0f, 2.0f, color());
                     break;
-                case "ExhiNew":
+                case "Exhi":
                     boolean shouldChange = RenderUtils.COLOR_PATTERN.matcher(clientName.get()).find();
-                    Fonts.Tahoma.get(15).drawString("§r" + clientName.get()) : clientName.get().charAt(0) + "§r§f" + clientName.get().substring(1)() + "§7[§f" + Minecraft.getDebugFPS() " FPS§7]§r "());
+                    String text = shouldChange ? "§r" + clientName.get() : clientName.get().charAt(0) + "§r§f" + clientName.get().substring(1) +
+                            "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
+                    Fonts.Tahoma.get(15).drawString;
                     break;
                 case "Type 1":
                     float posX = 4.0F;
