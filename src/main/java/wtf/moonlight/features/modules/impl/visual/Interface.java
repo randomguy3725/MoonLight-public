@@ -91,14 +91,14 @@ public class Interface extends Module {
 
     public final BoolValue cFont = new BoolValue("C Fonts",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue fontMode = new ModeValue("C Fonts Mode", new String[]{"Bold","Semi Bold","Regular","Tahoma"}, "Semi Bold", this,() -> cFont.canDisplay() && cFont.get());
+    public final SliderValue fontSize = new SliderValue("Font Size",15,10,25,this,cFont::get);
     public final ModeValue watemarkMode = new ModeValue("Watermark Mode", new String[]{"Text", "Styles","Nursultan","Exhi","Type 1","NeverLose"}, "Text", this,() -> elements.isEnabled("Watermark"));
     public final ModeValue animation = new ModeValue("Animation", new String[]{"ScaleIn", "MoveIn","Slide In"}, "ScaleIn", this, () -> elements.isEnabled("Module List"));
     public final ModeValue arrayPosition = new ModeValue("Position", new String[]{"Right","Left"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final SliderValue x = new SliderValue("Module List X", 0, -50, 50, this, () -> elements.isEnabled("Module List"));
     public final SliderValue y = new SliderValue("Module List Y", 0, -50, 50, this, () -> elements.isEnabled("Module List"));
-    public final SliderValue textHeight = new SliderValue("Text Height", 9, 8, 12, this, () -> elements.isEnabled("Module List"));
+    public final SliderValue textHeight = new SliderValue("Text Height", 2, 0, 10, this, () -> elements.isEnabled("Module List"));
     public final ModeValue tags = new ModeValue("Suffix", new String[]{"None", "Simple", "Bracket", "Dash"}, "None", this, () -> elements.isEnabled("Module List"));
-    public final BoolValue background = new BoolValue("Background",true,this, () -> elements.isEnabled("Module List"));
     public final ModeValue outline = new ModeValue("Outline", new String[]{"Right","Left","None"}, "Right", this, () -> elements.isEnabled("Module List"));
     public final ModeValue armorMode = new ModeValue("Armor Mode", new String[]{"Default"}, "Default", this,() -> elements.isEnabled("Armor"));
     public final ModeValue infoMode = new ModeValue("Info Mode", new String[]{"Exhi"}, "Exhi", this,() -> elements.isEnabled("Info"));
@@ -113,8 +113,9 @@ public class Interface extends Module {
     private final ColorValue mainColor = new ColorValue("Main Color", new Color(128, 128, 255), this,() -> !color.is("NeverLose"));
     private final ColorValue secondColor = new ColorValue("Second Color", new Color(128, 255, 255), this, () -> color.is("Fade"));
     public final SliderValue fadeSpeed = new SliderValue("Fade Speed", 1, 1, 10, 1, this, () -> color.is("Dynamic") || color.is("Fade"));
-    public final ModeValue bgColor = new ModeValue("Background Color", new String[]{"Dark", "Synced","Custom","NeverLose"}, "Synced", this);
-    private final ColorValue bgCustomColor = new ColorValue("Background Custom Color", new Color(32, 32, 64), this,() -> bgColor.is("Custom"));
+    public final BoolValue background = new BoolValue("Background",true,this, () -> elements.isEnabled("Module List"));
+    public final ModeValue bgColor = new ModeValue("Background Color", new String[]{"Dark", "Synced","Custom","NeverLose"}, "Synced", this,background::get);
+    private final ColorValue bgCustomColor = new ColorValue("Background Custom Color", new Color(32, 32, 64), this,() -> bgColor.canDisplay() && bgColor.is("Custom"));
     private final SliderValue bgAlpha = new SliderValue("Background Alpha",100,1,255,1,this);
     public final BoolValue hideScoreboard = new BoolValue("Hide Scoreboard", false, this);
     public final BoolValue hideScoreRed = new BoolValue("Hide Scoreboard Red Points", true, this,() -> !hideScoreboard.get());
@@ -315,7 +316,7 @@ public class Interface extends Module {
         if (elements.isEnabled("Module List")) {
             int count = 1;
             int screenWidth = event.getScaledResolution().getScaledWidth();
-            float y = ((arrayPosition.is("Right") ? 2 : 12) + this.y.get());
+            float y = this.y.get();
             Comparator<Module> sort = (m1, m2) -> {
                 double ab = cFont.get() ? getFr().getStringWidth(m1.getName() + m1.getTag()) : mc.fontRendererObj.getStringWidth(m1.getName() + m1.getTag());
                 double bb = cFont.get() ? getFr().getStringWidth(m2.getName() + m2.getTag()) : mc.fontRendererObj.getStringWidth(m2.getName() + m2.getTag());
@@ -333,13 +334,13 @@ public class Interface extends Module {
                     if (arrayPosition.is("Right")) {
                         if (module.isEnabled() && !module.isHidden()) {
                             translate.translate((screenWidth - moduleWidth - 1.0f) + this.x.get(), y);
-                            y += (int) textHeight.get();
+                            y += (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
                         } else {
                             translate.animate((screenWidth - 1) + this.x.get(), -25.0);
                         }
                     } else if (module.isEnabled() && !module.isHidden()) {
                         translate.translate((2.0f) + this.x.get(), y);
-                        y += (int) textHeight.get();
+                        y += (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
                     } else {
                         translate.animate((-moduleWidth) + this.x.get(), -25.0);
                     }
@@ -348,7 +349,7 @@ public class Interface extends Module {
                     }
 
                     final float leftSide = (float) (translate.getX() - 2f);
-                    final float bottom = textHeight.get();
+                    final float bottom = (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
 
                     if (background.get()) {
                         RenderUtils.drawRect(leftSide, (float) translate.getY(), moduleWidth + 3, bottom, bgColor(count));
@@ -363,9 +364,9 @@ public class Interface extends Module {
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 2f, color(count));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 2f, color(count));
                     }
 
                     count -= 1;
@@ -396,7 +397,7 @@ public class Interface extends Module {
                     }
 
                     final float leftSide = x - 2f;
-                    final float bottom = textHeight.get();
+                    final float bottom = (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
 
                     if (background.get()) {
                         RenderUtils.drawRect(leftSide, y, moduleWidth + 3, bottom, bgColor(count));
@@ -411,16 +412,16 @@ public class Interface extends Module {
                     }
 
                     if (cFont.get()) {
-                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 2f, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     } else {
-                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
+                        mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 2f, ColorUtils.swapAlpha(color(count), (int) alphaAnimation * 255));
                     }
 
                     if (animation.get().equals("ScaleIn")) {
                         RenderUtils.scaleEnd();
                     }
 
-                    y += (float) (moduleAnimation.getOutput() * textHeight.get());
+                    y += (float) (moduleAnimation.getOutput() * (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get());
                     count -= 2;
                 }
             }
@@ -563,7 +564,7 @@ public class Interface extends Module {
         if (elements.isEnabled("Module List")) {
             int count = 1;
             int screenWidth = new ScaledResolution(mc).getScaledWidth();
-            float y = ((arrayPosition.is("Right") ? 2 : 12) + this.y.get());
+            float y = this.y.get();
             Comparator<Module> sort = (m1, m2) -> {
                 double ab = cFont.get() ? getFr().getStringWidth(m1.getName() + m1.getTag()) : mc.fontRendererObj.getStringWidth(m1.getName() + m1.getTag());
                 double bb = cFont.get() ? getFr().getStringWidth(m2.getName() + m2.getTag()) : mc.fontRendererObj.getStringWidth(m2.getName() + m2.getTag());
@@ -581,13 +582,13 @@ public class Interface extends Module {
                     if (arrayPosition.is("Right")) {
                         if (module.isEnabled() && !module.isHidden()) {
                             translate.translate((screenWidth - moduleWidth - 1.0f) + this.x.get(), y);
-                            y += (int) textHeight.get();
+                            y += (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
                         } else {
                             translate.animate((screenWidth - 1) + this.x.get(), -25.0);
                         }
                     } else if (module.isEnabled() && !module.isHidden()) {
                         translate.translate((2.0f) + this.x.get(), y);
-                        y += (int) textHeight.get();
+                        y += (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
                     } else {
                         translate.animate((-moduleWidth) + this.x.get(), -25.0);
                     }
@@ -597,7 +598,7 @@ public class Interface extends Module {
 
 
                     final float leftSide = (float) (translate.getX() - 2f);
-                    final float bottom = textHeight.get();
+                    final float bottom = (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
 
                     if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
                         if (background.get()) {
@@ -616,9 +617,9 @@ public class Interface extends Module {
                         }
 
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 2f, color(count));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 1, color(count));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), (float) translate.getX() - 1, (float) translate.getY() + 2f, color(count));
                         }
                     }
 
@@ -648,7 +649,7 @@ public class Interface extends Module {
                     }
 
                     final float leftSide = x - 2f;
-                    final float bottom = textHeight.get();
+                    final float bottom = (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get();
 
                     if (background.get()) {
                         if (event.getShaderType() == Shader2DEvent.ShaderType.BLUR || event.getShaderType() == Shader2DEvent.ShaderType.SHADOW) {
@@ -673,9 +674,9 @@ public class Interface extends Module {
 
                     if(event.getShaderType() == Shader2DEvent.ShaderType.GLOW) {
                         if (cFont.get()) {
-                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), 255));
+                            getFr().drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 2f, ColorUtils.swapAlpha(color(count), 255));
                         } else {
-                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 1, ColorUtils.swapAlpha(color(count), 255));
+                            mc.fontRendererObj.drawStringWithShadow(module.getName() + module.getTag(), x - 1, y + 2f, ColorUtils.swapAlpha(color(count), 255));
                         }
                     }
 
@@ -683,7 +684,7 @@ public class Interface extends Module {
                         RenderUtils.scaleEnd();
                     }
 
-                    y += (float) (moduleAnimation.getOutput() * textHeight.get());
+                    y += (float) (moduleAnimation.getOutput() * (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get());
                     count -= 2;
                 }
             }
@@ -878,18 +879,18 @@ public class Interface extends Module {
         FontRenderer fr = null;
         switch (fontMode.get()) {
             case "Bold":
-                fr = Fonts.interBold.get(15);
+                fr = Fonts.interBold.get(fontSize.get());
                 break;
 
             case "Semi Bold":
-                fr = Fonts.interSemiBold.get(15);
+                fr = Fonts.interSemiBold.get(fontSize.get());
                 break;
 
             case "Regular":
-                fr = Fonts.interRegular.get(15);
+                fr = Fonts.interRegular.get(fontSize.get());
                 break;
-            case "Exhi":
-                fr = Fonts.Tahoma.get(15);
+            case "Tahoma":
+                fr = Fonts.Tahoma.get(fontSize.get());
                 break;
 
         }

@@ -734,7 +734,6 @@ public class KillAura extends Module {
             pitch = -90;
         }
 
-
         if (smartRotation.get() && prevRotation != null) {
             MovingObjectPosition test = RotationUtils.rayCast(prevRotation, rotationRange.get());
             MovingObjectPosition test2 = RotationUtils.rayCast(new float[]{yaw, prevRotation[1]}, rotationRange.get());
