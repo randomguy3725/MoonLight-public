@@ -894,7 +894,7 @@ public class Interface extends Module {
                 break;
 
             case "Astolfo":
-                fr = Fonts.Astolfo.get(20);
+                fr = Fonts.Astolfo.get(18);
                 break;
 
         }
