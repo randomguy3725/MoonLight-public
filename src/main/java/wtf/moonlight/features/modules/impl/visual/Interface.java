@@ -890,7 +890,7 @@ public class Interface extends Module {
                 break;
 
             case "Tahoma":
-                fr = Fonts.Tahoma.get(15);
+                fr = Fonts.Exhi.get(15);
                 break;
 
             case "Astolfo":
