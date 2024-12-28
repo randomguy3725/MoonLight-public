@@ -176,9 +176,7 @@ public class Interface extends Module {
                     break;
                 case "ExhiNew":
                     boolean shouldChange = RenderUtils.COLOR_PATTERN.matcher(clientName.get()).find();
-                    String text = shouldChange ? "§r" + clientName.get() : clientName.get().charAt(0) + "§r§f" + clientName.get().substring(1) +
-                            "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";
-                    Fonts.Tahoma.get(15).drawString;
+                    Fonts.Tahoma.get(15).drawString("§r" + clientName.get() : clientName.get().charAt(0) + "§r§f" + clientName.get().substring(1) + "§7[§f" + Minecraft.getDebugFPS() + " FPS§7]§r ";)
                     break;
                 case "Type 1":
                     float posX = 4.0F;
