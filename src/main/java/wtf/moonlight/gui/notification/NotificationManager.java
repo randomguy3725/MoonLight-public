@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import wtf.moonlight.features.modules.impl.visual.Interface;
 import wtf.moonlight.gui.font.Fonts;
@@ -159,8 +160,13 @@ public class NotificationManager implements InstanceAccess {
                         notification.getAnimation().setDuration(200);
                         actualOffset = 3;
 
-                        x = (float) (sr.getScaledWidth() - (width + 5) * animation.getOutput());
+                        x = sr.getScaledWidth() - (width + 5);
                         y = sr.getScaledHeight() - 43 - height - yOffset;
+
+                        GlStateManager.pushMatrix();
+                        GlStateManager.translate(x + width / 2F, y + height / 2F, 0);
+                        GlStateManager.scale(animation.getOutput(), animation.getOutput(), animation.getOutput());
+                        GlStateManager.translate(-(x + width / 2F), -(y + height / 2F), 0);
 
                         RoundedUtils.drawRound(x,y,width,height,4,new Color(INSTANCE.getModuleManager().getModule(Interface.class).bgColor(),true));
                         if (!shader) {
@@ -179,7 +185,9 @@ public class NotificationManager implements InstanceAccess {
                             Fonts.interMedium.get(17).drawStringNoFormat(notification.getDescription(), x + 34F, y + 17F, -1);
                         }
 
-                        yOffset += (height + actualOffset) * (float) notification.getAnimation().getOutput();
+                        yOffset += (height + actualOffset);
+
+                        GlStateManager.popMatrix();
                         break;
                     case "Type 3":
                         animation.setDuration(250);
