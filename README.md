@@ -4,7 +4,7 @@
 Requirements: Java 17 is required to build and run this project.<br>
 Latest build: <a href="https://github.com/randomguy3725/MoonLight/actions/workflows/build.yml?query=event%3Apush">beta-version</a><br>
 Discord: <a href="https://discord.gg/BrXGxGeY8r">discord.gg/moonlight </a><br>
-QQ: **713315328**
+QQ: 713315328
 </div>
 
 ## Issues
