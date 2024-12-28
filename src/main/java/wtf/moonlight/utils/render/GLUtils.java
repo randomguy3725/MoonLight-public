@@ -67,6 +67,15 @@ public class GLUtils {
         GlStateManager.disableTexture2D();
     }
 
+    public static void setup2DRendering(Runnable f) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_TEXTURE_2D);
+        f.run();
+        glEnable(GL_TEXTURE_2D);
+        GlStateManager.disableBlend();
+    }
+
     public static void setup2DRendering() {
         setup2DRendering(true);
     }
@@ -104,4 +113,11 @@ public class GLUtils {
 
         return null;
     }
+
+    public static void render(int mode, Runnable render){
+        glBegin(mode);
+        render.run();
+        glEnd();
+    }
+
 }

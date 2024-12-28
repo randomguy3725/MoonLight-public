@@ -1,6 +1,5 @@
 package net.minecraft.client.gui.inventory;
 
-import java.io.IOException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.achievement.GuiAchievements;
@@ -13,6 +12,8 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+
+import java.io.IOException;
 
 public class GuiInventory extends InventoryEffectRenderer
 {
@@ -67,16 +68,16 @@ public class GuiInventory extends InventoryEffectRenderer
         this.mc.getTextureManager().bindTexture(inventoryBackground);
         int i = this.guiLeft;
         int j = this.guiTop;
-        this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
+        drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
         drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.thePlayer);
     }
 
-    public static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent)
+    public static void drawEntityOnScreen(float posX, float posY, float scale, float mouseX, float mouseY, EntityLivingBase ent)
     {
         GlStateManager.enableColorMaterial();
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float)posX, (float)posY, 50.0F);
-        GlStateManager.scale((float)(-scale), (float)scale, (float)scale);
+        GlStateManager.translate(posX, posY, 50.0F);
+        GlStateManager.scale(-scale, scale, scale);
         GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
         float f = ent.renderYawOffset;
         float f1 = ent.rotationYaw;

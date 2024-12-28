@@ -12,6 +12,7 @@ package wtf.moonlight.gui.widget.impl;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,6 +27,7 @@ import wtf.moonlight.utils.InstanceAccess;
 import wtf.moonlight.utils.animations.Animation;
 import wtf.moonlight.utils.math.MathUtils;
 import wtf.moonlight.utils.render.ColorUtils;
+import wtf.moonlight.utils.render.ParticleRenderer;
 import wtf.moonlight.utils.render.RenderUtils;
 import wtf.moonlight.utils.render.RoundedUtils;
 
@@ -85,6 +87,7 @@ public class TargetHUDWidget extends Widget {
             case "Moon" -> 35 + Fonts.interSemiBold.get(18).getStringWidth(entity.getName()) + 33;
             case "Novo 1", "Novo 2" -> 35 + mc.fontRendererObj.getStringWidth(entity.getName()) + 33;
             case "Novo 3" -> 35 + mc.fontRendererObj.getStringWidth(entity.getName()) + 34;
+            case "Novo 4" -> 135.0f;
             default -> 0;
         };
         return width;
@@ -100,6 +103,7 @@ public class TargetHUDWidget extends Widget {
             case "Moon" -> 40.5f;
             case "Novo 1" -> 37.5f;
             case "Novo 2", "Novo 3" -> 36f;
+            case "Novo 4" -> 45.0f;
             default -> 0;
         };
         return height;
@@ -158,6 +162,7 @@ class TargetHUD implements InstanceAccess {
                     RoundedUtils.drawRound(x, y, width, height, 0, ColorUtils.applyOpacity(new Color(0, 0, 0), (float) (1f * animation.getOutput())));
                 }
             }
+
             break;
             case "Type 1": {
                 target.healthAnimation.animate((width - 52) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
@@ -166,7 +171,7 @@ class TargetHUD implements InstanceAccess {
                 if (!shader) {
                     //RoundedUtils.drawRoundOutline(x,y,width,height,6,.1f,ColorUtils.applyOpacity(Color.BLACK, (float) (.3f * animation.getOutput())),ColorUtils.applyOpacity(new Color(INSTANCE.getModuleManager().getModule(Interface.class).color(1)), (float) (1f * animation.getOutput())));
                     RoundedUtils.drawRound(x, y, width, height, 6, ColorUtils.applyOpacity(Color.BLACK, (float) (.4f * animation.getOutput())));
-                    RenderUtils.renderPlayer2D(target, x + 4 + (hurtTime) / 2, y + 4 + (hurtTime) / 2, 34 - hurtTime, 8f, ColorUtils.interpolateColor2(Color.WHITE, Color.RED, (float) (hurtTime / 7)));
+                    RenderUtils.renderPlayer2D(target, x + 4 + (hurtTime) / 2, y + 4 + (hurtTime) / 2, 34 - hurtTime, 8f, ColorUtils.interpolateColor2(Color.WHITE, Color.RED, hurtTime / 7));
                     Fonts.interBold.get(18).drawString(target.getName(), x + 43, y + 10, ColorUtils.applyOpacity(Color.WHITE, (float) animation.getOutput()).getRGB());
                     Fonts.interBold.get(14).drawString("HP: " + String.format("%.1f", target.healthAnimation.getOutput() / (width - 52) * target.getMaxHealth()), x + 43, y + 20, ColorUtils.applyOpacity(Color.WHITE, (float) animation.getOutput()).getRGB());
                     RoundedUtils.drawRound(x + 44, y + 30, width - 52, 6, 3, ColorUtils.applyOpacity(Color.BLACK, (float) (.47f * animation.getOutput())));
@@ -176,12 +181,16 @@ class TargetHUD implements InstanceAccess {
                     //RoundedUtils.drawRound(x,y,width,height,6,new Color(INSTANCE.getModuleManager().getModule(Interface.class).color(1)));
                 }
             }
+
+            if(setting.targetHudParticle.get()){
+                ParticleRenderer.renderParticle(target,x + 4,  y + 4,34 / 2f);
+            }
             break;
 
             case "Type 2": {
                 if (!shader) {
                     target.healthAnimation.animate((width - (5 * 4 + 26.5f)) * MathHelper.clamp_float(target.getHealth() / target.getMaxHealth(), 0, 1), 30);
-                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor(),true));
+                    RoundedUtils.drawRound(x, y, width, height, 4, new Color(setting.bgColor(), true));
                     RenderUtils.renderPlayer2D(target, x + 5, y + 6.8f, 26.5f, 2, -1);
 
                     RoundedUtils.drawRound(x + 5 * 2 + 26.5f, y + 6.8f, 0.5f, 26.5f, 2, new Color(30, 30, 30));
@@ -212,6 +221,10 @@ class TargetHUD implements InstanceAccess {
 
                 } else {
                     RoundedUtils.drawGradientHorizontal(x, y, width, height, 4, new Color(setting.color(0)), new Color(setting.color(90)));
+                }
+
+                if(setting.targetHudParticle.get()){
+                    ParticleRenderer.renderParticle(target,x + 5, y + 6.8f,26.5f / 2f);
                 }
             }
             break;
@@ -301,6 +314,10 @@ class TargetHUD implements InstanceAccess {
                         i += 16;
                     }
                 }
+
+                if(setting.targetHudParticle.get()){
+                    ParticleRenderer.renderParticle(target,x + padding, y + padding,(28 - padding) / 2);
+                }
             }
             break;
 
@@ -312,7 +329,7 @@ class TargetHUD implements InstanceAccess {
                 target.healthAnimation.animate((100 * space) * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
 
                 if (!shader) {
-                    RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(),true));
+                    RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.bgColor(), true));
 
                     RoundedUtils.drawRound(x + 42, y + 26.5f, (100 * space), 8, 4, new Color(0, 0, 0, 150));
                     String text = String.format("%.1f", target.getHealth());
@@ -323,6 +340,10 @@ class TargetHUD implements InstanceAccess {
                     Fonts.interSemiBold.get(18).drawStringWithShadow(target.getName(), x + 40, y + 6, -1);
                 } else {
                     RoundedUtils.drawRound(x, y, width, height, 8, new Color(setting.color()));
+                }
+
+                if(setting.targetHudParticle.get()){
+                    ParticleRenderer.renderParticle(target,x + 2.5f, y + 2.5f,35 / 2f);
                 }
             }
             break;
@@ -365,6 +386,10 @@ class TargetHUD implements InstanceAccess {
                     mc.fontRendererObj.drawStringWithShadow(text, x + 40 + 1, y + 28f, -1);
                     mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 40f, y + 4, -1);
                 }
+
+                if(setting.targetHudParticle.get()){
+                    ParticleRenderer.renderParticle(target,(x + 1.5f + 1), (float) (y + 0.4), 35 /2f);
+                }
             }
             break;
 
@@ -388,7 +413,27 @@ class TargetHUD implements InstanceAccess {
                 }
             }
 
+            if(setting.targetHudParticle.get()){
+                ParticleRenderer.renderParticle(target,(x + 1.5f + 1f), (float) (y + 0.4),35 / 2f);
+            }
+
             break;
+
+            case "Novo 4": {
+
+                float healthPercentage = target.getHealth() / target.getMaxHealth();
+                float space = width;
+
+                target.healthAnimation.animate(space * MathHelper.clamp_float(healthPercentage, 0, 1), 30);
+
+                if(!shader) {
+                    RenderUtils.drawRect(x - 1.0f, y + 4.0f, width, height, setting.bgColor());
+                    mc.fontRendererObj.drawStringWithShadow(target.getName(), x + 30.0f, y + 13.0f, -1);
+                    RenderUtils.renderItemStack(target, x + 13, y + 25, 1, true, 0.5f);
+                    GuiInventory.drawEntityOnScreen(x + 15, y + 40, 15, target.rotationYaw, -target.rotationPitch, target);
+                    RenderUtils.drawRect(x - 1, y + 47, target.healthAnimation.getOutput(), 2f, ColorUtils.getHealthColor(target));
+                }
+            }
         }
         GlStateManager.popMatrix();
     }

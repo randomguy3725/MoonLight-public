@@ -30,13 +30,15 @@ import wtf.moonlight.features.values.impl.BoolValue;
 import wtf.moonlight.features.values.impl.ModeValue;
 import wtf.moonlight.features.values.impl.SliderValue;
 import wtf.moonlight.utils.math.TimerUtils;
-import wtf.moonlight.utils.render.GLUtils;
 import wtf.moonlight.utils.render.RenderUtils;
 
 import java.awt.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+
+import static wtf.moonlight.utils.render.RenderUtils.drawFilledCircleNoGL;
+import static wtf.moonlight.utils.render.RenderUtils.glDrawTriangle;
 
 @ModuleInfo(name = "AttackEffect", category = ModuleCategory.Visual)
 public class AttackEffect extends Module {
@@ -143,40 +145,6 @@ public class AttackEffect extends Module {
         GL11.glColor3d(255.0, 255.0, 255.0);
     }
 
-    public static void drawFilledCircleNoGL(final int x, final int y, final double r, final int c, final int quality) {
-        final float f = ((c >> 24) & 0xff) / 255F;
-        final float f1 = ((c >> 16) & 0xff) / 255F;
-        final float f2 = ((c >> 8) & 0xff) / 255F;
-        final float f3 = (c & 0xff) / 255F;
-
-        GL11.glColor4f(f1, f2, f3, f);
-        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
-
-        for (int i = 0; i <= 360 / quality; i++) {
-            final double x2 = Math.sin(((i * quality * Math.PI) / 180)) * r;
-            final double y2 = Math.cos(((i * quality * Math.PI) / 180)) * r;
-            GL11.glVertex2d(x + x2, y + y2);
-        }
-
-        GL11.glEnd();
-    }
-
-    public static void glDrawTriangle(double x, double y, double x1, double y1, double x2, double y2, int colour) {
-        GL11.glDisable(3553);
-        GLUtils.startBlend();
-        GL11.glEnable(2881);
-        GL11.glHint(3155, 4354);
-        RenderUtils.color(colour);
-        GL11.glBegin(4);
-        GL11.glVertex2d(x, y);
-        GL11.glVertex2d(x1, y1);
-        GL11.glVertex2d(x2, y2);
-        GL11.glEnd();
-        GL11.glEnable(3553);
-        GLUtils.endBlend();
-        GL11.glDisable(2881);
-        GL11.glHint(3155, 4352);
-    }
 
     public static class AttackParticle {
         private final TimerUtils removeTimer = new TimerUtils();

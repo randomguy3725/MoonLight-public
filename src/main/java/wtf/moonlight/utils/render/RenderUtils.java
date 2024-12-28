@@ -21,6 +21,7 @@ import net.minecraft.client.shader.Framebuffer;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.*;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
@@ -31,6 +32,8 @@ import wtf.moonlight.gui.font.Fonts;
 import wtf.moonlight.utils.InstanceAccess;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import static java.lang.Math.PI;
@@ -577,6 +580,25 @@ public class RenderUtils implements InstanceAccess {
         GlStateManager.popMatrix();
     }
 
+    public static void renderItemStack(EntityPlayer target, float x, float y, float scale, boolean enchantedText, float textScale) {
+        List<ItemStack> items = new ArrayList<>();
+        if (target.getHeldItem() != null) {
+            items.add(target.getHeldItem());
+        }
+        for (int index = 3; index >= 0; index--) {
+            ItemStack stack = target.inventory.armorInventory[index];
+            if (stack != null) {
+                items.add(stack);
+            }
+        }
+        float i = x;
+
+        for (ItemStack stack : items) {
+            RenderUtils.renderItemStack(stack, i, y, scale, enchantedText, textScale);
+            i += 16;
+        }
+    }
+
     public static void renderEnchantText(ItemStack stack, double x, double y, float scale) {
         int unBreakingLevel;
         RenderHelper.disableStandardItemLighting();
@@ -987,5 +1009,51 @@ public class RenderUtils implements InstanceAccess {
         float f1 = (float)(color >> 8 & 0xFF) / 255.0f;
         float f2 = (float)(color & 0xFF) / 255.0f;
         GL11.glColor4f(f, f1, f2, alpha / 255.0f);
+    }
+
+
+    public static void drawFilledCircleNoGL(final float x, final float y, final double r, final int c, final int quality) {
+        final float f = ((c >> 24) & 0xff) / 255F;
+        final float f1 = ((c >> 16) & 0xff) / 255F;
+        final float f2 = ((c >> 8) & 0xff) / 255F;
+        final float f3 = (c & 0xff) / 255F;
+
+        GL11.glColor4f(f1, f2, f3, f);
+        GL11.glBegin(GL11.GL_TRIANGLE_FAN);
+
+        for (int i = 0; i <= 360 / quality; i++) {
+            final double x2 = Math.sin(((i * quality * Math.PI) / 180)) * r;
+            final double y2 = Math.cos(((i * quality * Math.PI) / 180)) * r;
+            GL11.glVertex2d(x + x2, y + y2);
+        }
+
+        GL11.glEnd();
+    }
+
+    public static void glDrawTriangle(double x, double y, double x1, double y1, double x2, double y2, int colour) {
+        GL11.glDisable(3553);
+        GLUtils.startBlend();
+        GL11.glEnable(2881);
+        GL11.glHint(3155, 4354);
+        RenderUtils.color(colour);
+        GL11.glBegin(4);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d(x1, y1);
+        GL11.glVertex2d(x2, y2);
+        GL11.glEnd();
+        GL11.glEnable(3553);
+        GLUtils.endBlend();
+        GL11.glDisable(2881);
+        GL11.glHint(3155, 4352);
+    }
+
+    public static void drawGoodCircle(double x, double y, float radius, int color) {
+        color(color);
+        GLUtils.setup2DRendering(() -> {
+            glEnable(GL_POINT_SMOOTH);
+            glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+            glPointSize(radius * (2 * Minecraft.getMinecraft().gameSettings.guiScale));
+            GLUtils.render(GL_POINTS, () -> glVertex2d(x, y));
+        });
     }
 }
