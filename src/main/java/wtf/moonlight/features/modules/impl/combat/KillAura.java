@@ -84,9 +84,8 @@ public class KillAura extends Module {
     public final SliderValue accelerationError = new SliderValue("Acceleration Error", 0f, 0f, 1f, 0.01f, this, customRotationSetting::get);
     public final SliderValue constantError = new SliderValue("Constant Error", 0f, 0f, 10f, 0.01f, this, customRotationSetting::get);
     public final BoolValue smoothlyResetRotation = new BoolValue("Smoothly Reset Rotation", true, this, customRotationSetting::get);
-
     private final BoolValue randomize = new BoolValue("Randomize", false, this);
-    public final ModeValue randomizerot = new ModeValue("RandomizeRotation", new String[]{"Random", "RandomSecure", "Noise"}, "Noise", this, randomize::get);
+    public final ModeValue randomizerot = new ModeValue("RandomizeRotation", new String[]{"Random", "RandomSecure", "Noise","Advanced"}, "Noise", this, randomize::get);
     public final SliderValue yawStrength = new SliderValue("YawStrength",5f,1,35f,this, () -> this.randomize.get() && this.randomizerot.is("Random") || this.randomizerot.is("RandomSecure"));
     public final SliderValue pitchStrength = new SliderValue("PitchStrength",5f,1,35f,this, () -> this.randomize.get() && this.randomizerot.is("Random") || this.randomizerot.is("RandomSecure"));
     private final SliderValue minPitchFactor = new SliderValue("Min Pitch Factor", 0, 0, 1, 0.01f, this, () -> randomize.get() && randomizerot.is("Noise"));
@@ -99,10 +98,15 @@ public class KillAura extends Module {
     private final SliderValue minSpeed = new SliderValue("Min Speed", 0.1f, 0.01f, 1, 0.01f, this, () -> randomize.get() && randomizerot.is("Noise"));
     private final SliderValue maxSpeed = new SliderValue("Max Speed", 0.2f, 0.01f, 1, 0.01f, this, () -> randomize.get() && randomizerot.is("Noise"));
 
-    public final BoolValue aimPattern = new BoolValue("PatternAim",false,this);
-    public final SliderValue frequency = new SliderValue("Speed", 1.5f, 0f, 3.0f, 0.01f, this, aimPattern::get);
-    public final SliderValue yStrengthAimPattern = new SliderValue("YStrengthAimPattern", 3.5f, 0f, 8.0f, 0.01f, this, aimPattern::get);
-    public final SliderValue xStrengthAimPattern = new SliderValue("XStrengthAimPattern", 3.5f, 0f, 8.0f, 0.01f, this, aimPattern::get);
+    public final MultiBoolValue rdadvanceaddons = new MultiBoolValue("RandomAddons", Arrays.asList(new BoolValue("SinCosRandom", true),
+            new BoolValue("Randomize", false)),this);
+
+    public final SliderValue frequency = new SliderValue("SpeedSinCos", 1.5f, 0f, 5.0f, 0.01f, this,() -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("SinCosRandom"));
+    public final SliderValue yStrengthAimPattern = new SliderValue("YStrengthAmplitudeSinCos", 3.5f, 0f, 15.0f, 0.01f, this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("SinCosRandom"));
+    public final SliderValue xStrengthAimPattern = new SliderValue("XStrengthAmplitudeSinCos", 3.5f, 0f, 15.0f, 0.01f, this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("SinCosRandom"));
+
+    public final SliderValue yawStrengthAddon = new SliderValue("YawStrengthRandomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("Randomize"));
+    public final SliderValue pitchStrengthAddon = new SliderValue("PitchStrengthRandomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") &&  this.rdadvanceaddons.isEnabled("Randomize"));
 
     private final SliderValue minAps = new SliderValue("Min Aps", 9, 1, 20, this);
     private final SliderValue maxAps = new SliderValue("Max Aps", 11, 1, 20, this);
@@ -713,23 +717,6 @@ public class KillAura extends Module {
         yaw = (float) -(Math.atan2(deltaX, deltaZ) * (180.0 / Math.PI));
         pitch = (float) (-Math.toDegrees(Math.atan2(deltaY, Math.hypot(deltaX, deltaZ))));
 
-        if (pitch > 90.0f) {
-            pitch = 90;
-        } else if (pitch < -90.0f) {
-            pitch = -90;
-        }
-
-
-
-        if(aimPattern.get()) {
-            double time = System.currentTimeMillis() / 1000.0D;
-            double frequency = this.frequency.get();
-            double yawAmplitude = this.xStrengthAimPattern.get();
-            double pitchAmplitude = this.yStrengthAimPattern.get();
-
-            yaw += (Math.sin(time * frequency) * yawAmplitude);
-            pitch += (float) (Math.cos(time * frequency) * pitchAmplitude);
-        }
 
         if(this.randomize.get()) {
             switch (this.randomizerot.get()) {
@@ -753,6 +740,22 @@ public class KillAura extends Module {
                         yaw += MathUtils.interpolate(currentVec.yCoord, targetVec.yCoord, MathUtils.randomizeDouble(minSpeed.get(), maxSpeed.get()));
                     }
                 }
+                case "Advanced" -> {
+                    if(rdadvanceaddons.isEnabled("SinCosRandom")) {
+                        double time = System.currentTimeMillis() / 1000.0D;
+                        double frequency = this.frequency.get();
+                        double yawAmplitude = this.xStrengthAimPattern.get();
+                        double pitchAmplitude = this.yStrengthAimPattern.get();
+
+                        yaw += (Math.sin(time * frequency) * yawAmplitude);
+                        pitch += (float) (Math.cos(time * frequency) * pitchAmplitude);
+                    }
+
+                    if(rdadvanceaddons.isEnabled("Randomize")) {
+                        yaw += MathUtils.randomizeDouble(-this.yawStrengthAddon.get(), this.yawStrengthAddon.get());
+                        pitch += MathUtils.randomizeDouble(-this.pitchStrengthAddon.get(), this.pitchStrengthAddon.get());
+                    }
+                }
             }
         }
 
@@ -773,6 +776,8 @@ public class KillAura extends Module {
                 return new float[]{prevRotation[0], pitch};
             }
         }
+
+        pitch = MathHelper.clamp_float(pitch,-90,90);
 
         prevRotation = new float[]{yaw, pitch};
         return new float[]{yaw, pitch};

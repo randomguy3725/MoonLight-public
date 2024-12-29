@@ -109,6 +109,8 @@ public class Scaffold extends Module {
     private boolean start;
     private boolean placed;
     private boolean isOnRightSide;
+
+    float yaw,pitch;
     private HoverState hoverState = HoverState.DONE;
     private final List<Block> blacklistedBlocks = Arrays.asList(Blocks.air, Blocks.water, Blocks.flowing_water, Blocks.lava, Blocks.wooden_slab, Blocks.chest, Blocks.flowing_lava,
             Blocks.enchanting_table, Blocks.carpet, Blocks.glass_pane, Blocks.skull, Blocks.stained_glass_pane, Blocks.iron_bars, Blocks.snow_layer, Blocks.ice, Blocks.packed_ice,
@@ -150,6 +152,8 @@ public class Scaffold extends Module {
             }
         }
     }
+
+
 
     @Override
     public void onDisable() {
@@ -408,7 +412,15 @@ public class Scaffold extends Module {
 
             place(data.blockPos, data.facing, getVec3(data));
         }
+
+        yaw = rotation[0];
+        pitch = rotation[1];
     }
+    @EventTarget
+    public void onLookEvent(LookEvent event) {
+        event.rotation = new float[] {yaw,pitch};
+    }
+
 
     @EventTarget
     public void onSafeWalk(SafeWalkEvent event) {
