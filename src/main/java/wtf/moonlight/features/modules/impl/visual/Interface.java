@@ -421,7 +421,7 @@ public class Interface extends Module {
                         RenderUtils.scaleEnd();
                     }
 
-                    y += (float) (moduleAnimation.getOutput() * (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get());
+                    y += (float) (moduleAnimation.getOutput() * ((cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get()));
                     count -= 2;
                 }
             }
@@ -684,7 +684,7 @@ public class Interface extends Module {
                         RenderUtils.scaleEnd();
                     }
 
-                    y += (float) (moduleAnimation.getOutput() * (cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get());
+                    y += (float) (moduleAnimation.getOutput() * ((cFont.get() ? getFr().getHeight() : mc.fontRendererObj.FONT_HEIGHT) + textHeight.get()));
                     count -= 2;
                 }
             }
