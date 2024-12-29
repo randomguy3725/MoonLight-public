@@ -48,6 +48,8 @@ public class MovementUtils implements InstanceAccess {
             1.0F / MOD_SWIM,
     };
 
+    public static final double BASE_JUMP_HEIGHT = 0.41999998688698;
+
     public static final double UNLOADED_CHUNK_MOTION = -0.09800000190735147;
     public static final double HEAD_HITTER_MOTION = -0.0784000015258789;
 
@@ -248,7 +250,7 @@ public class MovementUtils implements InstanceAccess {
     }
 
     public static double getJumpHeight() {
-        double jumpY = mc.thePlayer.getJumpUpwardsMotion();
+        double jumpY = BASE_JUMP_HEIGHT;
 
         if (mc.thePlayer.isPotionActive(Potion.jump)) {
             jumpY += (float) (mc.thePlayer.getActivePotionEffect(Potion.jump).getAmplifier() + 1) * 0.1F;
