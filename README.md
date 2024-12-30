@@ -57,7 +57,5 @@ This project is built upon various inspirations and contributions from the commu
   - Novoline Intent
   - LiquidBounce Plus Reborn (lmfao)
   - Eject
-  - Astolfo
-  - FDPClient
 
 Enjoy exploring Moonlight! Feel free to contribute or provide feedback.
