@@ -105,8 +105,8 @@ public class KillAura extends Module {
     public final SliderValue yStrengthAimPattern = new SliderValue("YStrengthAmplitudeSinCos", 3.5f, 0f, 15.0f, 0.01f, this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("SinCosRandom"));
     public final SliderValue xStrengthAimPattern = new SliderValue("XStrengthAmplitudeSinCos", 3.5f, 0f, 15.0f, 0.01f, this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("SinCosRandom"));
 
-    public final SliderValue yawStrengthAddon = new SliderValue("YawStrengthRandomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("Randomize"));
-    public final SliderValue pitchStrengthAddon = new SliderValue("PitchStrengthRandomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") &&  this.rdadvanceaddons.isEnabled("Randomize"));
+    public final SliderValue yawStrengthAddon = new SliderValue("Yaw Strength Randomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") && this.rdadvanceaddons.isEnabled("Randomize"));
+    public final SliderValue pitchStrengthAddon = new SliderValue("Pitch Strength Randomize",5f,1,35f,this, () -> this.randomizerot.is("Advanced") &&  this.rdadvanceaddons.isEnabled("Randomize"));
 
     private final SliderValue minAps = new SliderValue("Min Aps", 9, 1, 20, this);
     private final SliderValue maxAps = new SliderValue("Max Aps", 11, 1, 20, this);
@@ -165,7 +165,7 @@ public class KillAura extends Module {
     private final ContinualAnimation animatedY = new ContinualAnimation();
     private final ContinualAnimation animatedZ = new ContinualAnimation();
 
-    public float yaw,pitch;
+    public float[] rotation;
 
     @Override
     public void onEnable() {
@@ -186,7 +186,7 @@ public class KillAura extends Module {
         targets.clear();
         index = 0;
         switchTimer.reset();
-        prevRotation = null;
+        prevRotation = rotation = null;
         prevVec = currentVec = targetVec = null;
         Iterator<Map.Entry<EntityPlayer, DecelerateAnimation>> iterator = getModule(Interface.class).animationEntityPlayerMap.entrySet().iterator();
         while (iterator.hasNext()) {
@@ -257,7 +257,7 @@ public class KillAura extends Module {
 
         } else {
             target = null;
-            prevRotation = null;
+            prevRotation = rotation = null;
             prevVec = currentVec = targetVec = null;
             unblock();
             lag = false;
@@ -282,17 +282,15 @@ public class KillAura extends Module {
                     return;
                 }
 
-                float[] finalRotation = calcToEntity(target);
-
-                yaw = finalRotation[0];
-                pitch = finalRotation[1];
+                rotation = calcToEntity(target);
 
                 if (customRotationSetting.get()) {
-                    RotationUtils.setRotation(finalRotation, addons.isEnabled("Movement Fix") ? movementFix.is("Strict") ? MovementCorrection.STRICT : MovementCorrection.SILENT : MovementCorrection.OFF, MathUtils.randomizeInt(minYawRotSpeed.get(), maxYawRotSpeed.get()), MathUtils.randomizeInt(minPitchRotSpeed.get(), maxPitchRotSpeed.get()), maxYawAcceleration.get(), maxPitchAcceleration.get(), accelerationError.get(), constantError.get(), smoothlyResetRotation.get());
+                    RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? movementFix.is("Strict") ? MovementCorrection.STRICT : MovementCorrection.SILENT : MovementCorrection.OFF, MathUtils.randomizeInt(minYawRotSpeed.get(), maxYawRotSpeed.get()), MathUtils.randomizeInt(minPitchRotSpeed.get(), maxPitchRotSpeed.get()), maxYawAcceleration.get(), maxPitchAcceleration.get(), accelerationError.get(), constantError.get(), smoothlyResetRotation.get());
                 } else {
-                    RotationUtils.setRotation(finalRotation, addons.isEnabled("Movement Fix") ? movementFix.is("Strict") ? MovementCorrection.STRICT : MovementCorrection.SILENT : MovementCorrection.OFF);
+                    RotationUtils.setRotation(rotation, addons.isEnabled("Movement Fix") ? movementFix.is("Strict") ? MovementCorrection.STRICT : MovementCorrection.SILENT : MovementCorrection.OFF);
                 }
 
+                prevRotation = rotation;
 
                 if (preSwingWithRotationRange.get()) {
                     if (PlayerUtils.getDistanceToEntityBox(target) <= (mc.thePlayer.canEntityBeSeen(target) ? rotationRange.get() : 0) &&
@@ -385,8 +383,9 @@ public class KillAura extends Module {
     }
 
     @EventTarget
-    public void onLookEvent(LookEvent e) {
-        e.rotation = new float[] {yaw,pitch};
+    public void onLook(LookEvent event) {
+        if(rotation != null)
+            event.rotation = rotation;
     }
 
     @EventTarget
@@ -779,7 +778,6 @@ public class KillAura extends Module {
 
         pitch = MathHelper.clamp_float(pitch,-90,90);
 
-        prevRotation = new float[]{yaw, pitch};
         return new float[]{yaw, pitch};
     }
 

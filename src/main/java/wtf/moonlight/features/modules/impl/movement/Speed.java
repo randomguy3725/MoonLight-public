@@ -45,7 +45,7 @@ import java.util.Objects;
 @ModuleInfo(name = "Speed", category = ModuleCategory.Movement, key = Keyboard.KEY_V)
 public class Speed extends Module {
     private final ModeValue mode = new ModeValue("Mode", new String[]{"Watchdog", "EntityCollide", "BlocksMC", "Intave", "NCP", "Miniblox"}, "Watchdog", this);
-    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide","Full Strafe"}, "Basic", this, () -> mode.is("Watchdog"));
+    private final ModeValue wdMode = new ModeValue("Watchdog Mode", new String[]{"Basic", "Glide","Full Strafe", "Test"}, "Basic", this, () -> mode.is("Watchdog"));
     private final BoolValue fallStrafe = new BoolValue("Fall Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue frictionOverride = new BoolValue("Friction Override", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
     private final BoolValue extraStrafe = new BoolValue("Extra Strafe", true, this, () -> mode.is("Watchdog") && wdMode.is("Full Strafe"));
@@ -626,10 +626,10 @@ public class Speed extends Module {
                         recentlyCollided = true;
                     }
 
-                    if (mc.thePlayer.offGroundTicks == 7 && !disable && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY * 2, 0) != Blocks.air) && !getModule(Scaffold.class).isEnabled()) {
+                    /*if (mc.thePlayer.offGroundTicks == 7 && !disable && (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY * 2, 0) != Blocks.air) && !getModule(Scaffold.class).isEnabled()) {
                         MovementUtils.strafe(fallStrafe.get() ? MovementUtils.getSpeed() : MovementUtils.getAllowedHorizontalDistance() * 1.1);
                         couldStrafe = true;
-                    }
+                    }*/
 
 
                     if (PlayerUtils.blockRelativeToPlayer(0, mc.thePlayer.motionY, 0) != Blocks.air && !disable && fallStrafe.get() && (mc.thePlayer.offGroundTicks > 7) && !disable3) {
