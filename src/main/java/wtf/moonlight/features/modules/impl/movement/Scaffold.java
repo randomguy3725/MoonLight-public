@@ -312,22 +312,23 @@ public class Scaffold extends Module {
                 float pitch;
                 float finalYaw;
                 float movingYaw = MovementUtils.getRawDirection() + 180;
+
+                if (mc.thePlayer.onGround) {
+                    isOnRightSide = Math.floor(mc.thePlayer.posX + Math.cos(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posX) ||
+                            Math.floor(mc.thePlayer.posZ + Math.sin(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posZ);
+
+                    BlockPos posInDirection = mc.thePlayer.getPosition().offset(EnumFacing.fromAngle(movingYaw), 1);
+
+                    boolean isLeaningOffBlock = mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()) instanceof BlockAir;
+                    boolean nextBlockIsAir = mc.theWorld.getBlockState(posInDirection.down()).getBlock() instanceof BlockAir;
+
+                    if (isLeaningOffBlock && nextBlockIsAir) {
+                        isOnRightSide = !isOnRightSide;
+                    }
+                }
+
                 switch (godBridgePitch.get()) {
                     case "Custom": {
-
-                        if (mc.thePlayer.onGround) {
-                            isOnRightSide = Math.floor(mc.thePlayer.posX + Math.cos(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posX) ||
-                                    Math.floor(mc.thePlayer.posZ + Math.sin(Math.toRadians(movingYaw)) * 0.5) != Math.floor(mc.thePlayer.posZ);
-
-                            BlockPos posInDirection = mc.thePlayer.getPosition().offset(EnumFacing.fromAngle(movingYaw), 1);
-
-                            boolean isLeaningOffBlock = mc.theWorld.getBlockState(mc.thePlayer.getPosition().down()) instanceof BlockAir;
-                            boolean nextBlockIsAir = mc.theWorld.getBlockState(posInDirection.down()).getBlock() instanceof BlockAir;
-
-                            if (isLeaningOffBlock && nextBlockIsAir) {
-                                isOnRightSide = !isOnRightSide;
-                            }
-                        }
 
                         yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 45 : -45)) : movingYaw;
 
@@ -339,8 +340,8 @@ public class Scaffold extends Module {
                     }
                     break;
 
-
                     case "Normal": {
+
                         yaw = MovementUtils.isMovingStraight() ? (movingYaw + (isOnRightSide ? 45 : -45)) : movingYaw;
                         finalYaw = Math.round(yaw / 45f) * 45f;
                         pitch = getYawBasedPitch(data.blockPos, data.facing, finalYaw, previousRotation[1], 74, RotationUtils.getRotations(getVec3(data))[1]);
