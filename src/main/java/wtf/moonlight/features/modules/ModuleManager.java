@@ -63,7 +63,6 @@ public class ModuleManager {
                 AutoClicker.class,
                 AutoRod.class,
                 MoreKB.class,
-                LagRange.class,
                 BlockHit.class,
                 KeepRange.class,
 
